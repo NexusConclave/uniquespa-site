@@ -44,6 +44,50 @@ const terms = [
   [/\byou save\b/i, '"You save" (savings wording; staging drafts too, review #19)'],
 ];
 
+// Unique Med Spa exception (owner decision 7 Nov 2026, Ian and Katy; lawyer review pending before launch).
+// Unique Med Spa is a separate business (Unique Med Spa Aesthetics Inc, medical director Dr. Steven Groke) that books
+// on Vagaro. ONLY these exact strings are removed before the term check; every other "med spa" use and every
+// treatment-name term stays banned. Case-sensitive on purpose.
+//   anywhere:        the exact Vagaro URL, and a nav link <a href="/med-spa/" …>Med Spa</a>
+//   on /med-spa/ only: "Unique Med Spa Aesthetics Inc", "Unique Med Spa", the breadcrumb/JSON-LD name "Med Spa"
+const MED_SPA_ALLOW = {
+  page: '/med-spa/',
+  vagaro: /https:\/\/www\.vagaro\.com\/uniquemedspaaestheticsinc(?![\w.-])/g,
+  navLink: /(<a href="\/med-spa\/"[^>]*>)Med Spa(<\/a>)/g,
+  pageOnly: [[/Unique Med Spa Aesthetics Inc\b/g, ''], [/Unique Med Spa\b/g, ''], [/(<span aria-current="page"[^>]*>)Med Spa(<\/span>)/g, '$1$2'], [/("name":")Med Spa(")/g, '$1$2']],
+};
+function allowMedSpa(text, rel) {
+  let t = text.replace(MED_SPA_ALLOW.vagaro, '').replace(MED_SPA_ALLOW.navLink, '$1$2');
+  if (rel === MED_SPA_ALLOW.page) for (const [re, keep] of MED_SPA_ALLOW.pageOnly) t = t.replace(re, keep);
+  return t;
+}
+// Self-test: the allowance must not let any other "med spa" through.
+{
+  const MED = /med ?spa/i;
+  const mustFail = [
+    ['Visit our med spa today', '/med-spa/'],
+    ['Unique Med Spa', '/about/'],
+    ['Unique Med Spa Aesthetics Inc', '/consultations/'],
+    ['<a href="/about/">Med Spa</a>', '/'],
+    ['<a href="/med-spa/">Med Spa deals</a>', '/'],
+    ['<h2>Med Spa</h2>', '/med-spa/'],
+    ['unique med spa', '/med-spa/'],
+    ['https://www.vagaro.com/uniquemedspaaestheticsinc2', '/consultations/'],
+    ['https://www.vagaro.com/uniquemedspa', '/consultations/'],
+    ['"name":"Med Spa"', '/menu/'],
+  ];
+  const mustPass = [
+    ['<a href="https://www.vagaro.com/uniquemedspaaestheticsinc" target="_blank">Book</a>', '/consultations/'],
+    ['<a href="/med-spa/" data-x="1">Med Spa</a>', '/menu/'],
+    ['<h1>Unique Med Spa</h1><p>Unique Med Spa Aesthetics Inc</p><span aria-current="page">Med Spa</span>{"name":"Med Spa"}', '/med-spa/'],
+  ];
+  let bad = 0;
+  for (const [s, rel] of mustFail) if (!MED.test(allowMedSpa(s, rel))) { console.log(`SELF-TEST: allowance let through ${JSON.stringify(s)} on ${rel}`); bad++; }
+  for (const [s, rel] of mustPass) if (MED.test(allowMedSpa(s, rel))) { console.log(`SELF-TEST: allowance blocked ${JSON.stringify(s)} on ${rel}`); bad++; }
+  if (bad) { console.log(`\n✗ med spa allowance self-test failed (${bad})`); process.exit(1); }
+  console.log(`med spa allowance self-test: ${mustFail.length} must-fail and ${mustPass.length} must-pass cases OK`);
+}
+
 let problems = 0;
 for (const f of files) {
   const rel = '/' + relative(dist, f).replace(/index\.html$/, '');
@@ -54,6 +98,7 @@ for (const f of files) {
     if (robots.length !== 1 || robots[0] !== ROBOTS) { console.log(`ROBOTS meta (${MODE.mode}: want "${ROBOTS}", got ${JSON.stringify(robots)}): ${rel}`); problems++; }
     text = text.replace(/<!--[\s\S]*?-->/g, '');
   }
+  text = allowMedSpa(text, rel);
   for (const id of gatedIds) if (text.includes(id)) { console.log(`GATED SQUARE ID ${id} in ${rel}`); problems++; }
   for (const [re, name] of terms) {
     const m = text.match(re);

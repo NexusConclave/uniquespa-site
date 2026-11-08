@@ -24,7 +24,7 @@ The website for Unique Spa House (San Diego, Mission Valley and Del Mar). It bel
 Prices and specials come only from Square, through the facts sheet, so the website, Uni and the booking page always agree. A pull request that changes a price is **blocked** until you or Ian check it against Square and add the `prices-from-facts` label.
 
 ### The rules every change follows
-- Medical and device treatments: only "starts with a consultation". No names, prices or links.
+- Medical and device treatments: only "starts with a consultation". No treatment names, prices, results or health claims. One exception (owner decision, 7 Nov 2026, Ian and Katy; lawyer review pending before launch): the separate business **Unique Med Spa** (Unique Med Spa Aesthetics Inc, medical director Dr. Steven Groke) may be named on `/med-spa/`, linked as "Med Spa" in the nav, and booked through its Vagaro page. Its wording stays behind the `med-spa-wording` flag in `confirm.json` until the lawyer approves.
 - No promises of results. No "free", "value", "save" or "regular price".
 - Real photos of the spa only: no before/after photos, no AI-made room photos.
 - Real Square prices only.

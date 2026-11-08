@@ -273,6 +273,10 @@ for (const f of [...htmlFiles, llmsPath].filter((x) => existsSync(x))) {
   let t = f.endsWith('.html') ? visibleText(read(f)) : read(f);
   // Gift kit fix 6: /gift-cards may name Square's legal name in exactly this one sentence (site.json square_gift_name).
   if (site.square_gift_name && rel(f).startsWith('/gift-cards')) t = t.split(`It shows the name ${site.square_gift_name}.`).join('');
+  // Owner decision 7 Nov 2026 (Ian and Katy; lawyer review pending): /med-spa/ may name the separate business
+  // Unique Med Spa (Unique Med Spa Aesthetics Inc). Exact, case-sensitive strings on that one page only;
+  // "Unique Med Spa" anywhere else is still a wrong NAP variant of Unique Spa House.
+  if (rel(f) === '/med-spa/') t = t.split('Unique Med Spa Aesthetics Inc').join('').split('Unique Med Spa').join('');
   for (const re of WRONG) { const m = t.match(re); check(`no wrong NAP variant ${re} in ${rel(f)}`, !m, m && t.slice(Math.max(0, m.index - 40), m.index + 40)); }
   const phones = [...new Set(t.match(PHONE_RE) || [])];
   check(`only the spa phone number in ${rel(f)}`, phones.every((p) => p === site.phone.display), phones.join(', '));
