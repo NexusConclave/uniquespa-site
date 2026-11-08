@@ -95,6 +95,13 @@ export function productionRobots(base) {
   ].join('\n');
 }
 
+/** The old Duda /med-spa rule sends visitors to /consultations/ until the Unique Med Spa page is built (owner decision
+ *  7 Nov 2026; built only while confirm.json "med-spa-wording" is visible). Once it is, the page wins: drop that rule. */
+export function finishRedirects(text, medSpaBuilt) {
+  if (!medSpaBuilt) return text;
+  return text.split('\n').filter((l) => !/^\/med-spa\/?\s/.test(l)).join('\n');
+}
+
 export default function postbuild({ site, launch = false }) {
   return {
     name: 'ush-postbuild',
@@ -131,6 +138,12 @@ export default function postbuild({ site, launch = false }) {
           const hashes = inlineScriptHashes(pages);
           writeFileSync(headersFile, finishHeaders(readFileSync(headersFile, 'utf8'), hashes, launch));
           logger.info(`_headers: CSP covers ${hashes.length} inline script(s)`);
+        }
+        const redirectsFile = join(out, '_redirects');
+        if (existsSync(redirectsFile)) {
+          const medSpaBuilt = existsSync(join(out, 'med-spa', 'index.html'));
+          writeFileSync(redirectsFile, finishRedirects(readFileSync(redirectsFile, 'utf8'), medSpaBuilt));
+          if (medSpaBuilt) logger.info('_redirects: /med-spa page built, old /med-spa rule dropped');
         }
         logger.info(`trailing slashes added in ${html.length} pages`);
       },

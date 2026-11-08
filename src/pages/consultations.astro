@@ -11,11 +11,15 @@ import PageIntro from '../components/PageIntro.astro';
 import ConsultForm from '../components/ConsultForm.astro';
 import Icon from '../components/Icon.astro';
 import { site } from '../lib/site';
+import { claimVisible } from '../lib/confirm';
+import { MED_SPA_VAGARO_URL } from '../lib/nav';
+import ConfirmNote from '../components/ConfirmNote.astro';
 import { SPAS } from '../lib/catalog';
 import { graph, orgNode, breadcrumbNode } from '../lib/schema';
 import '../styles/pages-b.css';
 
 const PATH = '/consultations';
+const vagaro = claimVisible('med-spa-wording');
 const jsonLd = graph(orgNode(), breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Consultations', path: PATH }]));
 ---
 <BaseLayout
@@ -38,8 +42,10 @@ const jsonLd = graph(orgNode(), breadcrumbNode([{ name: 'Home', path: '/' }, { n
         <div class="b-actions">
           <a class="btn btn--outline" href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"consultations"}'><Icon name="phone" />Call {site.phone.display}</a>
           <a class="btn btn--outline" href={site.sms} data-track="text_click" data-track-props='{"placement":"consultations"}'><Icon name="message" />Text us</a>
+          {vagaro && <a class="link-arrow" href={MED_SPA_VAGARO_URL} target="_blank" rel="noopener" data-track="book_click" data-track-props='{"placement":"consultations"}'>Book a consultation on Vagaro<span class="sr-only"> (opens in a new tab)</span><Icon name="arrow-up-right" /></a>}
           <button type="button" class="link-quiet" data-open="uni" aria-haspopup="dialog">Ask Uni</button>
         </div>
+        <ConfirmNote id="med-spa-wording" />
         <ul role="list" class="call__hours">
           {SPAS.map((sp) => <li><span class="call__spa">{site.spas[sp].long_name}</span><span class="meta">{site.spas[sp].hours_text}</span></li>)}
         </ul>
