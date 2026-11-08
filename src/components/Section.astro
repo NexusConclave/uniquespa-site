@@ -1,0 +1,35 @@
+---
+/**
+ * Page section with a ground, vertical rhythm and an optional single fade-and-rise (`reveal`, one per section).
+ * tone: cream (default) | paper | sand | brown (one brown band per page, plus the footer).
+ */
+interface Props {
+  id?: string;
+  tone?: 'cream' | 'paper' | 'sand' | 'brown';
+  width?: 'default' | 'wide' | 'narrow' | 'full';
+  pad?: 'default' | 'tight' | 'none';
+  reveal?: boolean;
+  labelledby?: string;
+  label?: string;
+  class?: string;
+  innerClass?: string;
+}
+const { id, tone = 'cream', width = 'default', pad = 'default', reveal = true, labelledby, label, class: cls, innerClass } = Astro.props;
+const inner = width === 'full' ? '' : width === 'wide' ? 'container--wide' : width === 'narrow' ? 'container--narrow' : 'container';
+---
+<section
+  id={id}
+  class:list={['section', `tone-${tone}`, `section--pad-${pad}`, tone === 'brown' && 'on-dark', cls]}
+  aria-labelledby={labelledby}
+  aria-label={label}
+>
+  <div class:list={[inner, reveal && 'reveal', innerClass]}>
+    <slot />
+  </div>
+</section>
+<style>
+  .section { position: relative; }
+  .section--pad-default { padding-block: var(--section); }
+  .section--pad-tight { padding-block: calc(var(--section) * 0.6); }
+  .section--pad-none { padding-block: 0; }
+</style>

@@ -1,0 +1,29 @@
+---
+/** Pause motion toggle (footer + mobile menu). aria-pressed; persisted in localStorage (try/catch) by site.ts. */
+interface Props { tone?: 'light' | 'dark'; class?: string }
+const { tone = 'light', class: cls } = Astro.props;
+---
+<button type="button" class:list={['motion-toggle', `motion-toggle--${tone}`, cls]} aria-pressed="false" data-motion-toggle>
+  <span class="motion-toggle__track" aria-hidden="true"><span class="motion-toggle__dot"></span></span>
+  <span>Pause motion</span>
+</button>
+<style>
+  .motion-toggle {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    min-height: var(--tap); padding: 0 0.25rem;
+    border: 0; background: none; color: inherit;
+    font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label);
+    justify-self: start;
+  }
+  .motion-toggle__track {
+    position: relative; width: 34px; height: 20px; flex: none;
+    border: 1px solid currentColor; border-radius: 999px;
+  }
+  .motion-toggle__dot {
+    position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; border-radius: 50%;
+    background: currentColor; transition: transform 0.2s var(--ease);
+  }
+  .motion-toggle[aria-pressed='true'] .motion-toggle__dot { transform: translateX(14px); }
+  .motion-toggle[aria-pressed='true'] .motion-toggle__track { background: rgba(52, 18, 4, 0.12); }
+  .motion-toggle--dark[aria-pressed='true'] .motion-toggle__track { background: rgba(242, 232, 218, 0.18); }
+</style>

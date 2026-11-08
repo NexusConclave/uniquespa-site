@@ -1,0 +1,174 @@
+---
+/**
+ * Guide: deep tissue vs Swedish vs sports massage, which to book. Answer-first; every price, length and spa from
+ * lib/catalog + lib/pageHelpers; no result or medical claims; FAQPage = the visible quick answers + FAQ.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../Section.astro';
+import PageIntro from '../PageIntro.astro';
+import QuickAnswers from '../QuickAnswers.astro';
+import ServiceCard from '../ServiceCard.astro';
+import AddOnLine from '../AddOnLine.astro';
+import Faq from '../Faq.astro';
+import AskUni from '../AskUni.astro';
+import HealthNote from '../HealthNote.astro';
+import LastReviewed from '../LastReviewed.astro';
+import Icon from '../Icon.astro';
+import GuideMore from './GuideMore.astro';
+import GuideMedia from './GuideMedia.astro';
+import { getService, SPAS } from '../../lib/catalog';
+import { priceOf, priceList, lengthsOf, lengthOf, whereText, offeredAt } from '../../lib/pageHelpers';
+import { guideBySlug, guideHref } from '../../lib/guides';
+import { graph, orgNode, websiteNode, webPageNode, spaNode, serviceNode, breadcrumbNode, faqNode } from '../../lib/schema';
+import '../../styles/pages-b.css';
+import '../../styles/guides.css';
+
+const SLUG = 'deep-tissue-vs-swedish-vs-sports-massage';
+const PATH = `/guides/${SLUG}`;
+const REVIEWED = '2026-11-03';
+const H1 = 'Deep tissue, Swedish or sports massage: which should you book?';
+const g = guideBySlug(SLUG);
+const IDS = ['swedish', 'deep-tissue', 'sports'] as const;
+const svc = Object.fromEntries(IDS.map((id) => [id, getService(id)]));
+const sw60 = priceOf('swedish', 60), dt60 = priceOf('deep-tissue', 60), sp60 = priceOf('sports', 60);
+const sportsDM = offeredAt(svc['sports'], 'DM') ? lengthsOf('sports', 'DM') : null;
+const stretch = svc['sports'].options.find((o) => /stretch/i.test(o.label));
+const stretchWhere = stretch ? whereText(stretch) : '';
+const lymphGuide = guideHref('lymphatic-drainage-massage-what-to-expect');
+
+const PICK = [
+  { id: 'swedish', name: 'Swedish massage', pressure: 'Light to medium', feel: 'Long, flowing strokes over the whole body. Smooth and steady.', suits: "First massages, unwinding after a busy week, anyone who isn't sure yet." },
+  { id: 'deep-tissue', name: 'Deep tissue massage', pressure: 'Firm, slow and focused', feel: 'Slower strokes that work into deeper muscle layers and stubborn knots. It can feel intense, but never sharp.', suits: 'People who like firm pressure and have particular tight spots, such as shoulders, neck or lower back.' },
+  { id: 'sports', name: 'Sports massage', pressure: 'Firm and focused', feel: 'Brisker, targeted work around the muscles you use most.', suits: 'People who train, run or play sport. Popular after workouts and events.' },
+];
+
+const answers = [
+  { q: 'Which massage should I book?', a: 'Book Swedish to relax or if it\'s your first massage. Book deep tissue if you like firm pressure on knots and tight areas. Book sports if you train and want focused work around the muscles you use. Still not sure? Your therapist will help you choose on the day.' },
+  { q: 'How much do they cost at Unique Spa House?', a: `For 60 min: Swedish ${sw60}, deep tissue ${dt60}, sports ${sp60}. Longer sessions are listed below, with a booking link for each spa.` },
+  { q: 'Can I book them in San Diego and Del Mar?', a: `Swedish and deep tissue are bookable at both spas. Sports massage is ${sportsDM ? `bookable in Del Mar at ${sportsDM}, and every length is in San Diego` : 'San Diego only'}.` },
+  { q: 'Is deep tissue the same as sports massage?', a: 'They overlap, but the aim differs. Deep tissue is slow, firm work on deeper muscle layers anywhere in the body. Sports massage is shaped around your training and the muscles you use most.' },
+];
+
+const faqs = [
+  { q: 'Will deep tissue hurt?', a: "Firm is fine; sharp pain isn't. Your therapist works with you on pressure and checks in, so say if it's too much or not enough at any point." },
+  { q: 'Can I have medium pressure in a Swedish massage?', a: 'Yes. Swedish runs from light to medium. Ask for the pressure you like, and your therapist will adjust.' },
+  { q: 'Do I need to be an athlete to book sports massage?', a: "No. It suits anyone who trains, walks a lot or plays sport, at any level. If you don't train, Swedish or deep tissue may suit you better." },
+  { q: 'What if I want a mix?', a: `Book <a href="/massage/with-katy">massage with Katy</a>, our owner. Any length can combine styles from our menu, such as deep tissue and lymphatic: ${priceList('katy')}.` },
+  { q: 'Will I be sore the next day?', a: 'After firm work, some people feel a little tender for a day, a bit like after a workout. Have some water and keep the rest of the day easy. Tell your therapist next time, and they can adjust.' },
+  { q: 'How long should I book?', a: '60 min suits a first visit or one main area. 90 min gives time for the whole body plus your tight spots. Longer sessions suit people who already know what they like.' },
+];
+
+const jsonLd = graph(
+  webPageNode(PATH, H1, { dateModified: REVIEWED }),
+  websiteNode(), orgNode(), ...SPAS.map((sp) => spaNode(sp)),
+  ...IDS.map((id) => serviceNode(svc[id])),
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Guides', path: '/guides' }, { name: 'Deep tissue, Swedish or sports massage', path: PATH }]),
+  faqNode([...answers, ...faqs]),
+);
+---
+<BaseLayout
+  title="Deep Tissue vs Swedish vs Sports Massage: Which to Book"
+  description={`How deep tissue, Swedish and sports massage feel, who each suits, and what they cost in San Diego and Del Mar. For 60 min: Swedish ${sw60}, deep tissue ${dt60}.`}
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Guides', href: '/guides' }, { name: 'Deep tissue, Swedish or sports' }]}
+    eyebrow="Guide"
+    title={H1}
+    lede="Book Swedish to relax or for a first massage. Book deep tissue for firm, slow pressure on knots and tight areas. Book sports massage if you train and want focused work around the muscles you use most."
+  >
+    <div class="g-actions">
+      <a class="link-arrow" href="#compare-title">Compare all three<Icon name="arrow-right" /></a>
+      <a class="link-arrow" href="/massage">All massages<Icon name="arrow-right" /></a>
+    </div>
+    <p class="g-meta">{g.summary}</p>
+    <Fragment slot="aside"><GuideMedia asset="massage-1x1" ratio="1 / 1" /></Fragment>
+  </PageIntro>
+
+  <Section tone="paper" labelledby="answers-title" pad="tight">
+    <QuickAnswers items={answers} title="The short answer" />
+  </Section>
+
+  <Section labelledby="compare-title">
+    <div class="b-head">
+      <h2 id="compare-title">The three side by side</h2>
+      <p>Pressure, feel and who each one suits. Prices are for 60 min.</p>
+    </div>
+    <ul class="g-pick g-pick--3" role="list">
+      {PICK.map((p) => (
+        <li>
+          <h3>{p.name}</h3>
+          <dl>
+            <div><dt>Pressure</dt><dd>{p.pressure}</dd></div>
+            <div><dt>How it feels</dt><dd>{p.feel}</dd></div>
+            <div><dt>Good for</dt><dd>{p.suits}</dd></div>
+            <div><dt>60 min</dt><dd>{priceOf(p.id, 60)} · {whereText(svc[p.id].options[0])}</dd></div>
+          </dl>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section labelledby="choose-title" tone="paper">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="choose-title">How to <em>choose</em></h2>
+        <p>Start with how you want to feel when you leave, not with the name on the menu.</p>
+      </div>
+      <div class="b-split__body b-prose">
+        <p><strong>You want to switch off.</strong> Book Swedish. The strokes are long and even, and the pressure stays comfortable. It's the massage we suggest for anyone new to massage, or anyone who simply wants an hour of quiet.</p>
+        <p><strong>You have knots you can point to.</strong> Book deep tissue. Your therapist slows down and works into deeper muscle layers, usually where you hold tension most. Expect firm pressure and the odd intense moment. You stay in charge of how firm it gets.</p>
+        <p><strong>You train.</strong> Book sports massage. It's firmer, brisker and shaped around your activity, whether that's running, lifting, cycling or a weekend game. {stretch && <> Sports massage with stretching is on the menu too: {lengthOf(stretch)}, {priceOf('sports', stretch.label)} ({stretchWhere}).</>}</p>
+        <p><strong>One spot bothers you most.</strong> Look at our <a href="/massage#recovery">therapeutic massage</a>. It's a focused session for one main area, like your neck, shoulders or lower back.</p>
+        <p><strong>You find firm pressure uncomfortable.</strong> Swedish is the gentlest of the three. For something gentler again, try lymphatic drainage massage{lymphGuide ? <>; our <a href={lymphGuide}>lymphatic guide</a> explains what to expect</> : <> (<a href="/massage/lymphatic-drainage">about lymphatic massage</a>)</>}.</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="booking-title">
+    <div class="b-head">
+      <h2 id="booking-title">Lengths, prices and booking</h2>
+      <p>Choose a length to see the price, then book at the spa that suits you. Booking opens in a new tab.</p>
+    </div>
+    <ul class="b-cards b-cards--3" role="list">
+      {IDS.map((id) => <li><ServiceCard service={id} defaultMinutes={60} class="b-card" placement="guide" /></li>)}
+    </ul>
+    <AddOnLine group="massage" />
+    <p class="b-note">Prices as currently listed on our online booking menu. The booking page always shows the latest price.</p>
+  </Section>
+
+  <Section labelledby="visit-title" tone="paper">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="visit-title">Whichever you book</h2>
+      </div>
+      <div class="b-split__body">
+        <ul class="b-ticks">
+          <li>Arrive a few minutes early to fill in a short form.</li>
+          <li>Every massage starts with a short chat about your goals, the pressure you like and any health concerns.</li>
+          <li>You undress to your comfort level and stay covered with a sheet. Only the area being worked on is uncovered.</li>
+          <li>Unscented oil or lotion is available. Ask when you arrive.</li>
+          <li>Speak up at any point. Lighter, firmer, warmer or quieter: your therapist will adjust.</li>
+        </ul>
+        <HealthNote />
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="faq-title">
+    <Faq items={faqs} title="More questions" />
+  </Section>
+
+  <Section labelledby="more-title" tone="paper">
+    <GuideMore current={SLUG} />
+  </Section>
+
+  <Section pad="tight" width="narrow">
+    <div class="b-tail">
+      <p class="g-general">This guide is general information about our spa services, not medical advice. If you have an injury or a health condition, ask your doctor whether massage suits you.</p>
+      <AskUni />
+      <LastReviewed date={REVIEWED} />
+    </div>
+  </Section>
+</BaseLayout>

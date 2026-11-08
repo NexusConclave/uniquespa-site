@@ -1,0 +1,12 @@
+---
+/** The health note every service page carries (copy 11-microcopy). Pass `text` to add a page-specific line. */
+interface Props { text?: string; class?: string }
+const { text, class: cls } = Astro.props;
+---
+<aside class:list={['health', cls]} aria-label="Health note">
+  <p><strong>Health note.</strong> Pregnant, recently had surgery, or taking medication? Check with your doctor first, and tell us before your visit.{text && <> {text}</>}</p>
+</aside>
+<style>
+  .health { padding: 1rem 1.25rem; border-left: 2px solid var(--border-ui); background: rgba(250, 246, 240, 0.6); border-radius: 0 var(--radius-card) var(--radius-card) 0; }
+  .health p { font-size: var(--fs-label); line-height: 1.55; }
+</style>

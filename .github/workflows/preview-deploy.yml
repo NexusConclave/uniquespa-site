@@ -1,0 +1,202 @@
+# Publishes a pull request PREVIEW on Cloudflare Pages, after "PR checks" passed (review finding 1).
+#
+# Why a separate workflow: GitHub runs workflow_run workflows from the copy on main, never from the pull request,
+# so a pull request can't change what this file does. It never checks out or runs pull request code. It only:
+#   1. (no secrets) checks the PR is open, from this repo, targets main, and the artifact is the commit that passed;
+#      downloads the built site and checks it (.github/scripts/validate-preview-bundle.sh); swaps in main's
+#      wrangler.toml (so a PR can't point a preview at the live database or Worker); makes a safe "pr-N-..." name.
+#   2. (the "preview" environment: Katy approves) deploys that checked bundle as a Pages PREVIEW and links it on the PR.
+#
+# Cloudflare can't limit an API token to preview deployments: any token that can publish a preview can also
+# publish to production. So the preview token sits in its own environment, "preview", which (like "production")
+# only main may use and which needs Katy's approval for every deployment. See SETUP-DAY.md B2/B3.
+name: Preview deploy
+
+on:
+  workflow_run:
+    workflows: [PR checks]
+    types: [completed]
+
+permissions: {}
+
+concurrency:
+  group: preview-deploy-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+env:
+  CF_PAGES_PROJECT: ${{ vars.CF_PAGES_PROJECT || 'unique-spa-house' }}
+
+jobs:
+  check:
+    name: Check the preview bundle (no secrets)
+    # Only a successful PR run from a branch of THIS repo (forks never get a preview).
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read          # download the artifact from the PR checks run
+      contents: read         # read main's checker scripts and wrangler.toml
+      pull-requests: write   # "waiting for approval" note on the PR
+    outputs:
+      pr: ${{ steps.pr.outputs.number }}
+      sha: ${{ steps.pr.outputs.sha }}
+      alias: ${{ steps.alias.outputs.name }}
+    steps:
+      - name: Find the pull request and check it
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          [[ "$HEAD_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::bad head sha"; exit 1; }
+          # The open PR whose head is exactly the commit that passed (workflow_run.pull_requests can be empty).
+          q='[.[] | select(.state == "open" and .base.ref == "main" and .head.sha == env.HEAD_SHA and .head.repo.full_name == env.REPO)]'
+          n="$(gh api "repos/$REPO/commits/$HEAD_SHA/pulls" --jq "$q | .[0].number // empty")"
+          [ -n "$n" ] || { echo "::error::no open pull request to main from this repo with head $HEAD_SHA (outdated run?)"; exit 1; }
+          [[ "$n" =~ ^[0-9]+$ ]] || { echo "::error::bad PR number"; exit 1; }
+          echo "number=$n" >> "$GITHUB_OUTPUT"
+          echo "sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+          # Size before download: refuse a huge artifact without fetching it.
+          size="$(gh api "repos/$REPO/actions/runs/$RUN_ID/artifacts" --jq '[.artifacts[] | select(.name == "preview-bundle" and .expired == false)] | .[0].size_in_bytes // empty')"
+          [ -n "$size" ] || { echo "::error::no preview-bundle artifact on run $RUN_ID"; exit 1; }
+          [ "$size" -le 41943040 ] || { echo "::error::preview-bundle is $size bytes (limit 40 MiB zipped)"; exit 1; }
+          echo "PR #$n, commit ${HEAD_SHA:0:7}, artifact $size bytes"
+
+      # Main's own copy of the checker scripts and wrangler.toml. Not the pull request's code.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          path: trusted
+          persist-credentials: false
+          sparse-checkout: |
+            .github/scripts
+            wrangler.toml
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: preview-bundle
+          path: bundle
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Check the bundle
+        run: bash trusted/.github/scripts/validate-preview-bundle.sh bundle
+
+      - name: Use main's wrangler.toml (bindings), never the pull request's
+        run: |
+          if [ -f bundle/wrangler.toml ] && ! cmp -s bundle/wrangler.toml trusted/wrangler.toml; then
+            echo "::warning::This pull request changes wrangler.toml. The preview uses main's bindings; the change takes effect only after merge and Katy's production approval."
+          fi
+          cp trusted/wrangler.toml bundle/wrangler.toml
+
+      - name: Preview name
+        id: alias
+        env:
+          PR: ${{ steps.pr.outputs.number }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        run: echo "name=$(bash trusted/.github/scripts/preview-alias.sh "$PR" "$HEAD_BRANCH")" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: checked-preview-bundle
+          path: bundle
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Tell the PR the preview waits for approval
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        env:
+          PR: ${{ steps.pr.outputs.number }}
+          SHA: ${{ steps.pr.outputs.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          script: |
+            const marker = '<!-- unique-spa-preview -->';
+            const body = [marker, '### Preview checked, waiting for approval', '',
+              `Commit \`${process.env.SHA.slice(0, 7)}\` passed every test and the bundle check.`,
+              `Katy: open [this run](${process.env.RUN_URL}) → **Review deployments** → tick **preview** → **Approve and deploy**. The preview link appears here.`,
+            ].join('\n');
+            const { owner, repo } = context.repo;
+            const issue_number = Number(process.env.PR);
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number, per_page: 100 });
+            const mine = comments.find((c) => c.user && c.user.type === 'Bot' && c.body && c.body.includes(marker));
+            if (mine) await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body });
+            else await github.rest.issues.createComment({ owner, repo, issue_number, body });
+
+  deploy:
+    name: Publish preview (needs approval)
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Required reviewer (Katy) + "main only" are set on this environment in GitHub. It holds the preview token.
+    environment:
+      name: preview
+      url: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: checked-preview-bundle
+          path: bundle
+
+      - name: Last guard on the preview name
+        env:
+          ALIAS: ${{ needs.check.outputs.alias }}
+        run: |
+          [[ "$ALIAS" =~ ^pr-[0-9]+(-[a-z0-9]+)*$ ]] && [ "${#ALIAS}" -le 28 ] || { echo "::error::bad preview name"; exit 1; }
+
+      - name: Deploy preview to Cloudflare Pages
+        id: deploy
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_PREVIEW_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.157.0'
+          workingDirectory: bundle
+          command: >-
+            pages deploy dist
+            --project-name=${{ env.CF_PAGES_PROJECT }}
+            --branch=${{ needs.check.outputs.alias }}
+            --commit-hash=${{ needs.check.outputs.sha }}
+            --commit-dirty=true
+
+      - name: Comment the preview link on the PR
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
+        env:
+          ALIAS_URL: ${{ steps.deploy.outputs.pages-deployment-alias-url }}
+          DEPLOY_URL: ${{ steps.deploy.outputs.deployment-url }}
+          SHA: ${{ needs.check.outputs.sha }}
+          PR: ${{ needs.check.outputs.pr }}
+        with:
+          script: |
+            const marker = '<!-- unique-spa-preview -->';
+            const alias = process.env.ALIAS_URL;
+            const url = process.env.DEPLOY_URL;
+            const lines = [marker, '### Preview ready', '', `**Open the preview:** ${alias || url}`];
+            if (alias && url) lines.push(`This exact version: ${url}`);
+            lines.push(
+              '',
+              `Built from commit \`${process.env.SHA.slice(0, 7)}\`. All tests passed.`,
+              '',
+              'Nothing is live yet. To go live: merge this pull request, then approve the **production** deployment.',
+            );
+            const body = lines.join('\n');
+            const { owner, repo } = context.repo;
+            const issue_number = Number(process.env.PR);
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number, per_page: 100 });
+            const mine = comments.find((c) => c.user && c.user.type === 'Bot' && c.body && c.body.includes(marker));
+            if (mine) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }

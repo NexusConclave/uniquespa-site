@@ -1,0 +1,7 @@
+---
+/** "Last reviewed {date}" for flagship pages (§4.3). Update the date whenever the page's facts are re-checked. */
+import { longDate } from '../lib/dates';
+interface Props { date: string; class?: string }
+const { date, class: cls } = Astro.props;
+---
+<p class:list={['meta', 'reviewed', cls]}>Last reviewed <time datetime={date}>{longDate(date)}</time>. Prices from our online booking menu; the booking page always shows the latest price.</p>

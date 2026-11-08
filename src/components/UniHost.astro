@@ -1,0 +1,8 @@
+---
+/**
+ * UniHost — the persisted mount point for Uni (text chat + voice). Rendered ONCE in BaseLayout.
+ * transition:persist keeps the node (and a live voice call's audio) across ClientRouter navigations.
+ * The widget itself (/chat/spa-chat.js + .css) is loaded on the first [data-open="uni"] tap (site.ts) — never auto-opened.
+ */
+---
+<div id="uni" transition:persist="uni" data-nosnippet></div>

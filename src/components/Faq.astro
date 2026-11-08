@@ -1,0 +1,36 @@
+---
+/**
+ * Faq — visible questions and answers (every answer is shown, so a FAQPage node is allowed; use
+ * lib/schema.ts faqNode() with the same items). Answers are our own strings and may hold simple links.
+ */
+interface Props { items: Array<{ q: string; a: string }>; title?: string; id?: string; headingLevel?: 2 | 3; lede?: string }
+const { items, title = 'Questions', id = 'faq-title', headingLevel = 2, lede } = Astro.props;
+const H = `h${headingLevel}` as 'h2' | 'h3';
+const Q = `h${headingLevel + 1}` as 'h3' | 'h4';
+---
+<div class="faq">
+  <div class="faq__head">
+    <H id={id} class="faq__title">{title}</H>
+    {lede && <p class="faq__lede">{lede}</p>}
+    <slot name="head" />
+  </div>
+  <div class="faq__list">
+    {items.map((f) => (
+      <div class="faq__item">
+        <Q class="faq__q">{f.q}</Q>
+        <p class="faq__a" set:html={f.a} />
+      </div>
+    ))}
+  </div>
+</div>
+<style>
+  .faq { display: grid; gap: clamp(1.5rem, 4vw, 3rem); }
+  @media (min-width: 960px) { .faq { grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr); align-items: start; } .faq__head { position: sticky; top: calc(var(--header-h) + 2rem); } }
+  .faq__head { display: flex; flex-direction: column; gap: 1rem; }
+  .faq__lede { color: var(--text); }
+  .faq__list { display: grid; }
+  .faq__item { display: grid; gap: 0.5rem; padding-block: 1.4rem 1.6rem; border-top: 1px solid var(--hairline); }
+  .faq__item:last-child { border-bottom: 1px solid var(--hairline); }
+  .faq__q { font-size: clamp(1.3rem, 1.2rem + 0.4vw, 1.6rem); line-height: 1.2; }
+  .faq__a :global(a) { font-weight: 500; }
+</style>

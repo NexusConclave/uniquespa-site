@@ -1,0 +1,37 @@
+---
+/**
+ * NoPriceCard — for anything without a published price. Label "Pricing at consultation".
+ * Primary: "Call to book a consultation" (tel:). Secondary: Text us · Ask Uni (every Call CTA offers a text route).
+ * Keep titles neutral: never name a gated (consult) treatment (hard rule 2).
+ */
+import { site } from '../lib/site';
+import { NO_PRICE_TEXT } from '../lib/catalog';
+import Icon from './Icon.astro';
+interface Props { title: string; body?: string; headingLevel?: 2 | 3 | 4; class?: string }
+const { title, body, headingLevel = 3, class: cls } = Astro.props;
+const H = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
+---
+<article class:list={['np', cls]}>
+  <H class="np__title">{title}</H>
+  {body && <p>{body}</p>}
+  <slot />
+  <p class="np__label label">{NO_PRICE_TEXT}</p>
+  <div class="np__actions">
+    <a class="btn btn--outline" href={site.phone.tel} data-track="call_click" data-track-props={JSON.stringify({ placement: 'no-price' })}>
+      <Icon name="phone" />Call to book a consultation
+    </a>
+    <p class="np__alt">
+      <a href={site.sms} data-track="text_click">Text us</a>
+      <span aria-hidden="true"> · </span>
+      <button type="button" class="link-quiet" data-open="uni" aria-haspopup="dialog">Ask Uni</button>
+    </p>
+  </div>
+</article>
+<style>
+  .np { display: flex; flex-direction: column; gap: 0.9rem; padding: clamp(1.25rem, 3vw, 2rem); background: var(--paper); border: 1px solid var(--hairline); border-radius: var(--radius-card); }
+  .np__title { font-size: var(--fs-h3); }
+  .np__label { color: var(--text); }
+  .np__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.25rem; }
+  .np__alt { display: flex; align-items: center; gap: 0.25rem; font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); }
+  .np__alt a { min-height: var(--tap); display: inline-flex; align-items: center; padding-inline: 0.25rem; }
+</style>

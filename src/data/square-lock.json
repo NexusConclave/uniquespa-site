@@ -1,0 +1,1176 @@
+{
+ "captured": "2026-10-23",
+ "source": "Square booking widget (public), both locations",
+ "amended": [
+  {
+   "date": "2026-11-02",
+   "source": "Square booking widget (public), both locations: check1102 capture",
+   "changes": [
+    "AYBATMLQFUC62L5OPW6LITY2 (Joëlle Ciocco Sculpture Face Massage, 60 min): San Diego only (no longer in the Del Mar widget)",
+    "added 5DG36PERSRQXHJN2AXXIJX2O (November Special: Lymphatic Body & Face 90 min); Square description not copied (result claims stay out)",
+    "added EWKMFQK4BTONSGNIWNUISKAR ($10 to add 10 min of cupping or hot stones)",
+    "added ZCJEJ6W63JZOGZUHZ2ZUVZRG ($20 to add 20 mins of cupping or hot stones)"
+   ]
+  }
+ ],
+ "booking_base": {
+  "SD": "https://book.squareup.com/appointments/ubclvdvkxdzjxk/location/LWTMBRFFB1D7G/services",
+  "DM": "https://book.squareup.com/appointments/ubclvdvkxdzjxk/location/LXYVNKXTR50S3/services"
+ },
+ "gift_card_url": "https://app.squareup.com/gift/MLMCWB4BFADNP/order",
+ "services": [
+  {
+   "id": "PP6XV5CFKHPQMCUAQPUKXIMJ",
+   "name": "Brazilian Butt Massage 90 min (Top Massage Therapist)",
+   "description": "An intensive body-contouring treatment performed with specialized Brazilian wooden tools. Designed to stimulate circulation, reduce the appearance of cellulite, smooth and tone the skin, and enhance the shape and definition of the buttocks.",
+   "price_cents": 26000,
+   "price_type": "fixed",
+   "price_description": "$260",
+   "duration_min": 90,
+   "category": "",
+   "taxable": false,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "4SP5L4GZLH7XURKHPNMBTFOH",
+   "name": "Deep tissue 30 min (Top massage therapist)",
+   "description": "A focused 30-minute massage using firm pressure and deep tissue techniques to target muscle tension, tightness, and areas of discomfort. Ideal for concentrated work on specific areas such as the back, neck, shoulders, or legs.",
+   "price_cents": 12000,
+   "price_type": "fixed",
+   "price_description": "$120",
+   "duration_min": 30,
+   "category": "",
+   "taxable": false,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "E4F6AIRSH7BAAKLIRGO3BKBN",
+   "name": "EMS",
+   "description": "A non-invasive treatment using electrical muscle stimulation (EMS) to create repeated muscle contractions. Designed to activate and tone targeted muscle groups, improve muscle definition, and support body contouring. Common treatment areas include the abdomen, glutes, arms, and legs.",
+   "price_cents": 7000,
+   "price_type": "fixed",
+   "price_description": "$70",
+   "duration_min": 35,
+   "category": "",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "KL7AXKFRKGPORE3ZPJNJRWNO",
+   "name": "Foot Massage 30 min",
+   "description": "A 30-minute manual massage performed entirely by hand, focusing on the feet and ankles. Helps relieve tension and tiredness, improve circulation, reduce discomfort, and leave the feet feeling relaxed, refreshed, and lighter.",
+   "price_cents": 10000,
+   "price_type": "fixed",
+   "price_description": "$100",
+   "duration_min": 30,
+   "category": "",
+   "taxable": false,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "R3AZCBBXGXCSRK4Z7MWAB7V3",
+   "name": "September special: bamboo deep tissue massage body 90 min (reg price $245)",
+   "description": "",
+   "price_cents": 19900,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 90,
+   "category": "",
+   "taxable": false,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "HMIA5QOP2CP34VJSDF7TQ7OH",
+   "name": "Weight loss consultation",
+   "description": "True body transformation isn’t just about a number on a scale. It’s about metabolic health, stubborn fat targeting, and ensuring your skin stays tight, firm, and radiant as your body changes. That is why we’ve built the ultimate inside-out synergy protocol right here in San Diego.\n🔬 The Science: Why Tirzepatide + Advanced Body Sculpting?\nWhen you lose weight quickly, your body undergoes massive changes. Standard weight-loss programs leave it at that. We don't. By pairing medical science with our signature clinical therapies, we target the gaps that diet and exercise alone can't touch:\n\nThe Metabolic Reset: Tirzepatide stabilizes blood sugar, naturally curbs cravings, and aggressively targets deep visceral fat.\n\nThe Structural Tightening: Rapid fat loss can sometimes leave skin looking lax. Our integrated treatments ensure your skin contracts beautifully alongside your weight loss.\n\nCellular Detox: Accelerating your lymphatic system helps your body process and flush out metabolized fat cells much faster.\nWe don’t just offer a program; we offer an experience. Every enrollment includes your choice of a complimentary 60-minute advanced medical aesthetic treatment to accelerate your physical transformation:\n\nT-Shape Body Contouring (A $180 value) – Uses multipolar radiofrequency and cold laser to liquefy stubborn fat deposits and immediately stimulate collagen production for tight, firm skin.\n\nLPG Endermologie (A $175 value) – The gold standard in mechanical cellular stimulation. It intensely boosts lymphatic drainage, releases trapped fat, and completely smooths out cellulite.\n💎 Unbeatable San Diego Value\nWe are committed to making elite healthcare accessible. Our promotional monthly tiers are among the most competitive in the region, offering a comprehensive medical and aesthetic package in one flat rate:\n\n2.5 mg — $199/month\n\n5 mg — $239/month\n\n7.5 mg — $259/month\n\n10 mg — $279/month\n\n12.5 mg — $299/month\n\n15 mg — $319/month",
+   "price_cents": 0,
+   "price_type": "variable",
+   "price_description": null,
+   "duration_min": 30,
+   "category": "",
+   "taxable": false,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "WXPQNE2MCEWZTHDQ742BLZVS",
+   "name": "Weightloss consultation",
+   "description": "",
+   "price_cents": 0,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 30,
+   "category": "",
+   "taxable": false,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "JOQ7Q2Q6QPZ2ELH5VVFOYCJJ",
+   "name": "Anti-Cellulite Massage, 60 min (Top Massage Therapist)",
+   "description": "A full-body manual massage performed entirely by hand to help reduce the appearance of cellulite, improve circulation and lymphatic flow, and smooth and tone the skin. Focuses on areas prone to cellulite, including the thighs, buttocks, abdomen, and legs.",
+   "price_cents": 16000,
+   "price_type": "fixed",
+   "price_description": "$160 ",
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "2SOLB3YGXZ3UCEYJ3MGV5EQ5",
+   "name": "Anti-Cellulite Massage, 90 min (Top Massage Therapist)",
+   "description": "A full-body manual massage performed entirely by hand to help reduce the appearance of cellulite, improve circulation and lymphatic flow, and smooth and tone the skin. Focuses on areas prone to cellulite, including the thighs, buttocks, abdomen, and legs.",
+   "price_cents": 21000,
+   "price_type": "fixed",
+   "price_description": "$210",
+   "duration_min": 90,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "ZIBZ7HVEVR5X6TQSCLYUC2KA",
+   "name": "Any 120 min Massage with Katy (owner)",
+   "description": "A personalized 2-hour massage tailored to your body’s needs. Choose from lymphatic drainage, deep tissue, anti-cellulite, relaxing, sports, or therapeutic massage, or combine techniques for a customized treatment.",
+   "price_cents": 27500,
+   "price_type": "fixed",
+   "price_description": "$275",
+   "duration_min": 120,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "VUHCC2QWXVAAHTZ74TS7NSVQ",
+   "name": "Any 60 min Massage with Katy (owner)",
+   "description": "A personalized 1-hour massage tailored to your body’s needs. Choose from lymphatic drainage, deep tissue, anti-cellulite, relaxing, sports, or therapeutic massage, or combine techniques for a customized treatment.",
+   "price_cents": 16500,
+   "price_type": "fixed",
+   "price_description": "$165",
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "YIWAUSGWSOHAV5OCGFFM6S3Q",
+   "name": "Any 90 min Massage with Katy (owner)",
+   "description": "A personalized 90 min massage tailored to your body’s needs. Choose from lymphatic drainage, deep tissue, anti-cellulite, relaxing, sports, or therapeutic massage, or combine techniques for a customized treatment.",
+   "price_cents": 22500,
+   "price_type": "fixed",
+   "price_description": "$225",
+   "duration_min": 90,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "FK56S3RXXX7MDQYZ3SKD5ZJT",
+   "name": "Brazilian Butt Massage 60 min (Top Massage Therapist)",
+   "description": "An intensive body-contouring treatment performed with specialized Brazilian wooden tools. Designed to stimulate circulation, reduce the appearance of cellulite, smooth and tone the skin, and enhance the shape and definition of the buttocks.",
+   "price_cents": 18000,
+   "price_type": "fixed",
+   "price_description": "$180",
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "QTJAGJ2NE5W6I7A3WEPZ5JPI",
+   "name": "Couples Massage, 60 min",
+   "description": "A relaxing couples experience for two in a private room with two massage tables. Each guest receives a customized 60-minute full-body massage, followed by 30 complimentary minutes to relax together and enjoy tea or coffee, fresh fruit, and a cheese selection. A perfect romantic spa experience to unwind and enjoy quality time together.",
+   "price_cents": 33600,
+   "price_type": "fixed",
+   "price_description": "$336",
+   "duration_min": 120,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "5LBW2B3AK4NUQCRPAAMBGWDO",
+   "name": "Couples Massage, 90 min",
+   "description": "A relaxing couples experience for two in a private room with two massage tables. Each guest receives a customized 90-minute full-body massage, followed by 30 complimentary minutes to relax together and enjoy tea or coffee, fresh fruit, and a cheese selection. A perfect romantic spa experience to unwind and enjoy quality time together.",
+   "price_cents": 43600,
+   "price_type": "fixed",
+   "price_description": "$436",
+   "duration_min": 135,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "7FT74RUYMFDKG24JE42QHCF3",
+   "name": "Deep Tissue Massage 120 min (Top Massage Therapist)",
+   "description": "A focused 120-minute massage using firm pressure and deep tissue techniques to target muscle tension, tightness, and areas of discomfort. Ideal for concentrated work on specific areas such as the back, neck, shoulders, or legs.",
+   "price_cents": 27500,
+   "price_type": "fixed",
+   "price_description": "$275",
+   "duration_min": 120,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "WIYSGZKZBFVYANQINUXR7F3Q",
+   "name": "Deep Tissue Massage 60 min (Top Massage Therapist)",
+   "description": "A focused 60-minute massage using firm pressure and deep tissue techniques to target muscle tension, tightness, and areas of discomfort. Ideal for concentrated work on specific areas such as the back, neck, shoulders, or legs.",
+   "price_cents": 16500,
+   "price_type": "fixed",
+   "price_description": "$165",
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "3XQVNTCO5D66VPF4FALNHGHX",
+   "name": "Deep Tissue Massage 90 min (Top Massage Therapist)",
+   "description": "A focused 90-minute massage using firm pressure and deep tissue techniques to target muscle tension, tightness, and areas of discomfort. Ideal for concentrated work on specific areas such as the back, neck, shoulders, or legs.",
+   "price_cents": 22500,
+   "price_type": "fixed",
+   "price_description": "$225",
+   "duration_min": 90,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "VYAAHMF2P67UMSE73XJN6D24",
+   "name": "Hot Stone massage",
+   "description": "A full-body massage combining traditional hands-on techniques with smooth, heated stones. The therapist massages the body using warm stones to help relax tight muscles and relieve tension, while heated stones are also placed on selected areas of the body for deeper relaxation. A soothing treatment that combines therapeutic massage with comforting heat.",
+   "price_cents": 15000,
+   "price_type": "fixed",
+   "price_description": "$150",
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "ZLNV2O4I6VHAREE4SOKA5J3F",
+   "name": "LPG Endermologie Body 40 min",
+   "description": "A 40-minute body treatment performed with the LPG Endermologie® device using mechanical tissue stimulation and suction. The treatment is performed while wearing a lightweight LPG Endermowear™ suit, allowing the treatment head to comfortably massage and stimulate the tissue. Designed to improve circulation and lymphatic flow, reduce puffiness and fluid retention, smooth the appearance of cellulite, improve skin firmness, and support body contouring.",
+   "price_cents": 12000,
+   "price_type": "fixed",
+   "price_description": "$120",
+   "duration_min": 40,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "MYJ23N4V34NGCGURL23YZEBV",
+   "name": "LPG Endermologie Body, 60 min",
+   "description": "A 60-minute body treatment performed with the LPG Endermologie® device using mechanical tissue stimulation and suction. The treatment is performed while wearing a lightweight LPG Endermowear™ suit, allowing the treatment head to comfortably massage and stimulate the tissue. Designed to improve circulation and lymphatic flow, reduce puffiness and fluid retention, smooth the appearance of cellulite, improve skin firmness, and support body contouring.",
+   "price_cents": 17500,
+   "price_type": "fixed",
+   "price_description": "$175",
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "EMOHQ67OC2IOOJ2AMUM6Y3GN",
+   "name": "Liposuction Massage (Top Massage Therapist)",
+   "description": "An intensive manual body-contouring massage focused on one specific area for approximately 3 hours. Using specialized hands-on techniques, the therapist works deeply and thoroughly on the targeted area to stimulate circulation and lymphatic drainage, reduce the appearance of cellulite and puffiness, and improve the look of localized fatty tissue. Designed to help smooth, sculpt, and tone the treated area.\nOne treatment focuses on one area only due to the intensive and detailed nature of the technique.",
+   "price_cents": 43600,
+   "price_type": "fixed",
+   "price_description": "$436",
+   "duration_min": 180,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "REISDT7UKUD62TS2E7OIUO2J",
+   "name": "Lymphatic Massage 120 min (Top Massage Therapist)",
+   "description": "A gentle, full-body manual massage performed entirely by hand using rhythmic techniques designed to support natural lymphatic flow. Helps reduce puffiness and fluid retention, improve circulation, and leave the body feeling lighter and less congested. This is the only massage service that includes abdominal massage, with gentle techniques performed on the stomach area as part of the full-body treatment.",
+   "price_cents": 25000,
+   "price_type": "fixed",
+   "price_description": "$250",
+   "duration_min": 120,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "W4OL72LTHTKTPIUWGRF757JH",
+   "name": "Lymphatic Massage 60 min (Top Massage Therapist)",
+   "description": "A gentle, full-body manual massage performed entirely by hand using rhythmic techniques designed to support natural lymphatic flow. Helps reduce puffiness and fluid retention, improve circulation, and leave the body feeling lighter and less congested. This is the only massage service that includes abdominal massage, with gentle techniques performed on the stomach area as part of the full-body treatment.",
+   "price_cents": 15000,
+   "price_type": "fixed",
+   "price_description": "$150",
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "SUA4OVPO4ULNIEGP2OO7HTXU",
+   "name": "Lymphatic Massage 90 min (Top Massage Therapist)",
+   "description": "A gentle, full-body manual massage performed entirely by hand using rhythmic techniques designed to support natural lymphatic flow. Helps reduce puffiness and fluid retention, improve circulation, and leave the body feeling lighter and less congested. This is the only massage service that includes abdominal massage, with gentle techniques performed on the stomach area as part of the full-body treatment.",
+   "price_cents": 20000,
+   "price_type": "fixed",
+   "price_description": "$200",
+   "duration_min": 90,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "DTODUJOS37OREP5ALU5MGFEK",
+   "name": "Postnatal Massage",
+   "description": "A gentle, full-body manual massage designed specifically for the postpartum period. Performed entirely by hand, the treatment focuses on relieving muscle tension and fatigue, improving circulation, reducing puffiness and fluid retention, and helping the body relax and recover after pregnancy and childbirth. Pressure and techniques are customized for comfort and individual needs.",
+   "price_cents": 16000,
+   "price_type": "fixed",
+   "price_description": "$160",
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "7BORZCKYCOXC53RXIAV52PX5",
+   "name": "Prenatal Massage",
+   "description": "A gentle, full-body manual massage designed specifically for pregnancy and performed entirely by hand. The treatment is adapted for the comfort and changing needs of the body during pregnancy, helping relieve muscle tension, back and leg discomfort, reduce puffiness, improve circulation, and promote deep relaxation. Positioning, pressure, and massage techniques are carefully adjusted for each stage of pregnancy.",
+   "price_cents": 16000,
+   "price_type": "fixed",
+   "price_description": "$160",
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "GDLGAFIU5RWB3QCXBPUNMEW5",
+   "name": "Relaxing Massage",
+   "description": "",
+   "price_cents": 20000,
+   "price_type": "fixed",
+   "price_description": "$200",
+   "duration_min": 90,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "PRGLVMFSCKTMVS6AEMHQBGXJ",
+   "name": "Sports Massage + Stretching 90 min (Top Massage Therapist)",
+   "description": "Sports massage is a specialized form of massage therapy designed to cater to the unique needs of athletes and individuals engaged in rigorous physical activities.\n\nRegular sports massages can aid in preventing injuries by addressing muscle imbalances, promoting better posture, and identifying potential issues before they escalate into more serious problems.",
+   "price_cents": 23500,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 90,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "7ODRIO7BFFCMGL5VMHIBWXMI",
+   "name": "Sports Massage 120 min (Top Massage Therapist)",
+   "description": "",
+   "price_cents": 27500,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 120,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "NCWPANQ47NQO3FCUPJAZ5XI2",
+   "name": "Sports Massage 60 min (Top Massage Therapist)",
+   "description": "Sports massage is a specialized form of massage therapy designed to cater to the unique needs of athletes and individuals engaged in rigorous physical activities.",
+   "price_cents": 16500,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "PGTFLHK27EQSII4FKR3PW6HX",
+   "name": "Sports Massage 90 min (Top Massage Therapist)",
+   "description": "Sports massage is a specialized form of massage therapy designed to cater to the unique needs of athletes and individuals engaged in rigorous physical activities.",
+   "price_cents": 22500,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 90,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "TPRWAKXYGPW7KFXA6ET7L7WM",
+   "name": "Swedish Massage 120 min (Top Massage Therapist)",
+   "description": "",
+   "price_cents": 25000,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 120,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "J7KUIIPVUMSJ2XQNGDRRHACZ",
+   "name": "Swedish Massage 60 min (Top Massage Therapist)",
+   "description": "Swedish massage is a therapeutic technique that involves manipulating muscles with long, gliding strokes, kneading, and circular movements. Its primary goals are relaxation and stress relief.",
+   "price_cents": 15000,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "32OTYPLAXE5CZVA7QOPR4T5E",
+   "name": "Swedish massage 90 min (Top Massage Therapist)",
+   "description": "",
+   "price_cents": 20000,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 90,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "3WCKEWHGBNJU54RWSMWWAT77",
+   "name": "T-Shape Mesosphere, 40min",
+   "description": "",
+   "price_cents": 13000,
+   "price_type": "fixed",
+   "price_description": "$130",
+   "duration_min": 40,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "VU3SQFZR3B5UODEDEUB2X2PQ",
+   "name": "T-Shape Mesosphere, 60min",
+   "description": "",
+   "price_cents": 16000,
+   "price_type": "fixed",
+   "price_description": "$160",
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "LHADTFKP3JPINPZZB7PJH5N3",
+   "name": "T-Shape Vacuum RF + Laser Body Massage, 40 min",
+   "description": "",
+   "price_cents": 17900,
+   "price_type": "fixed",
+   "price_description": "$179",
+   "duration_min": 40,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "2AHHYKAOWOROK2LZK7GEAVJB",
+   "name": "T-Shape Vacuum RF + Laser Body Massage, 60 min",
+   "description": "",
+   "price_cents": 21900,
+   "price_type": "fixed",
+   "price_description": "$219",
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "G3AHC5SPGEB2OWOQHC7MXO7X",
+   "name": "T-Shape Vacuum RF + Laser body Massage, 30 min",
+   "description": "",
+   "price_cents": 14900,
+   "price_type": "fixed",
+   "price_description": "$149",
+   "duration_min": 30,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "SEYKJRKTUBOCZJJP5OWPOGIT",
+   "name": "T-Shape body contouring 120 min",
+   "description": "T-Shape Body Contouring – 120 Minutes\n\nA complete body sculpting treatment combining 60 minutes of Laser + Radio Frequency to contour, tighten the skin, and improve the appearance of cellulite, followed by 60 minutes of Mesosphere Therapy to support lymphatic drainage, circulation, and reduce puffiness.\n\nPerfect for smoother, firmer, more sculpted-looking skin.",
+   "price_cents": 27900,
+   "price_type": "fixed",
+   "price_description": "$279",
+   "duration_min": 120,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "GNPDZWBCNOLBT4HWWSKWMILV",
+   "name": "Tai Massage 90 min",
+   "description": "",
+   "price_cents": 18000,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 90,
+   "category": "Body",
+   "taxable": false,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "RMTICQYVNDZV65EBYBWG7JRT",
+   "name": "Therapeutic Massage, 30 min (Top massage therapist)",
+   "description": "",
+   "price_cents": 12000,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 30,
+   "category": "Body",
+   "taxable": false,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "5OSJY5FTE7WQGAUWKO7YACJY",
+   "name": "Therapeutic Massage, 60 min (Top massage therapist)",
+   "description": "",
+   "price_cents": 16500,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 60,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "R36KI2BNFS2QP36DBUTCZLEB",
+   "name": "Therapeutic Massage, 90 min (Top massage therapist)",
+   "description": "",
+   "price_cents": 22500,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 90,
+   "category": "Body",
+   "taxable": false,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "23BUGHKYIDSFAJW4DETGTIWE",
+   "name": "Wrap Me Up",
+   "description": "",
+   "price_cents": 19900,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 80,
+   "category": "Body",
+   "taxable": true,
+   "locations": [
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "ZPP5B6RUORYKOGV44YE5ICUO",
+   "name": "Wrap Me Up + 60 min Massage",
+   "description": "Wrap Me Up + Massage is a spa treatment that combines body wrapping and massage techniques. This holistic approach offers several benefits: Relaxation, Detoxification, Improved Circulation, Skin Rejuvenation, Stress Reduction,",
+   "price_cents": 29900,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 120,
+   "category": "Body",
+   "taxable": false,
+   "locations": [
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "2ILLETQEH4NCTFFGRA3XCTZW",
+   "name": "Babor sculpt and lift ritual",
+   "description": "A luxurious lifting and rejuvenating facial featuring a sculpting facial massage, Babor lifting ampoule, anti-wrinkle mask, and LED light therapy. Designed to improve firmness, reduce puffiness, support collagen production, and leave the skin refreshed, radiant, and visibly lifted.",
+   "price_cents": 18600,
+   "price_type": "fixed",
+   "price_description": "$186",
+   "duration_min": 90,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "ZEZPVQUJDE64VXFFBSAAZGYA",
+   "name": "Buccal Massage 30 min",
+   "description": "A specialized facial sculpting massage performed both externally and intraorally (inside the mouth). Helps release facial muscle tension, reduce puffiness, improve circulation, and create a more defined, lifted appearance. Gloves are used for the intraoral portion of the treatment.",
+   "price_cents": 12000,
+   "price_type": "fixed",
+   "price_description": "$120",
+   "duration_min": 30,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "NAPMETWDKBAG3JNDCZQYON76",
+   "name": "Deep Express Hydration on Babor cosmetics",
+   "description": "A deeply moisturizing facial featuring BABOR’s hyaluronic acid skincare system. Includes gentle enzyme exfoliation, Hydra Plus ampoule infusion, a hydrating facial massage, and a cooling hydro-gel mask. Designed to restore moisture, soften fine lines, improve skin elasticity, and leave the skin smooth, plump, and radiant.",
+   "price_cents": 11900,
+   "price_type": "fixed",
+   "price_description": "$119",
+   "duration_min": 45,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "MRTM7JQMJLNK3KKVHMJ7BVOW",
+   "name": "Face Massage Sculpture + Lifting",
+   "description": "A 60-minute manual facial massage performed entirely by hand using sculpting and lifting techniques. Helps release facial muscle tension, reduce puffiness, improve circulation, define facial contours, and create a naturally lifted, refreshed appearance. Includes the face, jawline, and neck.",
+   "price_cents": 16000,
+   "price_type": "fixed",
+   "price_description": "$160",
+   "duration_min": 60,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "3ZSWZ74S6UYSJ35TZ24M6OXD",
+   "name": "Hydro facial + deep cleaning (Glass Skin Glow by Glacé)  120min",
+   "description": "A comprehensive 2-hour facial combining a full deep cleansing treatment with Glacē™ hydrodermabrasion by Candela. The treatment begins with cleansing and thorough manual extractions to remove blackheads, clogged pores, and impurities. Depending on your skin’s needs, additional deep-cleansing steps may include ultrasound, high frequency, and a customized peel.\n\nThe Glacē™ treatment follows with diamond-tip hydrodermabrasion and vacuum cleansing to exfoliate the skin and further clean the pores while simultaneously infusing a targeted serum. Choose from Lifting & Anti-Wrinkle, Moisturizing & Glow, or Acne & Pore Care based on your skin concerns.\n\nThe treatment is completed with a customized hydrating and soothing mask, LED light therapy, and finishing skincare. Ideal for clients who want thorough pore cleansing and extractions combined with hydration, exfoliation, targeted skincare, and a fresh glass-skin glow.",
+   "price_cents": 31900,
+   "price_type": "fixed",
+   "price_description": "$319",
+   "duration_min": 120,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "VGCNAGLRLIJJZNDIIT64AU2H",
+   "name": "Joëlle Ciocco Sculpture Face Massage + RF Lifting",
+   "description": "A comprehensive facial sculpting treatment combining a manual massage inspired by the Joëlle Ciocco Sculpture method with radiofrequency (RF) lifting. The massage works deeply with the facial muscles to release tension, reduce puffiness, improve circulation, and create more defined facial contours.\nThe RF portion delivers controlled radiofrequency energy to gently heat the deeper layers of the skin, helping stimulate collagen production and improve the appearance of firmness and elasticity.\nTogether, the two techniques target facial definition, puffiness, fine lines, and loss of firmness, leaving the face looking smoother, more sculpted, refreshed, and naturally lifted.",
+   "price_cents": 19900,
+   "price_type": "fixed",
+   "price_description": "$199",
+   "duration_min": 90,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "AYBATMLQFUC62L5OPW6LITY2",
+   "name": "Joëlle Ciocco Sculpture Face Massage, 60 min",
+   "description": "A 60-minute deep manual facial massage inspired by the Joëlle Ciocco Sculpture method. The therapist works entirely by hand, using targeted sculpting techniques to deeply massage and stimulate the facial muscles. Designed to release facial tension, improve circulation, support muscle tone, reduce puffiness, and create a more defined and lifted appearance. The treatment is customized to the individual structure and muscle tone of the face, leaving facial contours looking sculpted, refreshed, and naturally lifted.",
+   "price_cents": 16000,
+   "price_type": "fixed",
+   "price_description": "$160",
+   "duration_min": 60,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "5DN3W2A45O64OSA5D2XQWB33",
+   "name": "LPG Endermologie Face + RF Lifting (face + neckline)",
+   "description": "A combined face and neck treatment using LPG Endermologie® and radiofrequency (RF) technology. The LPG facial treatment uses gentle mechanical stimulation to massage the tissue, improve circulation and lymphatic drainage, reduce puffiness, and help sculpt and refresh the appearance of the face.\nThe RF portion delivers controlled radiofrequency energy to gently heat the deeper layers of the skin, helping stimulate collagen production and improve the appearance of skin firmness, elasticity, and facial contours.\nTogether, these treatments target puffiness, loss of firmness, fine lines, and facial definition, leaving the face and neck looking smoother, firmer, and more lifted.",
+   "price_cents": 18600,
+   "price_type": "fixed",
+   "price_description": "$186",
+   "duration_min": 75,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "RAXQJTAZYCLLHYWY7DWNK3UJ",
+   "name": "LPG Endermologie Face 40 min",
+   "description": "A non-invasive facial treatment performed with the LPG Endermologie® device using a specialized facial treatment head. Gentle mechanical stimulation massages the skin and underlying tissue to help improve circulation and lymphatic drainage, reduce puffiness, and support natural collagen and elastin production. Designed to improve facial contours, skin firmness and elasticity, soften the appearance of fine lines, and leave the skin smoother, refreshed, and more radiant.",
+   "price_cents": 12000,
+   "price_type": "fixed",
+   "price_description": "$120",
+   "duration_min": 40,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "WAQ7E6EDHMBZ6XYG7I3EPKBZ",
+   "name": "Microneedeling with Salmon DNA (per treatment)",
+   "description": "An advanced skin rejuvenation treatment combining microneedling with Salmon DNA (PDRN) serum. Microneedling uses very fine sterile needles to create controlled microchannels in the skin, stimulating the skin’s natural renewal process and enhancing absorption of the serum.\n\nSalmon DNA (PDRN) is applied during the treatment to support skin hydration, repair, and rejuvenation. This treatment is designed to improve skin texture and firmness, soften the appearance of fine lines, enlarged pores, and acne scars, and promote smoother, healthier, more radiant-looking skin.",
+   "price_cents": 39900,
+   "price_type": "fixed",
+   "price_description": "$399",
+   "duration_min": 70,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "3MQIQNL27AIINXW6K4TADL7W",
+   "name": "October Special: Buy 6 Get 2 free  Microneedling with BABOR Exosomes (Face + Neck) + 2 TSA 30% peel",
+   "description": "✨ BABOR EXOSOME MICRONEEDLING SPECIAL ✨\n\nBUY 6 — GET 2 FREE\n\nPurchase 6 BABOR Exosome Microneedling treatments for $1,194 and receive:\n\n✨ 2 Microneedling Treatments FREE — $398 Value\n✨ 2 TCA 30% Peels FREE — $198 Value\n\nTOTAL: 10 TREATMENTS\nYOU PAY: $1,194\nTOTAL VALUE: $1,790\nYOU SAVE: $596\n\nLimited-Time Special \n\nAn advanced microneedling treatment for the face and neck combined with professional BABOR exosome skincare selected according to your skin’s needs. Microneedling creates controlled microchannels in the skin to support the natural renewal process and enhance the absorption of targeted active ingredients.\n\nThe exosome treatment is customized based on your skin concerns, with options focused on lifting and firming, deep hydration and moisture, or other specific skin needs. Designed to improve the appearance of fine lines, enlarged pores, uneven texture, acne scars, firmness, and overall skin quality, leaving the skin smoother, refreshed, and radiant.",
+   "price_cents": 19900,
+   "price_type": "fixed",
+   "price_description": "$1194",
+   "duration_min": 70,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "GHJR5PRWPRMTKMZG3SMI5OML",
+   "name": "Pure Detox -  Cleansing and Skin Rebalancing (60 min)",
+   "description": "A purifying and balancing facial performed with professional BABOR skincare, designed for oily, congested, combination, and breakout-prone skin. The treatment includes cleansing, exfoliation, and targeted skincare selected according to your skin’s individual needs to help remove buildup, clear and refine the appearance of pores, reduce excess oil, and restore a healthier-looking skin balance.\nDepending on your skin condition, the treatment may also include a customized peel and additional pore-cleansing techniques. A targeted BABOR mask is applied to calm, hydrate, and rebalance the skin, followed by finishing skincare. Leaves the complexion feeling clean, fresh, smooth, and refreshed without over-drying the skin.",
+   "price_cents": 16400,
+   "price_type": "fixed",
+   "price_description": "$164",
+   "duration_min": 60,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "AKCRLOX6JJFFZQIURABQ6XSD",
+   "name": "Signature Custom Facial 60-120 min",
+   "description": "A fully customized facial designed around your skin’s unique needs.\n\nEvery treatment begins with a skin assessment, allowing our esthetician to select the most suitable techniques, professional products, masks, serums, exfoliation, massage, and available technologies for your skin that day.\n\nWhether your goal is deep cleansing, hydration, calming, brightening, lifting, anti-aging, or restoring a healthy glow, your facial is created specifically for you.\n\nNo two treatments are exactly the same — because no two skins are the same.\nPrice starts from $164",
+   "price_cents": 0,
+   "price_type": "variable",
+   "price_description": null,
+   "duration_min": 120,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "4V7BKB6TF2AICH37UPTMPBT6",
+   "name": "T-Shape RF Vacuum Mesoporation Face",
+   "description": "RF Vacuum Mesoporation massage (face) 40min",
+   "price_cents": 18900,
+   "price_type": "fixed",
+   "price_description": "$189",
+   "duration_min": 40,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "IR2BWOUPVAEMLDBCGMCI7XRA",
+   "name": "T-Shape RF Vacuum Mesoporation Face",
+   "description": "",
+   "price_cents": 15900,
+   "price_type": "fixed",
+   "price_description": "$159",
+   "duration_min": 30,
+   "category": "Face",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "ETSSY3BPLN4WMQGGWOBMGCF6",
+   "name": "Babor Deep Cleans & Glow ritual 60-120 min",
+   "description": "A customized deep-cleansing facial with thorough extractions to unclog pores and remove impurities. Depending on your skin type and condition, the treatment may also include ultrasound, high frequency, a customized peel, and a targeted mask. Treatment time varies from 60–120 minutes based on your skin’s needs and the amount of extractions required.",
+   "price_cents": 22000,
+   "price_type": "fixed",
+   "price_description": "$220",
+   "duration_min": 90,
+   "category": "Specials",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "VSU7BVXWGFACRNM4M5IKLIRZ",
+   "name": "Hydro facial (Glass Skin Glow by Glace)  60 min",
+   "description": "A customized facial performed with the Glacē™ device by Candela. Treatment begins with cleansing and a gentle multivitamin peel, followed by diamond-tip hydrodermabrasion that exfoliates and deeply cleans pores while simultaneously infusing a targeted serum into the skin. Choose your serum based on your skin goals: Lifting & Anti-Wrinkle, Moisturizing & Glow, or Acne & Pore Care. The treatment is completed with a customized hydrating and soothing mask, LED light therapy, and finishing skincare. Designed to leave the skin deeply cleansed, hydrated, smooth, and glowing with little to no downtime.",
+   "price_cents": 23900,
+   "price_type": "fixed",
+   "price_description": "$239",
+   "duration_min": 60,
+   "category": "Specials",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "ZL6LISB6GX4P7WMPYF46F6ZX",
+   "name": "October Special:  120 min Lymphatic LUXE Renewal treatment",
+   "description": "A luxurious 2-hour lymphatic treatment designed for full-body relaxation, drainage, and facial rejuvenation. The experience begins with a 60-minute full-body manual lymphatic drainage massage, performed entirely by hand to support lymphatic flow, reduce puffiness and fluid retention, and leave the body feeling lighter and refreshed.\nThe remaining hour focuses on the neck and face with gentle lymphatic massage, followed by a relaxing hand massage and a hydrating facial mask to soothe, nourish, and replenish moisture in the skin.\nA complete head-to-toe treatment combining body and facial care for deep relaxation and an overall refreshed, renewed feeling.",
+   "price_cents": 19900,
+   "price_type": "fixed",
+   "price_description": "$199",
+   "duration_min": 120,
+   "category": "Specials",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "TPRHQPE2PW3BG4FX2DXAXEIS",
+   "name": "October Special: 90 min T-Sculpt Body Massage (Regular price $299)",
+   "description": "T-Sculpt Massage (90 min):\nA results-driven body sculpting treatment that combines manual contouring massage techniques with T-Shape technology to help improve circulation, reduce fluid retention, smooth the appearance of cellulite, and enhance body contours while promoting relaxation and overall wellness.",
+   "price_cents": 21900,
+   "price_type": "fixed",
+   "price_description": "$219",
+   "duration_min": 90,
+   "category": "Specials",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "WHQBOWROOWLWSMWZFRPFNOB5",
+   "name": "October Special: European Buccal Sculpt Facial 90 min (reg price $285)",
+   "description": "European Buccal Sculpt Facial\n\nThe European Buccal Sculpt Facial is an advanced, non-invasive facial rejuvenation technique that works both externally and intra-orally to naturally lift, sculpt, and restore youthful facial contours.\n\nThis signature European method targets the deep facial muscles, releasing chronic tension in the jaw and lower face while stimulating circulation, lymphatic drainage, and collagen production. By working inside the mouth (with medical-grade gloves), this treatment lifts and tones areas that traditional facials cannot reach.\n\nThe result is a naturally contoured, lifted appearance—without injectables, downtime, or discomfort.\n\nBenefits\n\t•\tLifts and sculpts the cheeks, jawline, and lower face\n\t•\tSoftens nasolabial folds and marionette lines\n\t•\tRelieves jaw tension and TMJ-related tightness\n\t•\tImproves facial symmetry and muscle tone\n\t•\tEnhances blood circulation and lymphatic drainage\n\t•\tPromotes natural collagen and elastin production\n\t•\tLeaves the skin visibly firmer, relaxed, and glowing\n\nIdeal for\n\t•\tClients seeking a natural alternative to injectables\n\t•\tFacial muscle tension or jaw clenching\n\t•\tLoss of firmness or facial contour\n\t•\tPuffy or congested facial appearance\n\t•\tPre-event facial sculpting and glow\n\nThis facial is often combined with LED light therapy, LPG, or T-Shape for enhanced lifting, skin tightening, and long-lasting results.\n\n✨ Results are visible immediately, with cumulative benefits over a series of treatments.",
+   "price_cents": 16400,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 90,
+   "category": "Specials",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "QCKMHDRE5BJ5RBSMF5KKYFLB",
+   "name": "October Special: Royal Foot & Glow Renewal Ritual (90 min)",
+   "description": "Royal Foot & Glow Renewal Ritual\n90 Minutes | Foot Restoration & Facial Relaxation Experience\n\nExperience the perfect combination of deep foot rejuvenation and facial nourishment designed to restore the body, relax the mind, and leave you glowing from head to toe.\n\nTreatment Includes:\n\n1. Warm Herbal Foot Steam Therapy (10 Minutes)\nYour experience begins with a warm therapeutic foot steam to relax muscles, soften the skin, stimulate circulation, and prepare the feet for complete restoration.\n\n2. Purifying Foot Cleanse (5 Minutes)\nFeet are gently cleansed to refresh the skin and prepare for exfoliation and hydration.\n\n3. Luxury Foot Exfoliation (15 Minutes)\nA revitalizing scrub removes dead skin buildup, smooths rough texture, and restores softness to tired feet.\n\n4. Therapeutic Foot & Lower Leg Massage (30 Minutes)\nA deeply relaxing massage using nourishing oils and pressure-point techniques to relieve tension, reduce fatigue, and improve circulation.\n\n5. Nourishing Paraffin Therapy (15 Minutes)\nFeet are enveloped in warm paraffin to deeply hydrate dry skin, soften rough heels, soothe discomfort, and restore silky smoothness.\n\nLuxury Facial Care During Paraffin Therapy\n\nWhile your feet are cocooned in paraffin therapy, enjoy a relaxing facial wellness experience:\n\n6. Gentle Facial Cleansing & Skin Refresh\nThe skin is carefully cleansed to remove impurities and refresh the complexion.\n\n7. Customized Professional Skincare Application\nPremium creams, serums, and nourishing skincare products are applied based on your skin’s needs to hydrate, soothe, and revitalize.\n\n8. Infrared Relaxation Therapy\nRelax under a soothing infrared lamp while your skincare deeply absorbs into the skin, helping to enhance circulation, support relaxation, and leave your complexion glowing.\n\n9. Warm Towel Wrap & Final Hydration Ritual\nThe experience concludes with warm towels and finishing hydration, leaving both feet and skin soft, refreshed, and renewed.\n\nBenefits:\n\n• Deep hydration for feet and skin\n• Softer heels and smoother feet\n• Facial nourishment and glow\n• Improved circulation\n• Deep relaxation and stress relief\n• Luxury spa experience from head to toe\n\nPerfect for: tired feet, dry skin, stress relief, self-care days, and anyone wanting to feel pampered and rejuvenated.",
+   "price_cents": 14900,
+   "price_type": "fixed",
+   "price_description": "$149",
+   "duration_min": 90,
+   "category": "Specials",
+   "taxable": false,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "TAGQINQFKDJU7PGGMI5DAAOT",
+   "name": "October special: T-shape body 40 min + T-shape face 30 min",
+   "description": "T-Shape Body:\nA non-invasive body contouring treatment that combines radiofrequency, vacuum massage, and low-level laser technology to help reduce the appearance of cellulite, improve skin firmness, stimulate circulation, and support body sculpting.\n\nT-Shape Face:\nA non-invasive facial treatment that uses radiofrequency and vacuum technology to help tighten the skin, improve facial contours, reduce puffiness, and promote a more lifted, youthful appearance.",
+   "price_cents": 19900,
+   "price_type": "fixed",
+   "price_description": "$199",
+   "duration_min": 70,
+   "category": "Specials",
+   "taxable": false,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "SYWRKZR3BQ4O5KKLYD3VCCTK",
+   "name": "Promotion: LPG Endermologie body and Face",
+   "description": "A complete face and body treatment performed with the LPG Endermologie® device. The body portion is performed while wearing a special lightweight LPG Endermowear™ suit, allowing the treatment head to comfortably grip and massage the tissue using mechanical stimulation and suction. The treatment helps stimulate circulation and lymphatic flow, smooth the appearance of cellulite, reduce puffiness, improve skin firmness, and support body contouring.\nThe facial portion is performed with a specialized LPG face treatment head to gently stimulate the skin, improve circulation, reduce puffiness, and support firmer, smoother, more radiant-looking skin.\nIncludes both face and body treatment in one 80-minute session.",
+   "price_cents": 13600,
+   "price_type": "fixed",
+   "price_description": "$136",
+   "duration_min": 80,
+   "category": "Specials",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "RMDZVT7EW5N3DCAJA7KC7GGS",
+   "name": "Tai Massage 60 min",
+   "description": "",
+   "price_cents": 15000,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 60,
+   "category": "Specials",
+   "taxable": true,
+   "locations": [
+    "SD"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "5DG36PERSRQXHJN2AXXIJX2O",
+   "name": "November Special: Lymphatic Body & Face 90 min",
+   "description": null,
+   "price_cents": 16400,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 90,
+   "category": "Specials",
+   "taxable": true,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "EWKMFQK4BTONSGNIWNUISKAR",
+   "name": "$10 to add 10 min of cupping or hot stones",
+   "description": null,
+   "price_cents": 1000,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 10,
+   "category": "",
+   "taxable": false,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  },
+  {
+   "id": "ZCJEJ6W63JZOGZUHZ2ZUVZRG",
+   "name": "$20 to add 20 mins of cupping or hot stones",
+   "description": null,
+   "price_cents": 2000,
+   "price_type": "fixed",
+   "price_description": null,
+   "duration_min": 20,
+   "category": "",
+   "taxable": false,
+   "locations": [
+    "SD",
+    "DM"
+   ],
+   "variations": 1
+  }
+ ]
+}

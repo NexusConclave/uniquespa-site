@@ -1,0 +1,43 @@
+---
+/** /guides/ — the list of service guides (only built while guides are live; see pages/guides/[...path].astro). */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../Section.astro';
+import PageIntro from '../PageIntro.astro';
+import AskUni from '../AskUni.astro';
+import { GUIDES } from '../../lib/guides';
+import { graph, orgNode, websiteNode, webPageNode, breadcrumbNode } from '../../lib/schema';
+import '../../styles/pages-b.css';
+import '../../styles/guides.css';
+
+const PATH = '/guides';
+const jsonLd = graph(
+  webPageNode(PATH, 'Spa guides', { type: 'CollectionPage' }),
+  websiteNode(), orgNode(),
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Guides', path: PATH }]),
+);
+---
+<BaseLayout
+  title="Spa Guides: Massage and Facials | Unique Spa House"
+  description="Plain-English guides to our most-booked treatments in San Diego and Del Mar: what to expect, how to choose, lengths and prices."
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Guides' }]}
+    title="Spa <em>guides</em>"
+    lede="Short, plain-English guides to our most-booked treatments. What happens, how to choose, how long to book and what it costs at each spa."
+  />
+  <Section labelledby="list-title" tone="paper">
+    <div class="b-split">
+      <div class="b-split__head"><h2 id="list-title">All guides</h2></div>
+      <div class="b-split__body">
+        <ul class="g-more" role="list">
+          {GUIDES.map((g) => <li><a href={`/guides/${g.slug}`}>{g.label}</a><p>{g.summary}</p></li>)}
+        </ul>
+      </div>
+    </div>
+  </Section>
+  <Section pad="tight" width="narrow">
+    <div class="b-tail"><AskUni /></div>
+  </Section>
+</BaseLayout>

@@ -1,0 +1,33 @@
+---
+/**
+ * StubPage — placeholder for a P1 URL until its owner builds it.
+ * Real layout, real title (≤ 60 chars) and H1, plus "Coming soon" and a few ways forward.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from './Section.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+interface Props { title: string; h1: string; description?: string; lede?: string; owner?: string }
+const { title, h1, description, lede } = Astro.props;
+---
+<BaseLayout title={title} description={description}>
+  <Section class="stub" pad="default">
+    <p class="eyebrow">Coming soon</p>
+    <h1 class="stub__h1">{h1}</h1>
+    {lede && <p class="lede stub__lede">{lede}</p>}
+    <p class="stub__note">This page is being written. In the meantime, you can book online, ask Uni, or call us on (858) 293-8900.</p>
+    <div class="stub__actions">
+      <Button open="book" variant="outline" track="book_click" trackProps={{ placement: 'stub' }}>Book a visit</Button>
+      <Button open="uni" variant="outline">Ask Uni</Button>
+      <a class="link-arrow" href="/">Back to home<Icon name="arrow-right" /></a>
+    </div>
+    <slot />
+  </Section>
+</BaseLayout>
+<style>
+  :global(.stub) { min-height: 60svh; }
+  .stub__h1 { font-size: clamp(2.5rem, 1.6rem + 3.6vw, 5rem); max-width: 18ch; }
+  .stub__lede { margin-top: 1.25rem; }
+  .stub__note { margin-top: 1.25rem; color: var(--text-muted); }
+  .stub__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; margin-top: 2rem; }
+</style>

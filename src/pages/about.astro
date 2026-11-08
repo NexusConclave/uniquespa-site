@@ -1,0 +1,210 @@
+---
+/**
+ * /about (blueprint §4.9, copy 02, claims log).
+ * Status gate: copy 02's lines about gated services and devices are removed (they never render).
+ * Not until the owner confirms: "20+ years", team names (reviews name staff; those quotes are trimmed in
+ * reviews.json), Nordlys/Endosphere. Brands as text only (BABOR) [CONFIRM: O-B2 for other brand names].
+ * Katy: "Katy, owner"; hands-only image until O-K1; no licence or title until confirmed.
+ * Quotes render only when approved (or PREVIEW, marked as drafts).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import Button from '../components/Button.astro';
+import ArchFrame from '../components/ArchFrame.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import PullQuote from '../components/PullQuote.astro';
+import Icon from '../components/Icon.astro';
+import EntityFacts from '../components/EntityFacts.astro';
+import { review } from '../lib/reviews';
+import { site, addressLine } from '../lib/site';
+import { graph, orgNode, spaNode, websiteNode, webPageNode } from '../lib/schema';
+
+const quotes = ['irina-k', 'terry-h', 'bahar-z'].map((id) => review(id)).filter(Boolean);
+
+const ways = [
+  { t: 'We listen first.', d: 'Every visit starts with a short chat about your goals and any health concerns.' },
+  { t: 'No rushing.', d: 'Your time is your time.' },
+  { t: 'No hard sell.', d: "We'll suggest what suits you, and you decide." },
+  { t: 'Honest advice.', d: "We tell you what a treatment can and can't do." },
+];
+
+const offer = [
+  { title: 'Massage', href: '/massage', text: 'Swedish, deep tissue, lymphatic, sports, prenatal, couples and more.' },
+  { title: 'Facials', href: '/facials', text: 'BABOR facials and sculpting face massage, chosen for your skin after a short check.' },
+  { title: 'Body', href: '/body', text: 'Our Wrap Me Up body wrap in Del Mar, and anti-cellulite massage at both spas.' },
+];
+
+// GEO: the full business entity (Organization + both DaySpa nodes) on the page that describes it. No AggregateRating.
+const jsonLd = graph(
+  webPageNode('/about', 'About Unique Spa House', { type: 'AboutPage' }),
+  websiteNode(), orgNode(), spaNode('SD'), spaNode('DM'),
+);
+---
+<BaseLayout
+  title="About Us | Unique Spa House, San Diego & Del Mar"
+  description="Unique Spa House opened in 2021, started by a licensed massage therapist. Massage, facials and body treatments in San Diego (Mission Valley) and Del Mar."
+  jsonLd={jsonLd}
+>
+  <Section class="ab-hero" pad="tight" reveal={false}>
+    <p class="eyebrow">About us</p>
+    <h1 class="ab-hero__h1">About Unique Spa House</h1>
+    <div class="ab-hero__grid">
+      <p class="ab-hero__big serif">A spa built on listening.</p>
+      <div class="ab-hero__text">
+        <p class="lede">Unique Spa House opened in 2021. It was started by a licensed massage therapist.</p>
+        <p>The idea was simple: take time, listen well, and shape every treatment around the person on the table. We began as a massage studio. Today we offer massage, facials and body treatments, at two spas in San Diego and Del Mar.</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section tone="paper" labelledby="entity-title" class="ab-entity" pad="tight">
+    <EntityFacts />
+  </Section>
+
+  <Section labelledby="ab-story-title" class="ab-story">
+    <div class="ab-story__grid">
+      <h2 id="ab-story-title">From massage studio to a <em>house</em> of care</h2>
+      <div class="ab-story__text">
+        <p>Our founder saw that good care is never one-size-fits-all. It needs time and attention. That idea shaped the spa from day one.</p>
+        <p>As clients asked for more, we grew, adding facials and body treatments to the massage menu. Through it all, the focus has stayed the same: quality, safety and how you feel when you leave.</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section tone="brown" labelledby="ab-how-title" class="ab-how">
+    <h2 id="ab-how-title" class="ab-how__title">How we <em>work</em></h2>
+    <ul class="ab-how__list" role="list">
+      {ways.map((w) => (
+        <li>
+          <h3 class="ab-how__t">{w.t}</h3>
+          <p>{w.d}</p>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section labelledby="ab-katy-title" class="ab-katy">
+    <div class="ab-katy__grid">
+      <ArchFrame asset="hands-4x5" ratio="4 / 5" sizes="(min-width: 900px) 32vw, 78vw" class="ab-katy__arch" parallax />
+      <div class="ab-katy__text">
+        <p class="eyebrow">Meet the team</p>
+        <h2 id="ab-katy-title">Book with <em>Katy</em>, our owner</h2>
+        <p class="lede">Choose any 60, 90 or 120 min massage with Katy: lymphatic, deep tissue, anti-cellulite, relaxing, sports or therapeutic, or a mix.</p>
+        <ServiceCard service="katy" variant="feature" showTitle={false} summary={null} defaultMinutes={60} placement="about" class="ab-katy__svc" />
+        <a class="link-arrow" href="/massage/with-katy">About massage with Katy<Icon name="arrow-right" /></a>
+        <div class="ab-team">
+          <h3 class="ab-team__title">Our team</h3>
+          <p>Our team includes licensed massage therapists and certified estheticians. Each one is trained in their specialty, and in making you feel at ease. We keep learning, so we stay up to date with new techniques.</p>
+        </div>
+      </div>
+    </div>
+  </Section>
+
+  <Section tone="paper" labelledby="ab-offer-title" class="ab-offer">
+    <div class="ab-offer__head">
+      <h2 id="ab-offer-title">What we offer</h2>
+      <a class="link-arrow" href="/menu">See the full menu and prices<Icon name="arrow-right" /></a>
+    </div>
+    <ul class="ab-offer__list" role="list">
+      {offer.map((o) => (
+        <li class="ab-offer__item">
+          <h3><a href={o.href}>{o.title}</a></h3>
+          <p>{o.text}</p>
+        </li>
+      ))}
+    </ul>
+    <div class="ab-brands">
+      <h3 class="ab-brands__title">The products we use</h3>
+      <p><strong>BABOR</strong> professional skincare, from Germany, in our facials.</p>
+    </div>
+  </Section>
+
+  <Section labelledby="ab-spas-title" class="ab-spas">
+    <h2 id="ab-spas-title">Serving San Diego and Del Mar</h2>
+    <p class="lede ab-spas__lede">Two calm, private spas. One standard of care. Some services are offered at one spa only; each service page shows where.</p>
+    <ul class="ab-spas__list" role="list">
+      {(['SD', 'DM'] as const).map((id) => {
+        const s = site.spas[id];
+        return (
+          <li class="ab-spa">
+            <h3 class="ab-spa__name">{s.long_name}</h3>
+            <address class="ab-spa__addr">{addressLine(s)}</address>
+            <p class="meta ab-spa__hours"><Icon name="clock" />{s.hours_text}</p>
+            <a class="link-arrow" href={s.page}>See the {s.name} spa<Icon name="arrow-right" /></a>
+          </li>
+        );
+      })}
+    </ul>
+  </Section>
+
+  {quotes.length > 0 && (
+    <Section tone="sand" labelledby="ab-words-title" class="ab-words">
+      <h2 id="ab-words-title">In our clients' words</h2>
+      <div class="ab-words__grid">
+        {quotes.map((q) => <PullQuote review={q!} size="small" />)}
+      </div>
+    </Section>
+  )}
+
+  <Section labelledby="ab-cta-title" class="ab-cta">
+    <h2 id="ab-cta-title" class="ab-cta__title">Come and see <em>us</em>.</h2>
+    <p class="ab-cta__text">New and returning clients are always welcome. Book online, or call and we'll help you choose.</p>
+    <div class="ab-cta__actions">
+      <Button open="book" variant="outline" track="book_click" trackProps={{ placement: 'about' }}>Book a visit</Button>
+      <Button href={site.phone.tel} variant="outline" icon="phone" track="call_click" trackProps={{ placement: 'about' }}>Call {site.phone.display}</Button>
+      <a class="link-quiet" href={site.sms} data-track="text_click" data-track-props='{"placement":"about"}'>or text us</a>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .ab-hero__h1 { font-size: var(--fs-h1); max-width: 14ch; }
+  .ab-hero__grid { display: grid; gap: clamp(1.5rem, 4vw, 4rem); margin-top: clamp(1.5rem, 4vw, 3rem); padding-top: clamp(1.5rem, 4vw, 3rem); border-top: 1px solid var(--text); }
+  @media (min-width: 900px) { .ab-hero__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; } }
+  .ab-hero__big { font-size: clamp(2.75rem, 1.6rem + 4.6vw, 6rem); line-height: 0.98; letter-spacing: -0.015em; max-width: 10ch; text-wrap: balance; }
+  .ab-hero__text { display: flex; flex-direction: column; gap: 1rem; }
+
+  .ab-story__grid { display: grid; gap: clamp(1.25rem, 4vw, 4rem); }
+  @media (min-width: 900px) { .ab-story__grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); } }
+  .ab-story__text { display: flex; flex-direction: column; gap: 1rem; }
+
+  .ab-how__title { font-size: clamp(2.5rem, 1.7rem + 3.2vw, 4.75rem); }
+  .ab-how__list { display: grid; gap: 0; margin: clamp(1.75rem, 4vw, 3rem) 0 0; padding: 0; }
+  @media (min-width: 700px) { .ab-how__list { grid-template-columns: repeat(2, 1fr); column-gap: 2.5rem; } }
+  @media (min-width: 1100px) { .ab-how__list { grid-template-columns: repeat(4, 1fr); } }
+  .ab-how__list li { padding-block: 1.25rem 1.5rem; border-top: 1px solid var(--on-dark-border); max-width: none; }
+  .ab-how__t { font-size: 1.6rem; margin-bottom: 0.4rem; }
+
+  .ab-katy__grid { display: grid; gap: clamp(2rem, 6vw, 6rem); align-items: center; }
+  @media (min-width: 900px) { .ab-katy__grid { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); } }
+  :global(.ab-katy__arch) { width: min(100%, 420px); justify-self: center; }
+  @media (max-width: 899px) { :global(.ab-katy__arch) { width: min(72%, 320px); } }
+  .ab-katy__text { display: flex; flex-direction: column; gap: 1.1rem; align-items: flex-start; }
+  .ab-team { margin-top: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--hairline); display: grid; gap: 0.5rem; }
+  .ab-team__title { font-size: 1.6rem; }
+
+  .ab-offer__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem 2rem; margin-bottom: clamp(1.5rem, 3vw, 2.5rem); }
+  .ab-offer__list { display: grid; gap: 0; margin: 0; padding: 0; }
+  @media (min-width: 800px) { .ab-offer__list { grid-template-columns: repeat(3, 1fr); column-gap: 2.5rem; } }
+  .ab-offer__item { padding-block: 1.25rem 1.5rem; border-top: 1px solid var(--text); max-width: none; }
+  .ab-offer__item h3 { font-size: var(--fs-h3); margin-bottom: 0.4rem; }
+  .ab-offer__item h3 a { display: inline-flex; align-items: center; min-height: var(--tap); min-width: var(--tap); text-decoration-thickness: 1px; }
+  .ab-brands { margin-top: clamp(1.5rem, 3vw, 2.5rem); display: grid; gap: 0.35rem; }
+  .ab-brands__title { font-family: var(--font-sans); font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); color: var(--text-muted); }
+
+  .ab-spas__lede { margin-top: 0.75rem; }
+  .ab-spas__list { display: grid; gap: 0; margin: clamp(1.5rem, 3vw, 2.5rem) 0 0; padding: 0; }
+  @media (min-width: 760px) { .ab-spas__list { grid-template-columns: 1fr 1fr; column-gap: 2.5rem; } }
+  .ab-spa { display: grid; gap: 0.4rem; padding-block: 1.25rem 1.5rem; border-top: 1px solid var(--text); max-width: none; justify-items: start; }
+  .ab-spa__name { font-size: var(--fs-h3); }
+  .ab-spa__addr { font-style: normal; }
+  .ab-spa__hours { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .ab-spa__hours :global(svg) { width: 15px; height: 15px; }
+
+  .ab-words__grid { display: grid; gap: clamp(1.75rem, 4vw, 3rem); margin-top: clamp(1.5rem, 3vw, 2.5rem); }
+  @media (min-width: 900px) { .ab-words__grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .ab-cta__title { font-size: var(--fs-h2); }
+  .ab-cta__text { margin-top: 0.75rem; max-width: 40ch; }
+  .ab-cta__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-top: 1.5rem; }
+</style>

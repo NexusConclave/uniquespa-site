@@ -1,0 +1,48 @@
+---
+/**
+ * SpaPanel — one spa's facts on a service page (a "block per spa", §4.3): name, address, hours
+ * ("Call for today's hours" while unknown), phone and Text us, then Book (the given service/length at
+ * this spa, else the spa's booking page), Directions and See the spa. Default slot adds a line of copy.
+ * Renders nothing if the given service isn't offered at this spa.
+ */
+import { getService, getOption, bookUrl, spaBookingUrl, type Spa } from '../lib/catalog';
+import { spa as spaInfo, site } from '../lib/site';
+import Icon from './Icon.astro';
+interface Props { spa: Spa; service?: string; minutes?: number; headingLevel?: 2 | 3 | 4; bookLabel?: string; showSeeSpa?: boolean; placement?: string; class?: string }
+const { spa, service, minutes, headingLevel = 3, bookLabel, showSeeSpa = true, placement = 'spa-panel', class: cls } = Astro.props;
+const s = spaInfo(spa);
+const svc = service ? getService(service) : null;
+const opt = svc ? getOption(svc, minutes) : null;
+const href = svc && opt ? bookUrl(opt.square_id, spa) : spaBookingUrl(spa);
+const H = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
+const label = bookLabel ?? `Book in ${s.name}`;
+---
+{href && (
+<article class:list={['spa-panel', cls]}>
+  <H class="spa-panel__name">{s.long_name}</H>
+  <address class="spa-panel__addr">{s.street}<br />{s.city}, {s.region} {s.postal}</address>
+  <ul role="list" class="spa-panel__facts">
+    <li><Icon name="clock" />{s.hours_text}</li>
+    <li><Icon name="phone" /><a href={s.phone.tel} data-track="call_click" data-track-props={JSON.stringify({ spa, placement })}>{s.phone.display}</a><span aria-hidden="true">·</span><a href={site.sms} data-track="text_click" data-track-props={JSON.stringify({ spa, placement })}>Text us</a></li>
+  </ul>
+  <slot />
+  <div class="spa-panel__actions">
+    <a class="btn btn--outline btn--sm" href={href} target="_blank" rel="noopener" data-track="book_click" data-track-props={JSON.stringify({ spa, service: svc?.id, placement })}>
+      {label}<span class="sr-only">{svc && opt ? `: ${svc.name}, ${opt.label}` : ''} (opens in a new tab)</span>
+    </a>
+    <a class="link-arrow" href={s.directions_url} target="_blank" rel="noopener">Directions<span class="sr-only"> to {s.long_name} (opens in a new tab)</span><Icon name="arrow-up-right" /></a>
+    {showSeeSpa && <a class="link-arrow" href={s.page}>See the spa<span class="sr-only">: {s.long_name}</span><Icon name="arrow-right" /></a>}
+  </div>
+</article>
+)}
+<style>
+  .spa-panel { display: flex; flex-direction: column; gap: 0.75rem; padding: clamp(1.25rem, 3vw, 2rem); background: var(--paper); border: 1px solid var(--hairline); border-radius: var(--radius-card); }
+  .spa-panel__name { font-size: var(--fs-h3); }
+  .spa-panel__addr { font-style: normal; font-size: var(--fs-label); line-height: 1.5; }
+  .spa-panel__facts { display: grid; gap: 0.15rem; margin: 0; font-size: var(--fs-label); }
+  .spa-panel__facts li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem; }
+  .spa-panel__facts li > :global(svg) { width: 16px; height: 16px; color: var(--text-muted); flex: none; }
+  .spa-panel__facts a { display: inline-flex; align-items: center; min-height: var(--tap); }
+  .spa-panel :global(p) { font-size: var(--fs-label); }
+  .spa-panel__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.25rem; margin-top: 0.25rem; }
+</style>

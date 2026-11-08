@@ -1,0 +1,218 @@
+---
+/**
+ * /locations/del-mar — location page (blueprint §4.2; copy 10b minus med spa lines). "The recovery room":
+ * sports, deep tissue, lymphatic and Wrap Me Up up front, plus the honest line about the space.
+ * Hours unknown → "Call for today's hours" and NO openingHours in schema. Plain "Get directions" link (no map
+ * embed). Services generated with onlySpa="DM", so there is never a Del Mar link to a San Diego-only item.
+ * Policies note on Google bookings. Hidden until the owner answers [CONFIRM]: suite, own phone, parking,
+ * team, photos, a verified Google profile (no review link yet).
+ */
+import ConfirmNote from '../../components/ConfirmNote.astro';
+import { claimVisible } from '../../lib/confirm';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/Section.astro';
+import PageIntro from '../../components/PageIntro.astro';
+import SpaDoor from '../../components/SpaDoor.astro';
+import SpaServices from '../../components/SpaServices.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import SpecialCard from '../../components/SpecialCard.astro';
+import Faq from '../../components/Faq.astro';
+import AskUni from '../../components/AskUni.astro';
+import Button from '../../components/Button.astro';
+import Icon from '../../components/Icon.astro';
+import QuickAnswers from '../../components/QuickAnswers.astro';
+import { spaFacts } from '../../lib/entity';
+import { spaBookingUrl, findLiveService } from '../../lib/catalog';
+import { activeOffers } from '../../lib/offers';
+import { site, spa as spaInfo, addressLine } from '../../lib/site';
+import { priceOf, priceList, onlyAt, servicesAt, offeredAt, displayName, summaryOf, listJoin, inText } from '../../lib/pageHelpers';
+import { graph, orgNode, spaNode, breadcrumbNode, faqNode, offersFor } from '../../lib/schema';
+import '../../styles/pages-b.css';
+
+const SPA = 'DM' as const;
+const OTHER = 'SD' as const;
+const s = spaInfo(SPA);
+const o = spaInfo(OTHER);
+const PATH = s.page;
+const specials = activeOffers({ kind: 'special', spa: SPA }).filter((x) => !x.name_only);
+const lastEnd = specials.map((x) => x.ends).sort().at(-1);
+// O-B1 wording (QA M7): PREVIEW shows it with a draft note; production uses neutral wording until confirmed.
+const spaceOk = claimVisible('dm-space');
+
+// "The recovery room": these four up front, if they're bookable here.
+const RECOVERY = ['sports', 'deep-tissue', 'lymphatic', 'wrap-me-up'].filter((id) => { const x = findLiveService(id); return x && offeredAt(x, SPA); });
+const onlyHere = onlyAt(SPA);
+const onlyThere = onlyAt(OTHER).filter((x) => x.id !== 'brazilian-butt');
+const facialsHere = servicesAt(SPA, 'facials');
+const wrap = findLiveService('wrap-me-up');
+const wrapPlus = wrap?.options.find((x) => /massage/i.test(x.label));
+const couples = findLiveService('couples');
+
+const faqs = [
+  { q: 'Can I get a facial in Del Mar?', a: facialsHere.length ? `Yes. Del Mar offers ${listJoin(facialsHere.map((x) => inText(displayName(x))))}. The full facial menu is at our <a href="${o.page}">San Diego spa</a>.` : `Facials are booked at our <a href="${o.page}">San Diego spa</a>.` },
+  wrap && offeredAt(wrap, SPA) && { q: 'Can I book a body wrap here?', a: `Yes. Wrap Me Up is ${onlyHere.some((x) => x.id === 'wrap-me-up') ? 'only at Del Mar' : 'bookable here'}: ${priceOf('wrap-me-up', wrap.options[0].minutes)} for ${wrap.options[0].label}.${wrapPlus ? ` You can add a 60 min massage: ${priceOf('wrap-me-up', wrapPlus.minutes)}.` : ''}` },
+  { q: 'Can I book a massage with the owner here?', a: `Yes. Book any 60, 90 or 120 min massage with Katy at either spa: ${priceList('katy', SPA)}.` },
+  couples && !offeredAt(couples, SPA) && { q: 'Can I book couples massage in Del Mar?', a: `Couples massage is booked at our <a href="${o.page}">San Diego spa</a>.` },
+  { q: 'What are your Del Mar hours?', a: `Please call us on ${site.phone.display} for today's hours. We'll add them here once they're confirmed.` },
+  // [CONFIRM] O-B1: owner approves this wording, and that the setting is permanent (a Google review says clients weren't told before they arrived).
+  spaceOk && { q: 'What is the Del Mar spa like?', a: 'Our Del Mar studio is a private treatment room inside a performance-training facility. Call us if you would like directions to the room.' },
+].filter(Boolean) as Array<{ q: string; a: string }>;
+
+// Answer-first (GEO): where it is and what's bookable here. Facts from lib/entity + lib/catalog only; also in FAQPage.
+const here = spaFacts(SPA);
+const massagesHere = ['lymphatic', 'sports', 'deep-tissue', 'swedish'].map((id) => findLiveService(id)).filter((x) => x && offeredAt(x, SPA)).map((x) => inText(displayName(x!)));
+const answers = [
+  { q: 'Where is Unique Spa House in Del Mar?', a: `At ${here.address}. Call ${here.phone} for today's hours.` },
+  { q: 'What can I book at the Del Mar spa?', a: `Massage, including ${listJoin(massagesHere)}${facialsHere.length ? `, ${facialsHere.length === 1 ? 'one facial' : `${facialsHere.length} facials`}` : ''}${wrap && offeredAt(wrap, SPA) ? ' and the Wrap Me Up body wrap' : ''}. <a href="#services">See every treatment and price</a>.` },
+];
+
+const catalog = {
+  '@type': 'OfferCatalog',
+  name: `Treatments at ${site.name}, ${s.name}`,
+  itemListElement: servicesAt(SPA).filter((x) => x.id !== 'brazilian-butt').flatMap((x) =>
+    offersFor(x, SPA, displayName(x)).map((off) => ({ ...off, itemOffered: { '@type': 'Service', name: displayName(x) } }))),
+};
+const jsonLd = graph(
+  orgNode(),
+  spaNode(SPA, { hasOfferCatalog: catalog, priceRange: '$$' }),   // no openingHours: Del Mar hours unknown
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Our spas', path: '/#spas' }, { name: s.long_name, path: PATH }]),
+  faqNode([...answers, ...faqs]),
+);
+---
+<BaseLayout
+  title="Massage & Facials in Del Mar, CA | Unique Spa House"
+  description={`Our Del Mar spa at ${s.street}: sports, deep tissue and lymphatic massage, facials, and Wrap Me Up. Book online or call ${site.phone.display}.`}
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Our spas', href: '/#spas' }, { name: 'Del Mar' }]}
+    eyebrow={spaceOk ? 'The recovery room' : 'Our Del Mar spa'}
+    title="Massage, facials and body treatments in Del Mar, CA"
+    lede="Our Del Mar spa is made for recovery: sports, deep tissue and lymphatic massage, and the only place to book our Wrap Me Up body wrap."
+    asideWidth="narrow"
+  >
+    {/* [CONFIRM] O-B1: the owner approves this wording, and that the setting is permanent. Shown now so clients know before they arrive. */}
+    {spaceOk
+      ? <p class="space"><strong>About the space:</strong> our Del Mar studio is a private treatment room inside a performance-training facility.<ConfirmNote id="dm-space" /></p>
+      : <p class="space"><strong>First visit?</strong> Call us before you come and we'll tell you how to find the room.</p>}
+    {/* [CONFIRM] O-B1: suite number, Del Mar's own phone, and its hours (9–6 or 9–8). Until then: "Call for today's hours". */}
+    <dl class="facts">
+      <div><dt>Address</dt><dd><address>{s.street}<br />{s.city}, {s.region} {s.postal}</address></dd></div>
+      <div><dt>Hours</dt><dd>{s.hours_text}</dd></div>
+      <div><dt>Phone</dt><dd><a href={s.phone.tel} data-track="call_click" data-track-props='{"spa":"DM","placement":"location"}'>{s.phone.display}</a></dd></div>
+      <div><dt>Email</dt><dd><a href={`mailto:${site.email}`}>{site.email}</a></dd></div>
+    </dl>
+    <div class="b-actions">
+      <Button href={spaBookingUrl(SPA)} external track="book_click" trackProps={{ spa: SPA, placement: 'location-intro' }}>Book in Del Mar</Button>
+      <Button href={s.phone.tel} icon="phone" track="call_click" trackProps={{ spa: SPA, placement: 'location-intro' }}>Call {s.phone.display}</Button>
+      <a class="link-arrow" href={site.sms} data-track="text_click" data-track-props='{"spa":"DM","placement":"location-intro"}'>Text us<Icon name="message" /></a>
+      <a class="link-arrow" href={s.directions_url} target="_blank" rel="noopener">Get directions<span class="sr-only"> to {addressLine(s)} (opens in a new tab)</span><Icon name="arrow-up-right" /></a>
+    </div>
+    <Fragment slot="aside">
+      <SpaDoor spa={SPA} showLinks={false} headingLevel={2} class="loc-door" />
+    </Fragment>
+  </PageIntro>
+
+  <Section tone="paper" labelledby="answers-title" pad="tight">
+    <QuickAnswers items={answers} title="At a glance" />
+  </Section>
+
+  {RECOVERY.length > 0 && (
+    <Section id="recovery" labelledby="recovery-title" tone="paper">
+      <div class="b-head">
+        <div class="b-group__head">
+          <h2 id="recovery-title">The recovery <em>room</em></h2>
+          <p>After training, after travel, or just after a long week. These are the treatments Del Mar is made for.</p>
+        </div>
+      </div>
+      <ul class="b-cards" role="list">
+        {RECOVERY.map((id) => (
+          <li>
+            <ServiceCard service={id} onlySpa={SPA} showWhere={false} class="b-card" title={displayName(id)} summary={summaryOf(id)} placement="location-dm">
+              {findLiveService(id)?.flagship && <a class="link-arrow" href={findLiveService(id)!.flagship!}>About {inText(displayName(id))}<Icon name="arrow-right" /></a>}
+            </ServiceCard>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )}
+
+  <Section id="services" labelledby="services-title">
+    <div class="b-head b-head--row">
+      <div class="b-group__head">
+        <h2 id="services-title">Everything at Del Mar</h2>
+        {onlyThere.length > 0 && <p>Booked at our <a href={o.page}>San Diego spa</a> instead: {listJoin(onlyThere.map((x) => inText(displayName(x))))}.</p>}
+      </div>
+      <a class="link-arrow" href="/menu">Full menu and prices<Icon name="arrow-right" /></a>
+    </div>
+    <SpaServices spa={SPA} />
+    <p class="b-note price-note">Prices as currently listed on our online booking menu. The booking page always shows the latest price. Booking opens in a new tab.</p>
+    {site.flags.google_booking_live && (
+      <aside class="google" aria-label="Booking through Google">
+        <p><strong>Booking through Google?</strong> Bookings made through Google don't carry a card hold or the $50 late-cancellation fee. <a href="/policies#google">Our policies</a></p>
+      </aside>
+    )}
+  </Section>
+
+  {specials.length > 0 && (
+    <section class="tone-paper loc-specials" aria-labelledby="specials-title" data-ends={lastEnd}>
+      <div class="container">
+        <div class="b-head b-head--row">
+          <h2 id="specials-title">This month's specials in Del Mar</h2>
+          <a class="link-arrow" href="/specials">See all specials<Icon name="arrow-right" /></a>
+        </div>
+        <ul class="b-cards" role="list">
+          {specials.map((x) => <li><SpecialCard offer={x} headingLevel={3} placement="location-dm" spa={SPA} /></li>)}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <Section labelledby="team-title">
+    <div class="b-tail team">
+      <h2 id="team-title">Book with Katy, our <em>owner</em></h2>
+      <p>Any 60, 90 or 120 min massage with Katy is bookable at this spa.</p>
+      {/* [CONFIRM] team names, roles, licences and photos for this spa; parking and how to find the room inside the facility. Hidden until supplied. */}
+      <a class="link-arrow" href="/massage/with-katy">About massage with Katy<Icon name="arrow-right" /></a>
+    </div>
+  </Section>
+
+  <Section labelledby="faq-title" tone="paper">
+    <Faq items={faqs} title="Del Mar spa questions">
+      <p slot="head"><a class="link-arrow" href={o.page}>Visiting San Diego instead? See our Mission Valley spa<Icon name="arrow-right" /></a></p>
+    </Faq>
+  </Section>
+
+  <Section labelledby="end-title">
+    <div class="b-end">
+      <h2 id="end-title" class="b-end__title">See you in Del <em>Mar</em>.</h2>
+      <div class="b-actions">
+        <Button href={spaBookingUrl(SPA)} external track="book_click" trackProps={{ spa: SPA, placement: 'location-end' }}>Book in Del Mar</Button>
+        <Button href={s.phone.tel} icon="phone" track="call_click" trackProps={{ spa: SPA, placement: 'location-end' }}>Call {s.phone.display}</Button>
+        <a class="link-arrow" href={s.directions_url} target="_blank" rel="noopener">Get directions<span class="sr-only"> (opens in a new tab)</span><Icon name="arrow-up-right" /></a>
+      </div>
+    </div>
+    <div class="ask-wrap"><AskUni /></div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .space { padding: 0.9rem 1.1rem; border-left: 2px solid var(--border-ui); background: rgba(250, 246, 240, 0.6); border-radius: 0 var(--radius-card) var(--radius-card) 0; font-size: var(--fs-label); max-width: 52ch; }
+  .facts { display: grid; gap: 0; margin: 0.25rem 0; max-width: 34rem; }
+  .facts div { display: grid; grid-template-columns: 6rem 1fr; gap: 1rem; align-items: center; padding-block: 0.6rem; border-top: 1px solid var(--hairline); }
+  .facts div:has(a) { padding-block: 0.1rem; }
+  .facts div:last-child { border-bottom: 1px solid var(--hairline); }
+  .facts dt { font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); color: var(--text-muted); }
+  .facts dd { margin: 0; }
+  .facts address { font-style: normal; }
+  .facts a { overflow-wrap: anywhere; display: inline-flex; align-items: center; min-height: var(--tap); }
+  :global(.loc-door) { width: min(100%, 400px); margin-inline: auto; }
+  @media (max-width: 959px) { :global(.loc-door) { width: min(86%, 340px); } }
+  .price-note { margin-top: 1.5rem; }
+  .google { margin-top: 1.25rem; padding: 1rem 1.25rem; border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--paper); max-width: 760px; }
+  .google p { font-size: var(--fs-label); }
+  .loc-specials { padding-block: var(--section); }
+  .team { max-width: 760px; }
+  .ask-wrap { max-width: 760px; margin: clamp(2.5rem, 6vw, 4rem) auto 0; }
+</style>

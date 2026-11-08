@@ -1,0 +1,83 @@
+---
+/**
+ * DocPage — long-form text pages (policies, privacy, accessibility, terms).
+ * Hero (eyebrow, H1, lede, effective/updated line, optional PREVIEW-only draft note), an "On this page"
+ * list (a sticky side column on desktop) and the prose body (slot). Sections in the slot are
+ * <section id="…" aria-labelledby="…"><h2 id="…">…</h2>…</section>; the toc ids must match (link check).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { PREVIEW } from '../lib/site';
+interface Props {
+  title: string;
+  description: string;
+  h1: string;
+  eyebrow?: string;
+  lede?: string;
+  /** e.g. "Effective date: October 24, 2026" */
+  dateLine?: string;
+  /** Shown only in PREVIEW builds, e.g. "Draft — pending legal review" */
+  draftNote?: string;
+  toc?: Array<{ id: string; label: string }>;
+  jsonLd?: unknown;
+}
+const { title, description, h1, eyebrow, lede, dateLine, draftNote, toc = [], jsonLd } = Astro.props;
+---
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
+  <div class="doc container">
+    <header class="doc__head">
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+      <h1 class="doc__h1">{h1}</h1>
+      {lede && <p class="lede doc__lede">{lede}</p>}
+      {dateLine && <p class="meta doc__date">{dateLine}</p>}
+      {PREVIEW && draftNote && <p class="draft-note doc__draft">{draftNote}</p>}
+    </header>
+    <div class:list={['doc__grid', toc.length && 'doc__grid--toc']}>
+      {toc.length > 0 && (
+        <nav class="doc__toc" aria-labelledby="doc-toc-title">
+          <h2 id="doc-toc-title" class="doc__toc-title label">On this page</h2>
+          <ol role="list">
+            {toc.map((t) => <li><a href={`#${t.id}`}>{t.label}</a></li>)}
+          </ol>
+        </nav>
+      )}
+      <div class="doc__body">
+        <slot />
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+<style>
+  .doc { padding-block: clamp(3rem, 6vw, 6rem) var(--section); }
+  .doc__head { max-width: 46rem; display: grid; gap: 1rem; }
+  .doc__h1 { font-size: clamp(2.5rem, 1.7rem + 3.4vw, 4.75rem); }
+  .doc__date { margin-top: 0.25rem; }
+  .doc__draft { justify-self: start; margin-top: 0; }
+  .doc__grid { display: grid; gap: 2.5rem; margin-top: clamp(2rem, 5vw, 4rem); }
+  @media (min-width: 1024px) {
+    .doc__grid--toc { grid-template-columns: 15rem minmax(0, 46rem); gap: clamp(3rem, 6vw, 6rem); }
+    .doc__toc { position: sticky; top: calc(var(--header-h) + 2rem); align-self: start; max-height: calc(100vh - var(--header-h) - 4rem); overflow: auto; }
+  }
+  .doc__toc { padding-top: 1.25rem; border-top: 1px solid var(--text); }
+  .doc__toc-title { font-family: var(--font-sans); color: var(--text-muted); margin-bottom: 0.5rem; }
+  .doc__toc ol { margin: 0; padding: 0; display: grid; }
+  .doc__toc a {
+    display: flex; align-items: center; min-height: var(--tap);
+    font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label);
+    text-decoration: none; border-bottom: 1px solid var(--hairline);
+  }
+  .doc__toc a:hover { text-decoration: underline; }
+  @media (max-width: 1023px) {
+    .doc__toc ol { display: flex; flex-wrap: wrap; column-gap: 1.25rem; }
+    .doc__toc a { border-bottom: 0; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.22em; }
+  }
+
+  /* Prose (slotted content belongs to the page, so these reach it through :global) */
+  .doc__body { max-width: 46rem; }
+  .doc__body :global(section) { padding-top: clamp(1.75rem, 3vw, 2.5rem); margin-top: clamp(1.75rem, 3vw, 2.5rem); border-top: 1px solid var(--hairline); }
+  .doc__body :global(section:first-child) { margin-top: 0; padding-top: 0; border-top: 0; }
+  .doc__body :global(h2) { font-size: clamp(1.75rem, 1.45rem + 1.1vw, 2.5rem); margin-bottom: 0.9rem; }
+  .doc__body :global(h3) { font-size: 1.375rem; margin: 1.5rem 0 0.5rem; }
+  .doc__body :global(p + p), .doc__body :global(p + ul), .doc__body :global(ul + p), .doc__body :global(p + dl), .doc__body :global(dl + p), .doc__body :global(ul + ul) { margin-top: 0.9rem; }
+  .doc__body :global(ul:not([role='list'])) { padding-left: 1.2rem; display: grid; gap: 0.45rem; }
+  .doc__body :global(ul:not([role='list']) li::marker) { color: var(--text-muted); }
+</style>

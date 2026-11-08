@@ -1,0 +1,66 @@
+---
+/**
+ * SpaDoor — one of the two spa "doors": a static CSS arch outline (no photo until shoot #9/#10)
+ * holding the spa's name and street, with "See the spa" and Directions below the threshold.
+ * Use the pair inside a two-column grid; the pair counts as ONE arch moment. Stacks on mobile.
+ */
+import { spa as spaInfo } from '../lib/site';
+import type { Spa } from '../lib/catalog';
+import Icon from './Icon.astro';
+interface Props { spa: Spa; headingLevel?: 2 | 3 | 4; showLinks?: boolean; class?: string }
+const { spa, headingLevel = 3, showLinks = true, class: cls } = Astro.props;
+const s = spaInfo(spa);
+const H = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
+const district = spa === 'SD' ? 'Mission Valley' : null;
+---
+<article class:list={['door-card', cls]}>
+  <div class="door-card__arch">
+    <div class="door-card__inner">
+      <H class="door-card__name">{s.name}{district
+        ? <> <span class="door-card__district">({district})</span></>
+        : <span class="door-card__district door-card__district--blank" aria-hidden="true">&nbsp;</span>}</H>
+      <address class="door-card__addr">
+        {s.street}<br />{s.city}, {s.region} {s.postal}
+      </address>
+      <p class="door-card__hours meta"><Icon name="clock" />{s.hours_text}</p>
+    </div>
+  </div>
+  {showLinks && <div class="door-card__links">
+    <a class="link-arrow" href={s.page}>See the spa<span class="sr-only">: {s.long_name}</span><Icon name="arrow-right" /></a>
+    <a class="link-arrow" href={s.directions_url} target="_blank" rel="noopener">Directions<span class="sr-only"> to {s.long_name} (opens in a new tab)</span><Icon name="arrow-up-right" /></a>
+  </div>}
+</article>
+<style>
+  .door-card { display: flex; flex-direction: column; gap: 1.25rem; }
+  .door-card__arch {
+    position: relative;
+    aspect-ratio: 5 / 5.8;
+    border: 1px solid var(--text);
+    border-bottom: 0;
+    border-radius: 100vmax 100vmax 0 0;   /* radius = half the width: a true semicircle */
+    padding: 12px 12px 0;
+  }
+  .door-card__arch::after {             /* threshold */
+    content: '';
+    position: absolute; left: -14px; right: -14px; bottom: 0;
+    border-top: 1px solid var(--text);
+  }
+  .door-card__inner {
+    height: 100%;
+    border: 1px solid var(--border-ui);
+    border-bottom: 0;
+    border-radius: 100vmax 100vmax 0 0;
+    display: flex; flex-direction: column; justify-content: flex-start; align-items: center;
+    text-align: center;
+    /* names start at the same height in both doors (top padding is a share of the width) */
+    padding: 44% 1.25rem clamp(1.25rem, 3vw, 2.5rem);
+    background: rgba(250, 246, 240, 0.55);
+  }
+  .door-card__district { display: block; margin-top: 0.35rem; font-family: var(--font-sans); font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); letter-spacing: 0; color: var(--text-muted); }
+  .door-card__name { font-size: clamp(2rem, 1.4rem + 2.6vw, 4.25rem); line-height: 1; }   /* never larger than a page H1 (QA m-3) */
+  .door-card__district--blank { visibility: hidden; }   /* keeps the pair's names and addresses on the same lines (QA m-2) */
+  .door-card__addr { font-style: normal; margin-top: 1rem; font-size: var(--fs-label); line-height: 1.5; }
+  .door-card__hours { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.6rem; }
+  .door-card__hours :global(svg) { width: 15px; height: 15px; }
+  .door-card__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.25rem 1.75rem; }
+</style>

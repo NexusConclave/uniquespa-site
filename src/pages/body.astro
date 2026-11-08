@@ -1,0 +1,189 @@
+---
+/**
+ * /body — hub (blueprint §3.2; copy 05-body-contouring.md, live items only): Wrap Me Up (Del Mar only)
+ * and anti-cellulite massage; Brazilian butt massage as a plain menu row (no card, no image).
+ * LPG, T-Shape, EMS and the "ask us about" wraps/scrubs stay out (hold / consult / hidden).
+ * TEMP image: photo-direction row 22 (wrap), cropped to the upper back, no face.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import PageIntro from '../components/PageIntro.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import ServiceRow from '../components/ServiceRow.astro';
+import Faq from '../components/Faq.astro';
+import AskUni from '../components/AskUni.astro';
+import HealthNote from '../components/HealthNote.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import { Picture } from 'astro:assets';
+import { findLiveService, spaBookingUrl, spasFor, SPAS } from '../lib/catalog';
+import { asset, widthsFor, objectPosition } from '../lib/images';
+import { site } from '../lib/site';
+import { priceOf, summaryOf, displayName, spaName } from '../lib/pageHelpers';
+import { graph, orgNode, spaNode, serviceNode, breadcrumbNode, faqNode } from '../lib/schema';
+import '../styles/pages-b.css';
+
+const PATH = '/body';
+const img = asset('wrap-me-up');
+const wrap = findLiveService('wrap-me-up');
+const ROWS = ['anti-cellulite', 'brazilian-butt'].filter((id) => findLiveService(id));
+const wrapSpas = wrap ? spasFor(wrap) : [];
+const wrapPlus = wrap?.options.find((o) => /massage/i.test(o.label));
+
+const faqs = [
+  wrap && { q: 'Where can I book a body wrap?', a: `Wrap Me Up is ${wrapSpas.length === 1 ? `only at our ${spaName(wrapSpas[0])} spa` : 'at both spas'}. ${wrapPlus ? `You can add a 60 min massage: ${priceOf('wrap-me-up', wrapPlus.minutes)} for the ${wrapPlus.label.replace(/,.*$/, '')} visit.` : ''}` },
+  { q: 'Will these treatments help me lose fat?', a: "No. They aren't fat-loss treatments, and they won't change your shape or size. Anti-cellulite massage is a brisk, firm massage for the thighs, hips and buttocks." },
+  { q: 'How many anti-cellulite sessions will I need?', a: 'It\'s usually booked as a series. Your therapist can suggest a plan after your first visit.' },
+  { q: 'Can I book anti-cellulite massage with Katy?', a: 'Yes. <a href="/massage/with-katy">Massage with Katy</a>, our owner, can be anti-cellulite massage.' },
+].filter(Boolean) as Array<{ q: string; a: string }>;
+
+const services = [...(wrap ? [wrap] : []), ...ROWS.map((id) => findLiveService(id)!)];
+const jsonLd = graph(
+  orgNode(), spaNode('SD'), spaNode('DM'),
+  ...services.map((s) => serviceNode(s, { name: displayName(s), description: summaryOf(s) })),
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Body treatments', path: PATH }]),
+  faqNode(faqs),
+);
+---
+<BaseLayout
+  title="Body Treatments in San Diego & Del Mar | Unique Spa House"
+  description="Wrap Me Up, a warming body wrap in Del Mar, and firm anti-cellulite massage at both spas. Book online."
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Body treatments' }]}
+    title="Body treatments in San Diego and Del Mar"
+    lede="A warming body wrap in Del Mar, and firm, body-focused massage at both spas."
+  >
+    <aside class="good" aria-label="Good to know">
+      <p><strong>Good to know:</strong> these aren't fat-loss treatments. They're about warmth, firm hands-on work and time to rest.</p>
+    </aside>
+    <div class="b-actions">
+      {SPAS.map((sp) => <Button href={spaBookingUrl(sp)} external track="book_click" trackProps={{ spa: sp, placement: 'hub-intro' }}>Book in {site.spas[sp].name}</Button>)}
+    </div>
+    {wrap && (
+      <Fragment slot="aside">
+        <figure class="b-media wrap-media">
+          <Picture src={img.src} formats={['avif', 'webp']} widths={widthsFor(img.src)} sizes="(min-width: 960px) 44vw, 100vw" quality={62}
+            alt={img.alt} loading="eager" decoding="async" style={`object-position: ${objectPosition(img)}`} />
+        </figure>
+      </Fragment>
+    )}
+  </PageIntro>
+
+  {wrap && (
+    <Section id="wrap" labelledby="wrap-title" tone="paper">
+      <div class="b-split">
+        <div class="b-split__head">
+          <p class="eyebrow">{wrapSpas.length === 1 ? `Only at ${spaName(wrapSpas[0])}` : 'At both spas'}</p>
+          <h2 id="wrap-title">Wrap Me <em>Up</em></h2>
+          <p>Our body wrap, on its own or followed by a 60 min massage.</p>
+        </div>
+        <div class="b-split__body">
+          {/* [CONFIRM] copy 05: what the wrap includes, so we can add one line. */}
+          <ServiceCard service="wrap-me-up" showTitle={false} summary={summaryOf('wrap-me-up')} placement="hub" class="b-card" />
+        </div>
+      </div>
+    </Section>
+  )}
+
+  <Section id="massage" labelledby="massage-title">
+    <div class="b-head">
+      <div class="b-group__head">
+        <h2 id="massage-title">Body-focused massage</h2>
+        <p>Firmer massage with a sculpting focus, at {ROWS.length && SPAS.every((sp) => findLiveService(ROWS[0])!.options.some((o) => o.locations.includes(sp))) ? 'both spas' : 'our spas'}.</p>
+      </div>
+    </div>
+    <div class="b-rows">
+      {ROWS.map((id) => <ServiceRow service={id} title={displayName(id)} summary={summaryOf(id)} placement="hub" />)}
+    </div>
+    <p class="b-note price-note">Prices as currently listed on our online booking menu. The booking page always shows the latest price.</p>
+  </Section>
+
+  <Section labelledby="who-title" tone="paper">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="who-title">Who it's for</h2>
+      </div>
+      <div class="b-split__body">
+        <ul class="b-ticks">
+          <li>Anyone who enjoys firm, focused work on the thighs and hips</li>
+          <li>Anyone who'd like some time out before a vacation or an event</li>
+          <li>Anyone who likes a firm, brisk massage</li>
+          {wrap && <li>Anyone who'd love to be warm and cocooned for an hour</li>}
+        </ul>
+        <div class="check">
+          <h3 class="check__title">Check with your doctor first if you</h3>
+          <ul class="b-ticks">
+            <li>Are pregnant</li>
+            <li>Have blood clots or varicose veins</li>
+            <li>Have a skin infection, or recently had surgery</li>
+          </ul>
+        </div>
+        <HealthNote />
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="expect-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="expect-title">What to <em>expect</em></h2>
+      </div>
+      <div class="b-split__body">
+        <ol class="b-steps" role="list">
+          <li><span class="b-steps__n" aria-hidden="true">1</span><h3 class="b-steps__t"><span class="sr-only">Step 1: </span>A short chat</h3><p class="b-steps__d">Your goals, your skin and any health conditions.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">2</span><h3 class="b-steps__t"><span class="sr-only">Step 2: </span>Your treatment</h3><p class="b-steps__d">A firm, brisk massage, or a warm wrap while you rest.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">3</span><h3 class="b-steps__t"><span class="sr-only">Step 3: </span>A plan, if you'd like one</h3><p class="b-steps__d">Body-focused massage works best as a series. Your therapist will suggest one.</p></li>
+        </ol>
+        <div class="b-duo">
+          <div class="care">
+            <h3>Before</h3>
+            <ul class="b-ticks">
+              <li>Drink plenty of water.</li>
+              <li>Skip lotion and oil on the day.</li>
+              <li>Tell us about allergies, pregnancy or recent surgery.</li>
+            </ul>
+          </div>
+          <div class="care">
+            <h3>After</h3>
+            <ul class="b-ticks">
+              <li>Keep drinking water.</li>
+              <li>Avoid harsh exfoliants for 24 hours.</li>
+              <li>Moisturize daily.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="faq-title" tone="paper">
+    <Faq items={faqs} title="Body treatment questions" />
+  </Section>
+
+  <Section labelledby="end-title">
+    <div class="b-end">
+      <h2 id="end-title" class="b-end__title">Feel the <em>difference</em>.</h2>
+      <p>Book in San Diego or Del Mar. Not sure where to start? Call us on <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"body"}'>{site.phone.display}</a>.</p>
+      <div class="b-actions">
+        {SPAS.map((sp) => <Button href={spaBookingUrl(sp)} external track="book_click" trackProps={{ spa: sp, placement: 'hub-end' }}>Book in {site.spas[sp].name}</Button>)}
+        <a class="link-arrow" href="/massage">All massages<Icon name="arrow-right" /></a>
+      </div>
+    </div>
+    <div class="ask-wrap"><AskUni /></div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .good { padding: 1rem 1.25rem; border: 1px solid var(--border-ui); border-radius: var(--radius-card); max-width: 52ch; }
+  .good p { font-size: var(--fs-label); }
+  .wrap-media { aspect-ratio: 4 / 3; }
+  .check { display: flex; flex-direction: column; gap: 0.75rem; padding-top: 0.5rem; }
+  .check__title { font-size: 1.4rem; }
+  .care { display: flex; flex-direction: column; gap: 0.9rem; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--paper); }
+  .care h3 { font-size: 1.6rem; }
+  .price-note { margin-top: 1.5rem; }
+  .ask-wrap { max-width: 760px; margin: clamp(2.5rem, 6vw, 4rem) auto 0; }
+</style>

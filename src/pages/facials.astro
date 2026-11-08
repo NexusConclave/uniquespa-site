@@ -1,0 +1,183 @@
+---
+/**
+ * /facials — hub (blueprint §4.3; copy 04-facials.md minus everything gated: no hydro facial or buccal
+ * (hold), nothing medical (consult), no "also ask us about" items (hidden), no membership (P2)).
+ * Signature custom facial → "Price set at your visit". "Pure Detox" shows as "Pure Cleanse and Rebalance facial"
+ * (claims log). Del Mar line generated from the catalog.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import PageIntro from '../components/PageIntro.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import SpecialCard from '../components/SpecialCard.astro';
+import Faq from '../components/Faq.astro';
+import GuideLink from '../components/GuideLink.astro';
+import AskUni from '../components/AskUni.astro';
+import HealthNote from '../components/HealthNote.astro';
+import Button from '../components/Button.astro';
+import { Picture } from 'astro:assets';
+import { findLiveService, liveServices, spaBookingUrl, SPAS } from '../lib/catalog';
+import { activeOffers } from '../lib/offers';
+import { asset, widthsFor, objectPosition } from '../lib/images';
+import { site } from '../lib/site';
+import { summaryOf, displayName, offeredAt, listJoin, inText } from '../lib/pageHelpers';
+import { graph, orgNode, spaNode, serviceNode, breadcrumbNode, faqNode } from '../lib/schema';
+import '../styles/pages-b.css';
+
+const PATH = '/facials';
+const img = asset('facial-1x1');
+
+const GROUPS = [
+  { id: 'facials', title: 'Facials', intro: 'BABOR facials and our custom facial, each chosen for your skin after a short check.', ids: ['signature-facial', 'babor-sculpt-lift', 'babor-deep-cleanse', 'pure-detox', 'express-hydration'] },
+  { id: 'sculpting', title: 'Sculpting face massage', intro: 'Hands-on massage for the face, jawline and neck.', ids: ['joelle-ciocco', 'face-sculpture'] },
+].map((g) => ({ ...g, ids: g.ids.filter((id) => findLiveService(id)) })).filter((g) => g.ids.length);
+
+// Anything else live in the group (e.g. added later) still shows, at the end of the first group.
+const listed = new Set(GROUPS.flatMap((g) => g.ids));
+const extra = liveServices('facials').filter((s) => !listed.has(s.id)).map((s) => s.id);
+if (extra.length && GROUPS[0]) GROUPS[0].ids.push(...extra);
+
+const services = GROUPS.flatMap((g) => g.ids).map((id) => findLiveService(id)!);
+const atDM = services.filter((s) => offeredAt(s, 'DM'));
+const dmLine = atDM.length
+  ? `Our San Diego spa has the full facial menu. Del Mar offers ${listJoin(atDM.map((s) => inText(displayName(s))))}.`
+  : 'Facials are booked at our San Diego spa.';
+// This month's special, if it's a facial (e.g. a BABOR ritual or the Royal Foot & Glow)
+const specials = activeOffers({ kind: 'special' }).filter((o) => !o.name_only && findLiveService(o.service_id || o.replaces_service || o.related_service || '')?.group === 'facials');
+
+const faqs = [
+  { q: 'How often should I get a facial?', a: "Every 4 to 6 weeks suits most clients. We'll work around your schedule and goals." },
+  { q: 'Which facial is right for me?', a: 'Congested skin? Try the Pure Cleanse and Rebalance facial, or the BABOR Deep Cleanse & Glow ritual. Dry or tired skin? Try Deep express hydration. Want firm, hands-on face massage? Try the BABOR Sculpt & Lift ritual. Not sure? Book the Signature custom facial and we\'ll tailor it on the day.' },
+  { q: 'How much is the Signature custom facial?', a: "The price is set at your visit, once we've checked your skin and agreed what it needs. We'll tell you before we start." },
+  { q: 'Do you offer facials in Del Mar?', a: atDM.length ? `Yes. Del Mar offers ${listJoin(atDM.map((s) => inText(displayName(s))))}. The full facial menu is at our San Diego spa.` : 'Facials are booked at our San Diego spa.' },
+  { q: 'Should I come without makeup?', a: "If you can. It's no problem if not; cleansing is always the first step." },
+];
+
+const jsonLd = graph(
+  orgNode(), spaNode('SD'), spaNode('DM'),
+  ...services.map((s) => serviceNode(s, { name: displayName(s), description: summaryOf(s) })),
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Facials', path: PATH }]),
+  faqNode(faqs),
+);
+---
+<BaseLayout
+  title="Facials in San Diego & Del Mar | Unique Spa House"
+  description="BABOR facials, a custom facial and sculpting face massage in Mission Valley, San Diego and Del Mar. Every facial starts with a skin check. Book online."
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Facials' }]}
+    title="Facials and skin care in San Diego and Del Mar"
+    lede="Good skin starts with knowing your skin. Every facial begins with a short skin check and a chat about your goals. Then we choose the products and steps that suit you. No harsh shortcuts."
+    asideWidth="narrow"
+  >
+    <div class="b-actions">
+      {SPAS.map((sp) => <Button href={spaBookingUrl(sp)} external track="book_click" trackProps={{ spa: sp, placement: 'hub-intro' }}>Book in {site.spas[sp].name}</Button>)}
+    </div>
+    <p class="b-note">{dmLine}</p>
+    <Fragment slot="aside">
+      <figure class="b-media hub-media" transition:name="svc-facials">
+        <Picture src={img.src} formats={img.formats} widths={widthsFor(img.src)} sizes="(min-width: 960px) 34vw, 100vw" quality={62}
+          alt={img.alt} loading="eager" decoding="async" style={`object-position: ${objectPosition(img)}`} />
+      </figure>
+    </Fragment>
+  </PageIntro>
+
+  <Section labelledby="who-title" tone="paper" pad="tight">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="who-title">Who it's for</h2>
+        <p><strong>Not sure where to start?</strong> Book the Signature custom facial. We'll tailor it on the day.</p>
+      </div>
+      <div class="b-split__body">
+        <ul class="b-ticks">
+          <li>Skin that feels dull, dry or tired</li>
+          <li>Congested or breakout-prone skin</li>
+          <li>Anyone with an event coming up</li>
+          <li>People who hold tension in the jaw and face</li>
+          <li>Anyone whose home routine isn't giving them the results they want</li>
+        </ul>
+        <HealthNote />
+      </div>
+    </div>
+  </Section>
+
+  {GROUPS.map((g, gi) => (
+    <Section id={g.id} labelledby={`${g.id}-title`} tone={gi % 2 ? 'paper' : 'cream'}>
+      <div class="b-head">
+        <div class="b-group__head">
+          <h2 id={`${g.id}-title`}>{g.title}</h2>
+          {g.intro && <p>{g.intro}</p>}
+        </div>
+      </div>
+      {/* 3 columns only when the cards fill rows evenly (or 3 + 2), so no card sits alone on a row (QA m-4) */}
+      <ul class:list={['b-cards', [3, 5, 6, 9].includes(g.ids.length + (gi === 0 ? specials.length : 0)) && 'b-cards--3']} role="list">
+        {g.ids.map((id) => <li><ServiceCard service={id} class="b-card" title={displayName(id)} summary={summaryOf(id)} placement="hub" /></li>)}
+        {gi === 0 && specials.map((o) => <li><SpecialCard offer={o} headingLevel={3} placement="hub" /></li>)}
+      </ul>
+    </Section>
+  ))}
+
+  <Section tone="brown" labelledby="expect-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="expect-title">What to <em>expect</em></h2>
+        <p>Four steps, at your pace.</p>
+      </div>
+      <ol class="b-steps" role="list">
+        <li><span class="b-steps__n" aria-hidden="true">1</span><h3 class="b-steps__t"><span class="sr-only">Step 1: </span>Skin check</h3><p class="b-steps__d">We look at your skin and ask about your routine and goals.</p></li>
+        <li><span class="b-steps__n" aria-hidden="true">2</span><h3 class="b-steps__t"><span class="sr-only">Step 2: </span>Your plan</h3><p class="b-steps__d">We explain each step before we start.</p></li>
+        <li><span class="b-steps__n" aria-hidden="true">3</span><h3 class="b-steps__t"><span class="sr-only">Step 3: </span>Your facial</h3><p class="b-steps__d">In a calm, private room.</p></li>
+        <li><span class="b-steps__n" aria-hidden="true">4</span><h3 class="b-steps__t"><span class="sr-only">Step 4: </span>Aftercare</h3><p class="b-steps__d">Simple tips and product ideas for home.</p></li>
+      </ol>
+    </div>
+  </Section>
+
+  <Section labelledby="care-title">
+    <div class="b-head"><h2 id="care-title">Before and after</h2></div>
+    <div class="b-duo">
+      <div class="care">
+        <h3>Before your facial</h3>
+        <ul class="b-ticks">
+          <li>Skip harsh exfoliants and retinol for 48 hours.</li>
+          <li>Come without makeup if you can.</li>
+          <li>Bring a list of the products you use.</li>
+          <li>Tell us about allergies or sensitive skin.</li>
+        </ul>
+      </div>
+      <div class="care">
+        <h3>After</h3>
+        <ul class="b-ticks">
+          <li>Follow the aftercare tips we give you.</li>
+          <li>Go gently with your routine for a day or two.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="b-note price-note">Prices as currently listed on our online booking menu. The booking page always shows the latest price. See every price on <a href="/menu">our full menu</a>.</p>
+  </Section>
+
+  <Section labelledby="faq-title" tone="paper">
+    <Faq items={faqs} title="Facial questions"><GuideLink slot="head" slug="babor-facials-which-one" label="Guide: which BABOR facial is right for you?" /></Faq>
+  </Section>
+
+  <Section labelledby="end-title">
+    <div class="b-end">
+      <h2 id="end-title" class="b-end__title">Your skin, your <em>plan</em>.</h2>
+      <p>Book a facial in San Diego or Del Mar. Not sure which? Call us on <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"facials"}'>{site.phone.display}</a> and we'll help.</p>
+      <div class="b-actions">
+        {SPAS.map((sp) => <Button href={spaBookingUrl(sp)} external track="book_click" trackProps={{ spa: sp, placement: 'hub-end' }}>Book in {site.spas[sp].name}</Button>)}
+      </div>
+    </div>
+    <div class="ask-wrap"><AskUni /></div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .hub-media { aspect-ratio: 1 / 1; }
+  @media (max-width: 959px) { .hub-media { aspect-ratio: 4 / 3; } }
+  .care { display: flex; flex-direction: column; gap: 0.9rem; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--paper); }
+  .care h3 { font-size: 1.6rem; }
+  .price-note { margin-top: 1.5rem; }
+  .ask-wrap { max-width: 760px; margin: clamp(2.5rem, 6vw, 4rem) auto 0; }
+</style>

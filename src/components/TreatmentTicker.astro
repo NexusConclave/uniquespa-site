@@ -1,0 +1,33 @@
+---
+/**
+ * TreatmentTicker — a slow line of LIVE treatment names (Home band). Built from the catalog, so a hold,
+ * consult or hidden item can never appear (liveServices() only, offer items excluded).
+ * Motion (styles/motion.css): scrolls only with JS on and motion allowed; pauses on hover and focus and with
+ * its own visible Pause button (WCAG 2.2.2); the second copy of the list is aria-hidden. Otherwise it's a
+ * static, wrapped list.
+ */
+import { liveServices } from '../lib/catalog';
+import { displayName } from '../lib/pageHelpers';
+interface Props { class?: string }
+const { class: cls } = Astro.props;
+// Editorial order; anything not live drops out automatically.
+const PICK = ['lymphatic', 'swedish', 'deep-tissue', 'signature-facial', 'sports', 'hot-stone', 'babor-sculpt-lift', 'thai',
+  'prenatal', 'babor-deep-cleanse', 'couples', 'express-hydration', 'joelle-ciocco', 'foot', 'wrap-me-up'];
+const live = new Map(liveServices().map((s) => [s.id, s]));
+const names = PICK.filter((id) => live.has(id)).map((id) => displayName(live.get(id)!));
+---
+<div class:list={['ticker', cls]} data-ticker style={`--ticker-dur: ${names.length * 5.5}s`}>
+  <div class="ticker__viewport">
+    <ul class="ticker__track" role="list" aria-label="Some of our treatments">
+      {names.map((n) => <li>{n}</li>)}
+    </ul>
+    <ul class="ticker__track" role="list" aria-hidden="true">
+      {names.map((n) => <li>{n}</li>)}
+    </ul>
+  </div>
+  <button type="button" class="ticker__toggle" data-ticker-toggle aria-label="Pause the moving list of treatments">
+    <svg data-icon="pause" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 3v10M11 3v10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none" /></svg>
+    <svg data-icon="play" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M5 3.2v9.6L12.5 8z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none" /></svg>
+    <span data-ticker-label>Pause</span>
+  </button>
+</div>

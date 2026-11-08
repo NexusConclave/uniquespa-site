@@ -1,0 +1,50 @@
+---
+/**
+ * Button / link-button. Rule: ONE filled Book per screen — the header pill (desktop) or the bottom bar (mobile)
+ * already is it, so in-page Book buttons are `outline`.
+ *
+ * - `href`      → renders <a>. `external` adds target=_blank, rel and a screen-reader "opens in a new tab" hint.
+ * - `open`      → renders <button data-open="book|uni|menu">; site.ts opens the Book sheet, Uni or the menu.
+ * - `track`     → analytics event name (§7.3), e.g. "book_click"; `trackProps` adds {spa, service, placement}.
+ */
+import Icon, { type IconName } from './Icon.astro';
+interface Props {
+  href?: string;
+  variant?: 'filled' | 'outline';
+  size?: 'md' | 'sm';
+  block?: boolean;
+  external?: boolean;
+  open?: 'book' | 'uni' | 'menu';
+  icon?: IconName;
+  iconEnd?: IconName;
+  track?: string;
+  trackProps?: Record<string, string | number | undefined>;
+  class?: string;
+  [key: string]: unknown;
+}
+const {
+  href, variant = 'outline', size = 'md', block = false, external = false, open, icon, iconEnd,
+  track, trackProps, class: cls, ...rest
+} = Astro.props;
+const classes = ['btn', `btn--${variant}`, size === 'sm' && 'btn--sm', block && 'btn--block', cls];
+const trackAttrs = track ? { 'data-track': track, 'data-track-props': trackProps ? JSON.stringify(trackProps) : undefined } : {};
+// A Book-sheet opener is a real link to /menu, so it still works if site.ts fails to load (QA m-10).
+const link = href ?? (open === 'book' ? '/menu' : undefined);
+const Tag = link ? 'a' : 'button';
+---
+<Tag
+  class:list={classes}
+  href={link}
+  type={link ? undefined : 'button'}
+  target={href && external ? '_blank' : undefined}
+  rel={href && external ? 'noopener' : undefined}
+  data-open={open}
+  aria-haspopup={open === 'book' || open === 'menu' || open === 'uni' ? 'dialog' : undefined}
+  {...trackAttrs}
+  {...rest}
+>
+  {icon && <Icon name={icon} />}
+  <slot />
+  {external && <span class="sr-only"> (opens in a new tab)</span>}
+  {iconEnd && <Icon name={iconEnd} />}
+</Tag>

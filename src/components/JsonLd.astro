@@ -1,0 +1,7 @@
+---
+/** Emits one JSON-LD block. Pass a plain object (an @graph for Home). */
+interface Props { data: unknown }
+const { data } = Astro.props;
+const json = JSON.stringify(data).replace(/</g, '\\u003c');
+---
+<script type="application/ld+json" set:html={json} />

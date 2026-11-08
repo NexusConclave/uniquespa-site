@@ -1,0 +1,26 @@
+---
+/**
+ * /guides/ and /guides/{slug}/ — answer-first service guides (src/data/guides.json). BUILT ONLY while
+ * site.json flags.guides_live is on (env GUIDES=1/0 overrides for test builds): getStaticPaths returns nothing
+ * otherwise, so the pages don't exist, nothing links to them (lib/guides.ts guideHref → null) and they are in
+ * neither sitemap.xml nor llms.txt. Katy approves each guide first (guides-notes/APPROVE.md).
+ */
+import GuidesHub from '../../components/guides/GuidesHub.astro';
+import GuideLymphatic from '../../components/guides/GuideLymphatic.astro';
+import GuideMassageChoice from '../../components/guides/GuideMassageChoice.astro';
+import GuideCouples from '../../components/guides/GuideCouples.astro';
+import GuideBabor from '../../components/guides/GuideBabor.astro';
+import { GUIDES, GUIDES_LIVE } from '../../lib/guides';
+
+export function getStaticPaths() {
+  if (!GUIDES_LIVE) return [];
+  return [{ params: { path: undefined } }, ...GUIDES.map((g) => ({ params: { path: g.slug } }))];
+}
+
+const COMPONENTS: Record<string, any> = { GuideLymphatic, GuideMassageChoice, GuideCouples, GuideBabor };
+const { path } = Astro.params;
+const guide = path ? GUIDES.find((g) => g.slug === path) : null;
+const Page = guide ? COMPONENTS[guide.component] : null;
+if (path && !Page) throw new Error(`[guides] no component for "${path}"`);
+---
+{Page ? <Page /> : <GuidesHub />}

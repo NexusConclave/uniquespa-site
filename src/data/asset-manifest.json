@@ -1,0 +1,134 @@
+{
+  "note": "Every image the site ships. TEMP files are interim crops of the old site's stock/Canva images (photo-direction.md 'Interim/Keep' rows), faceless where possible. Replace each with the matching Phase-0 shoot set-up (blueprint §14) and delete the TEMP file. Focal points drive object-position (x, y in %). Expiry: shoot date + 14 days.",
+  "assets": [
+    {
+      "id": "hero-desktop",
+      "file": "src/assets/temp/TEMP-hero-desktop.jpg",
+      "source_row": 6,
+      "source_file": "2-1920w-9f4f5dc7f9.png",
+      "use": "Home hero 'Come in' stage, landscape screens: the full 900x1200 frame at native size (the stage caps the photo at 900px wide, so it is never upscaled). Lit candle lights retouched out (QA m-19).",
+      "temp": true,
+      "replace_with": "shoot #1 (or #6)",
+      "focal": {
+        "x": 50,
+        "y": 62
+      },
+      "alt": "A massage therapist's hands resting on a client's shoulders as she relaxes on the table."
+    },
+    {
+      "id": "hero-4x5",
+      "file": "src/assets/temp/TEMP-hero-4x5.jpg",
+      "source_row": 6,
+      "source_file": "2-1920w-9f4f5dc7f9.png",
+      "use": "Home hero 'Come in' stage, phones and portrait screens (4:5): native 720x900 crop of row 6 — hands and the client's face; the therapist's face is out of frame. Candle lights retouched out.",
+      "temp": true,
+      "replace_with": "shoot #1 (or #6)",
+      "focal": {
+        "x": 45,
+        "y": 40
+      },
+      "alt": "A massage therapist's hands resting on a client's shoulders as she relaxes on the table."
+    },
+    {
+      "id": "lymphatic-4x5",
+      "file": "src/assets/temp/TEMP-lymphatic-4x5.jpg",
+      "source_row": 17,
+      "source_file": "Untitled-design---2026-01-10T014904-235-1920w-4269f80efb.png",
+      "use": "Home beat 3, lymphatic block",
+      "temp": true,
+      "replace_with": "shoot #3 (lymphatic hands)",
+      "focal": {
+        "x": 50,
+        "y": 45
+      },
+      "alt": "A therapist's hands working gently across a client's upper back."
+    },
+    {
+      "id": "hands-4x5",
+      "file": "src/assets/temp/TEMP-hands-4x5.jpg",
+      "source_row": 17,
+      "source_file": "Untitled-design---2026-01-10T014904-235-1920w-4269f80efb.png",
+      "use": "Home beat 4, Katy arch (hands-only placeholder; no face until O-K1)",
+      "temp": true,
+      "replace_with": "shoot #2 (Katy portrait) or hands-only if Katy declines",
+      "focal": {
+        "x": 50,
+        "y": 50
+      },
+      "alt": "A massage therapist's hands at work on a client's shoulder."
+    },
+    {
+      "id": "massage-1x1",
+      "file": "src/assets/temp/TEMP-massage-1x1.jpg",
+      "source_row": 17,
+      "source_file": "Untitled-design---2026-01-10T015021-308-1920w-3882fb282b.png",
+      "use": "Home beat 3, Massage card",
+      "temp": true,
+      "replace_with": "shoot #4 (deep-tissue forearm)",
+      "focal": {
+        "x": 50,
+        "y": 40
+      },
+      "alt": "Firm massage strokes across a client's back."
+    },
+    {
+      "id": "facial-1x1",
+      "file": "src/assets/temp/TEMP-facial-room-1x1.jpg",
+      "formats": ["webp"],
+      "source_row": 18,
+      "source_file": "Untitled-design---2026-01-09T224452-703-1920w-c8333bd7e8.png",
+      "use": "Home beat 3, Facials card and /facials header. Treatment-room placeholder (rolled towels on a made bed, candles cropped out): no face. Replaced the Unsplash clay-mask crop, which showed a client's face (review #3).",
+      "temp": true,
+      "replace_with": "shoot #5 (BABOR ritual detail)",
+      "focal": {
+        "x": 50,
+        "y": 45
+      },
+      "alt": "Rolled white towels and fresh flowers on a made treatment bed."
+    },
+    {
+      "id": "couples-placeholder",
+      "file": null,
+      "source_row": null,
+      "use": "Home beat 3, Couples card: typographic tile set in roman (no photo exists). The /massage/couples flagship shows the San Diego spa door instead (QA M6).",
+      "temp": true,
+      "replace_with": "shoot #8 (couples room)",
+      "focal": null,
+      "alt": ""
+    },
+    {
+      "id": "spa-doors",
+      "file": null,
+      "source_row": null,
+      "use": "Home beat 7, the two spa doors: CSS arch outlines, no photo",
+      "temp": true,
+      "replace_with": "shoot #9 (San Diego entrance) and #10 (Del Mar entrance)",
+      "focal": null,
+      "alt": ""
+    },
+    {
+      "id": "gift-card",
+      "file": null,
+      "source_row": null,
+      "use": "Offers band gift card: CSS illustration",
+      "temp": true,
+      "replace_with": "shoot #12 (gift card / BABOR flat-lay)",
+      "focal": null,
+      "alt": ""
+    },
+    {
+      "id": "wrap-me-up",
+      "file": "src/assets/temp/TEMP-wrap-4x3.jpg",
+      "source_row": 22,
+      "source_file": "Untitled-design---2026-01-10T045645-189-1920w-0041f92c3b.png",
+      "use": "Wrap Me Up on /body (4:3 crop of row 22: upper back in the wrap; no face, no hips)",
+      "temp": true,
+      "replace_with": "shoot #11 (Wrap Me Up detail)",
+      "focal": {
+        "x": 45,
+        "y": 45
+      },
+      "alt": "A client resting face down, her upper back wrapped in a warm body mask."
+    }
+  ]
+}

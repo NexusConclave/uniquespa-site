@@ -1,0 +1,370 @@
+/* =========================================================================
+   Unique Spa House — global styles
+   Tokens: blueprint §5.1 (colour), §5.2 (type), §5.3 (layout). Plain CSS.
+   Rules that matter: sentence case everywhere, no tracked caps, body left-
+   aligned, italics only for one accent word in an H1/H2, text never on a photo.
+   ========================================================================= */
+
+/* ---------- Fonts (self-hosted WOFF2 from @fontsource; see scripts/copy-fonts.mjs) ---------- */
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/instrument-serif-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/instrument-serif-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/instrument-serif-latin-italic.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/instrument-serif-latin-ext-italic.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Bricolage';
+  font-style: normal;
+  font-weight: 200 800;
+  font-stretch: 75% 100%;
+  font-display: swap;
+  src: url('/fonts/bricolage-latin.woff2') format('woff2-variations'), url('/fonts/bricolage-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Bricolage';
+  font-style: normal;
+  font-weight: 200 800;
+  font-stretch: 75% 100%;
+  font-display: swap;
+  src: url('/fonts/bricolage-latin-ext.woff2') format('woff2-variations'), url('/fonts/bricolage-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ---------- Tokens ---------- */
+:root {
+  /* Colour (§5.1, solid hex, contrast measured) */
+  --bg: #F2E8DA;            /* cream ground */
+  --paper: #FAF6F0;
+  --sand: #DCCFBF;
+  --text: #341204;
+  --text-muted: #694E40;    /* meta, eyebrows (6.27 on cream) */
+  --text-soft-lg: #80685A;  /* display text 24px+ only */
+  --border-ui: #80685A;     /* control borders */
+  --focus: #B4532A;         /* copper focus ring — the only accent hue */
+  --btn: #341204;
+  --btn-hover: #4E2814;
+  --btn-active: #200A01;
+  --error: #9B2C1F;
+  --brown: #341204;         /* the one brown band per page + footer */
+  --on-dark: #F2E8DA;
+  --on-dark-muted: #B9A89A;
+  --on-dark-border: #8A7264;
+  --hairline: #D6C8BA;      /* decorative only */
+
+  /* Type (§5.2) */
+  --font-serif: 'Instrument Serif', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --font-sans: 'Bricolage', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --fs-h1: clamp(2.5rem, 1.3rem + 5.9vw, 6rem);
+  --fs-h2: clamp(2rem, 1.55rem + 1.9vw, 3.5rem);      /* 32 → 56 */
+  --fs-h3: clamp(1.5rem, 1.35rem + 0.6vw, 2rem);      /* 24 → 32 */
+  --fs-h4: 1.375rem;
+  --fs-body: clamp(1.0625rem, 1.02rem + 0.2vw, 1.125rem); /* 17 → 18 */
+  --fs-label: 0.9375rem;    /* 15px labels, buttons, chips */
+  --fs-meta: 0.875rem;      /* 14px meta lines — never smaller */
+  --fs-price: clamp(2.5rem, 2.1rem + 1.6vw, 3.5rem);  /* 40 → 56 flagship price */
+  --lh-body: 1.6;
+  --measure: 65ch;
+  --wdth-label: 85%;
+
+  /* Layout (§5.3) */
+  --container: 1200px;
+  --container-wide: 1360px;
+  --gutter: clamp(16px, 4vw, 64px);
+  --section: clamp(64px, 8vw, 120px);
+  --radius-card: 10px;      /* image cards ≤ 12px; pills only for controls */
+  --radius-pill: 999px;
+  --tap: 44px;
+
+  /* Chrome heights (set per breakpoint below) */
+  --header-h: 0px;          /* the mobile header isn't sticky */
+  --bar-h: 65px;            /* mobile bottom bar incl. hairline (without safe area) */
+  --bar-total: calc(var(--bar-h) + env(safe-area-inset-bottom, 0px));
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* Static 5% grain, never on photos */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2 0 0 0 0 .07 0 0 0 0 .02 .1 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --grain-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .95 0 0 0 0 .91 0 0 0 0 .85 .08 0 0 0 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --header-h: 72px;       /* desktop header is sticky and solid */
+    --bar-h: 0px;
+    --bar-total: 0px;
+  }
+}
+/* Below 500px tall the bar un-sticks, so nothing reserves room for it */
+@media (max-height: 499px) {
+  :root { --bar-total: 0px; }
+}
+
+/* ---------- Reset ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  font-synthesis: none;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+  scroll-padding-bottom: var(--bar-total);   /* WCAG 2.4.11: the bar never hides focus */
+}
+body {
+  margin: 0;
+  min-height: 100svh;
+  background-color: var(--bg);
+  background-image: var(--grain);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-bottom: var(--bar-total);
+  overflow-x: clip;
+}
+img, picture, svg, video { display: block; max-width: 100%; }
+img { height: auto; }
+input, button, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+p, h1, h2, h3, h4, h5, figure, blockquote, ul, ol, dl, dd, fieldset { margin: 0; }
+ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
+fieldset { border: 0; padding: 0; min-width: 0; }
+legend { padding: 0; }
+[hidden] { display: none !important; }
+dialog { color: inherit; }
+
+/* ---------- Focus: copper ring, 2px, 2px offset (never removed) ---------- */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+:focus:not(:focus-visible) { outline: none; }
+[tabindex='-1']:focus { outline: none; }
+
+/* ---------- Type ---------- */
+h1, h2, h3, h4, .serif {
+  font-family: var(--font-serif);
+  font-weight: 400;            /* Instrument Serif has one weight; never faked bold */
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+h1, .h1 { font-size: var(--fs-h1); line-height: 1; }
+h2, .h2 { font-size: var(--fs-h2); line-height: 1.04; }
+h3, .h3 { font-size: var(--fs-h3); line-height: 1.12; }
+h4, .h4 { font-size: var(--fs-h4); line-height: 1.2; }
+h1 em, h2 em, .accent { font-style: italic; }
+p, li { max-width: var(--measure); text-wrap: pretty; }
+strong, b { font-weight: 650; }
+
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 0.22em; }
+a:hover { text-decoration-thickness: 2px; }
+
+/* Labels, eyebrows, buttons, chips: Bricolage 14–16px, weight 500, wdth ≈ 85, sentence case, never tracked */
+.label, .eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  font-stretch: var(--wdth-label);
+  line-height: 1.3;
+  letter-spacing: 0;
+  color: var(--text-muted);
+}
+.eyebrow { display: block; margin-bottom: 0.9rem; }
+
+/* Meta line: 14px, muted; price bold with tabular numerals */
+.meta {
+  font-size: var(--fs-meta);
+  line-height: 1.5;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.meta b, .meta strong, .price-b { color: var(--text); font-weight: 650; font-variant-numeric: tabular-nums; }
+.lede { font-size: clamp(1.125rem, 1.05rem + 0.35vw, 1.3125rem); line-height: 1.55; }
+.small { font-size: var(--fs-meta); line-height: 1.5; }
+.price-display {
+  font-family: var(--font-serif);
+  font-size: var(--fs-price);
+  line-height: 1;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* ---------- Layout ---------- */
+.container { width: min(100% - 2 * var(--gutter), var(--container)); margin-inline: auto; }
+.container--wide { width: min(100% - 2 * var(--gutter), var(--container-wide)); margin-inline: auto; }
+.container--narrow { width: min(100% - 2 * var(--gutter), 760px); margin-inline: auto; }
+.stack > * + * { margin-top: var(--stack, 1rem); }
+.cluster { display: flex; flex-wrap: wrap; align-items: center; gap: var(--cluster, 0.75rem 1rem); }
+.hairline { border: 0; border-top: 1px solid var(--hairline); margin: 0; }
+
+/* ---------- Buttons (Button.astro). One filled Book per screen: header pill / bottom bar. ---------- */
+.btn {
+  --btn-pad: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55em;
+  min-height: 48px;
+  padding: 0.25rem var(--btn-pad);
+  border: 1px solid var(--btn);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  font-stretch: var(--wdth-label);
+  line-height: 1.15;
+  letter-spacing: 0;
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn svg { width: 1.05em; height: 1.05em; flex: none; }
+.btn--filled { background: var(--btn); color: var(--on-dark); }
+.btn--filled:hover { background: var(--btn-hover); border-color: var(--btn-hover); }
+.btn--filled:active { background: var(--btn-active); border-color: var(--btn-active); }
+.btn--outline { background: transparent; color: var(--text); border-color: var(--text); }
+.btn--outline:hover { background: rgba(52, 18, 4, 0.06); }
+.btn--outline:active { background: rgba(52, 18, 4, 0.12); }
+.btn--sm { min-height: 44px; --btn-pad: 1.15rem; }
+.btn--block { width: 100%; }
+.on-dark .btn--outline { color: var(--on-dark); border-color: var(--on-dark); }
+.on-dark .btn--outline:hover { background: rgba(242, 232, 218, 0.1); }
+.on-dark .btn--filled { background: var(--on-dark); color: var(--text); border-color: var(--on-dark); }
+
+/* A quiet text action (e.g. "or ask Uni") that keeps a 44px target */
+.link-quiet {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: var(--tap);
+  padding: 0 0.25rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: var(--font-sans);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  font-stretch: var(--wdth-label);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+}
+.link-quiet:hover { text-decoration-thickness: 2px; }
+.link-arrow { display: inline-flex; align-items: center; gap: 0.4em; font-weight: 500; font-stretch: var(--wdth-label); font-size: var(--fs-label); min-height: var(--tap); }
+.link-arrow svg { width: 1em; height: 1em; transition: transform 0.25s var(--ease); }
+.link-arrow:hover svg { transform: translateX(3px); }
+
+/* ---------- Grounds ---------- */
+.tone-cream { background-color: var(--bg); background-image: var(--grain); }
+.tone-paper { background-color: var(--paper); background-image: var(--grain); }
+.tone-sand { background-color: var(--sand); background-image: var(--grain); }
+.tone-brown, .on-dark { background-color: var(--brown); background-image: var(--grain-light); color: var(--on-dark); }
+.on-dark .meta, .on-dark .label, .on-dark .eyebrow { color: var(--on-dark-muted); }
+.on-dark :focus-visible { outline-color: var(--focus); }
+
+/* ---------- Accessibility helpers ---------- */
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+.skip-link {
+  position: fixed;
+  left: 12px; top: 12px;
+  z-index: 1000;
+  padding: 0.75rem 1.1rem;
+  background: var(--paper);
+  color: var(--text);
+  border: 1px solid var(--text);
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-160%);
+}
+.skip-link:focus, .skip-link:focus-visible { transform: none; }
+
+/* Draft offers / unapproved quotes on staging (PREVIEW=1 builds only) */
+.draft-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-top: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px dashed var(--border-ui);
+  border-radius: 6px;
+  font-size: var(--fs-meta);
+  line-height: 1.4;
+  color: var(--text-muted);
+  background: rgba(250, 246, 240, 0.6);
+}
+.on-dark .draft-note { color: var(--on-dark-muted); border-color: var(--on-dark-border); background: transparent; }
+
+/* ---------- Motion lives in styles/motion.css (reveals, load sequences, ticker, hovers). ---------- */
+.line-reveal > .line { display: block; }
+
+/* Card hover: 1.04 image scale, hover-capable devices only */
+@media (hover: hover) and (pointer: fine) {
+  .hover-zoom img { transition: transform 0.8s var(--ease); }
+  .hover-zoom:hover img { transform: scale(1.04); }
+}
+
+/* Reduced motion and the Pause motion toggle turn everything off */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+html[data-motion='paused'] *, html[data-motion='paused'] *::before, html[data-motion='paused'] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+html[data-motion='paused']::view-transition-group(*),
+html[data-motion='paused']::view-transition-old(*),
+html[data-motion='paused']::view-transition-new(*) { animation: none !important; }
+
+@media print {
+  .site-header, .bottom-bar, .site-footer, #uni, dialog { display: none !important; }
+  body { background: #fff; padding: 0; }
+}
+
+/* Inline variant: an unconfirmed claim inside running text or a list item (Confirm.astro) */
+/* Plain inline (not inline-flex), so it wraps with the sentence instead of opening a narrow column beside it. */
+.draft-note--inline {
+  display: inline; margin: 0 0 0 0.35em; padding: 0 0.4em;
+  font-weight: 400; vertical-align: baseline;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}

@@ -1,0 +1,530 @@
+{
+  "note": "Every offer in the plan (blueprint §8). Each is a PROPOSAL until the owner approves it (approved:false). An offer renders only when approved is true OR the build has PREVIEW=1 (staging), and only between starts and ends (America/Los_Angeles, inclusive). Pages also hide past-dated offers client-side ([data-ends]). Never write 'reg.', 'was', 'valued at' or 'free' inside a paid offer. Medical offers: never. square_id = this offer's OWN Square special-price item (no codes). Bookable offers (special, series, first-visit) without one never render in production (the build logs a warning); PREVIEW shows the card with \"Needs its own Square item before it can be booked\" and no Book button. Never link a special to the general booking page.",
+  "bar_gift_windows": [
+    {
+      "starts": "2026-11-15",
+      "ends": "2026-12-31",
+      "why": "Holiday gifting"
+    },
+    {
+      "starts": "2027-02-01",
+      "ends": "2027-02-14",
+      "why": "Valentine's"
+    },
+    {
+      "starts": "2027-04-26",
+      "ends": "2027-05-09",
+      "why": "Mother's Day"
+    }
+  ],
+  "offers": [
+    {
+      "id": "oct-2026-royal-foot-glow",
+      "kind": "special",
+      "featured": true,
+      "title": "Royal Foot & Glow ritual",
+      "body": "A warm herbal foot steam, cleanse and scrub. Then a 30 min foot and lower-leg massage and warm paraffin. While the paraffin sets, a facial cleanse and skincare.",
+      "includes": [
+        "Herbal foot steam, cleanse and scrub",
+        "30 min foot and lower-leg massage",
+        "Warm paraffin, with a facial cleanse and skincare"
+      ],
+      "price": 149,
+      "minutes": 90,
+      "starts": "2026-10-01",
+      "ends": "2026-10-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "square_id": "QCKMHDRE5BJ5RBSMF5KKYFLB",
+      "service_id": "foot-glow",
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "oct-2026-lymphatic-luxe",
+      "kind": "special",
+      "title": "Lymphatic LUXE renewal",
+      "body": "60 min of full-body lymphatic massage. Then a neck and face lymphatic massage, a hand massage and a hydrating face mask.",
+      "includes": [
+        "60 min full-body lymphatic massage",
+        "Neck and face lymphatic massage",
+        "Hand massage and a hydrating face mask"
+      ],
+      "price": 199,
+      "minutes": 120,
+      "starts": "2026-10-01",
+      "ends": "2026-10-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "square_id": "ZL6LISB6GX4P7WMPYF46F6ZX",
+      "service_id": "lymphatic-luxe",
+      "related_service": "lymphatic",
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "holiday-egift-2026",
+      "kind": "gift",
+      "_note": "Holiday gift card offer. NOT switched here: site.json gift_offer.option picks A (no offer, the default), B or C, and gift_offer.starts/ends set the dates. The wording is the approved copy from the gift kit (02-website-gift-page-check.md, fix 1); {tokens} are filled from site.json gift_offer. Read by lib/giftOffer.ts only: activeOffers() never returns kind 'gift'. Never write 'free', 'save', 'value', 'bonus' or a former price here.",
+      "title": "Holiday gift cards",
+      "body": "Switched by site.json gift_offer.option.",
+      "price": null,
+      "starts": "2026-11-01",
+      "ends": "2026-12-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "url": "gift",
+      "approved": false,
+      "owner_confirm": "Q50 / gift kit decisions 1-2 (option and dates in site.json gift_offer; Square set-up, one test purchase and a lawyer check before B or C)",
+      "options": {
+        "B": {
+          "eyebrow": "Holiday gift cards · {starts_short} – {ends_short}",
+          "title": "Holiday gift cards.",
+          "deal": "Buy a $225 eGift card for $200.",
+          "small": "$25 off each eGift card of $225 or more. {starts_long} to {ends_long}.",
+          "tile_badge": "$200 until {ends_short}",
+          "button": "Buy a $225 eGift card"
+        },
+        "C": {
+          "eyebrow": "Holiday gift cards · {starts_short} – {ends_short}",
+          "title": "Give a gift. Get a $25 card for you.",
+          "deal": "Spend $200 or more on eGift cards. We'll email you a $25 promo card within {c_send_days} days.",
+          "small": "{starts_long} to {ends_long}. Promo card valid {c_promo_valid}. {c_limits}",
+          "tile_badge": null,
+          "button": "Buy a gift card"
+        }
+      }
+    },
+    {
+      "id": "nov-2026-lymphatic-body-face",
+      "kind": "special",
+      "featured": true,
+      "title": "Lymphatic Body & Face",
+      "body": "60 min full-body lymphatic massage by hand, then 30 min of gentle neck and face lymphatic massage.",
+      "price": 164,
+      "minutes": 90,
+      "starts": "2026-11-01",
+      "ends": "2026-11-30",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "square_id": "5DG36PERSRQXHJN2AXXIJX2O",
+      "service_id": "lymphatic-body-face",
+      "approved": false,
+      "owner_confirm": "O-P2 (Square item \"November Special: Lymphatic Body & Face 90 min\", $164, 90 min, both spas, 2 Nov capture)"
+    },
+    {
+      "id": "dec-2026-babor-sculpt-lift",
+      "kind": "special",
+      "featured": true,
+      "title": "BABOR Sculpt & Lift ritual",
+      "body": "Our 90 min BABOR facial, this month's treatment.",
+      "price": 164,
+      "minutes": 90,
+      "starts": "2026-12-01",
+      "ends": "2026-12-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "replaces_service": "babor-sculpt-lift",
+      "approved": false,
+      "owner_confirm": "O-P2 (Square special-price item needed)"
+    },
+    {
+      "id": "jan-2027-deep-tissue-90",
+      "kind": "special",
+      "featured": true,
+      "title": "Deep tissue massage, 90 min",
+      "body": "Slow, firm pressure for deeper muscle layers. This month's treatment.",
+      "price": 199,
+      "minutes": 90,
+      "starts": "2027-01-01",
+      "ends": "2027-01-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "jan-2027-reset-series",
+      "kind": "series",
+      "title": "Reset series",
+      "body": "5 lymphatic massages, 60 min each.",
+      "price": 675,
+      "starts": "2027-01-01",
+      "ends": "2027-01-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "approved": false,
+      "owner_confirm": "O-S1 (Square Packages on) · P2"
+    },
+    {
+      "id": "feb-2027-valentines-couples",
+      "kind": "special",
+      "title": "Valentine's couples",
+      "body": "Couples massage for two, with a $10 add-on included with each booking.",
+      "price": 336,
+      "minutes": 120,
+      "starts": "2027-02-01",
+      "ends": "2027-02-14",
+      "spa": [
+        "SD"
+      ],
+      "free_slot": 1,
+      "approved": false,
+      "owner_confirm": "O-P2 · free slot #1 (16 CFR 251)"
+    },
+    {
+      "id": "feb-2027-joelle-ciocco-60",
+      "kind": "special",
+      "featured": true,
+      "title": "Sculpture face massage",
+      "body": "60 min of sculpting face massage. This month's treatment.",
+      "price": 145,
+      "minutes": 60,
+      "starts": "2027-02-01",
+      "ends": "2027-02-28",
+      "spa": [
+        "SD"
+      ],
+      "approved": false,
+      "owner_confirm": "O-P2 · O-B2 (name use)"
+    },
+    {
+      "id": "mar-2027-share-the-calm",
+      "kind": "referral",
+      "title": "Share the calm",
+      "body": "Referral month.",
+      "price": null,
+      "starts": "2027-03-01",
+      "ends": "2027-03-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "approved": false,
+      "owner_confirm": "P0-5 (referral)"
+    },
+    {
+      "id": "mar-2027-babor-deep-cleanse",
+      "kind": "special",
+      "featured": true,
+      "title": "BABOR Deep Cleanse & Glow ritual",
+      "body": "A 90 min BABOR deep cleanse with extractions. This month's treatment.",
+      "price": 199,
+      "minutes": 90,
+      "starts": "2027-03-01",
+      "ends": "2027-03-31",
+      "spa": [
+        "SD"
+      ],
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "apr-2027-lymphatic-luxe",
+      "kind": "special",
+      "featured": true,
+      "title": "Lymphatic LUXE renewal",
+      "body": "60 min of full-body lymphatic massage. Then a neck and face lymphatic massage, a hand massage and a hydrating face mask.",
+      "price": 199,
+      "minutes": 120,
+      "starts": "2027-04-01",
+      "ends": "2027-04-30",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "related_service": "lymphatic",
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "apr-2027-anti-cellulite-90",
+      "kind": "special",
+      "title": "Anti-cellulite massage, 90 min",
+      "body": "Brisk, firm massage for hips, thighs and legs. Name only: no card, no image.",
+      "price": 189,
+      "minutes": 90,
+      "starts": "2027-04-01",
+      "ends": "2027-04-30",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "name_only": true,
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "may-2027-glow-duo",
+      "kind": "special",
+      "featured": true,
+      "title": "Mother's Day glow duo",
+      "body": "Contents to confirm.",
+      "price": 229,
+      "starts": "2027-05-01",
+      "ends": "2027-05-11",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "approved": false,
+      "owner_confirm": "O-P2 (contents)"
+    },
+    {
+      "id": "may-2027-prenatal-postnatal",
+      "kind": "special",
+      "title": "Prenatal or postnatal massage, as a gift",
+      "body": "60 min, with positioning and pressure adjusted for comfort.",
+      "price": 160,
+      "minutes": 60,
+      "starts": "2027-05-01",
+      "ends": "2027-05-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "jun-2027-bring-a-bestie",
+      "kind": "special",
+      "title": "Bring a bestie",
+      "body": "Contents to confirm.",
+      "price": null,
+      "starts": "2027-06-01",
+      "ends": "2027-06-30",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "free_slot": 2,
+      "approved": false,
+      "owner_confirm": "O-P2 · free slot #2"
+    },
+    {
+      "id": "jun-2027-sports-90",
+      "kind": "special",
+      "featured": true,
+      "title": "Sports massage, 90 min",
+      "body": "Firmer, focused work for people who train. This month's treatment.",
+      "price": 205,
+      "minutes": 90,
+      "starts": "2027-06-01",
+      "ends": "2027-06-30",
+      "spa": [
+        "SD"
+      ],
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "jul-2027-midday-escape",
+      "kind": "special",
+      "title": "Midday escape",
+      "body": "Contents to confirm.",
+      "price": null,
+      "starts": "2027-07-01",
+      "ends": "2027-07-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "jul-2027-relaxing-90",
+      "kind": "special",
+      "featured": true,
+      "title": "Relaxing massage, 90 min",
+      "body": "A slow, soothing full session. This month's treatment.",
+      "price": 179,
+      "minutes": 90,
+      "starts": "2027-07-01",
+      "ends": "2027-07-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "aug-2027-back-to-school-midday",
+      "kind": "special",
+      "title": "Back-to-school midday",
+      "body": "Contents to confirm.",
+      "price": null,
+      "starts": "2027-08-01",
+      "ends": "2027-08-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "aug-2027-lymphatic-90",
+      "kind": "special",
+      "featured": true,
+      "title": "Lymphatic massage, 90 min",
+      "body": "Gentle, rhythmic strokes, with gentle tummy work. This month's treatment.",
+      "price": 179,
+      "minutes": 90,
+      "starts": "2027-08-01",
+      "ends": "2027-08-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "related_service": "lymphatic",
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "sep-2027-fall-recovery",
+      "kind": "special",
+      "title": "Fall recovery",
+      "body": "Contents to confirm.",
+      "price": 205,
+      "starts": "2027-09-01",
+      "ends": "2027-09-30",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "free_slot": 3,
+      "approved": false,
+      "owner_confirm": "O-P2 · free slot #3 (Sep 13 – Oct 12)"
+    },
+    {
+      "id": "sep-2027-hot-stone-60",
+      "kind": "special",
+      "featured": true,
+      "title": "Hot stone massage, 60 min",
+      "body": "Smooth, warm stones plus massage. This month's treatment.",
+      "price": 135,
+      "minutes": 60,
+      "starts": "2027-09-01",
+      "ends": "2027-09-30",
+      "spa": [
+        "SD"
+      ],
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "oct-2027-royal-foot-glow",
+      "kind": "special",
+      "featured": true,
+      "title": "Royal Foot & Glow ritual",
+      "body": "A warm herbal foot steam, cleanse and scrub. Then a 30 min foot and lower-leg massage and warm paraffin, with a facial cleanse while it sets.",
+      "price": 149,
+      "minutes": 90,
+      "starts": "2027-10-01",
+      "ends": "2027-10-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "oct-2027-babor-sculpt-lift",
+      "kind": "special",
+      "title": "BABOR Sculpt & Lift ritual",
+      "body": "Our 90 min BABOR facial, this month's treatment.",
+      "price": 164,
+      "minutes": 90,
+      "starts": "2027-10-01",
+      "ends": "2027-10-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "replaces_service": "babor-sculpt-lift",
+      "approved": false,
+      "owner_confirm": "O-P2"
+    },
+    {
+      "id": "first-visit-lymphatic-60",
+      "kind": "first-visit",
+      "title": "First visit only (new to either spa): Lymphatic 60",
+      "body": "For clients new to both spas.",
+      "price": 125,
+      "minutes": 60,
+      "starts": "2026-11-03",
+      "ends": "2099-12-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "approved": false,
+      "owner_confirm": "P0-5 (First-visit prices)"
+    },
+    {
+      "id": "first-visit-swedish-60",
+      "kind": "first-visit",
+      "title": "First visit only (new to either spa): Swedish 60",
+      "body": "For clients new to both spas.",
+      "price": 125,
+      "minutes": 60,
+      "starts": "2026-11-03",
+      "ends": "2099-12-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "approved": false,
+      "owner_confirm": "P0-5 (First-visit prices)"
+    },
+    {
+      "id": "first-visit-deep-tissue-60",
+      "kind": "first-visit",
+      "title": "First visit only (new to either spa): Deep Tissue 60",
+      "body": "For clients new to both spas.",
+      "price": 140,
+      "minutes": 60,
+      "starts": "2026-11-03",
+      "ends": "2099-12-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "approved": false,
+      "owner_confirm": "P0-5 (First-visit prices)"
+    },
+    {
+      "id": "referral-25",
+      "kind": "referral",
+      "title": "Refer a friend",
+      "body": "Your friend books a first-visit item with the note \"Referred by {name}\". After their paid visit, you get $25 off a $150+ spa service, within 90 days.",
+      "price": null,
+      "starts": "2026-11-03",
+      "ends": "2099-12-31",
+      "spa": [
+        "SD",
+        "DM"
+      ],
+      "approved": false,
+      "owner_confirm": "P0-5 (Referral)"
+    }
+  ]
+}

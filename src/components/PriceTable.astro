@@ -1,0 +1,64 @@
+---
+/**
+ * PriceTable — every length and price of one live service, with a Book link per spa per row
+ * (Square deep links from lib/catalog.ts; a cell is "Not offered" where the option isn't at that spa,
+ * so there is never a Del Mar link to a San Diego-only item).
+ */
+import { getService, bookUrl, optionPriceText, priceSuffix, SPAS, type Spa } from '../lib/catalog';
+import { spokenRow, viewService } from '../lib/serviceView';
+import { lengthOf } from '../lib/pageHelpers';
+import { spa as spaInfo } from '../lib/site';
+interface Props { service: string; caption: string; onlySpa?: Spa; placement?: string; class?: string }
+const { service, caption, onlySpa, placement = 'price-table', class: cls } = Astro.props;
+const s = getService(service);
+const v = viewService(s, onlySpa);
+const spas = SPAS.filter((sp) => (!onlySpa || sp === onlySpa) && v.options.some((o) => o.links[sp]));
+const opts = s.options.filter((o) => !onlySpa || o.locations.includes(onlySpa));
+---
+<div class:list={['ptable', cls]}>
+  <table>
+    <caption class="sr-only">{caption}</caption>
+    <thead>
+      <tr>
+        <th scope="col">Length</th>
+        <th scope="col">Price</th>
+        {spas.map((sp) => <th scope="col" class="ptable__spa">{spaInfo(sp).name}</th>)}
+      </tr>
+    </thead>
+    <tbody>
+      {opts.map((o, i) => (
+        <tr>
+          <th scope="row">{lengthOf(o)}</th>
+          <td class="ptable__price">{optionPriceText(o)}{o.price != null && priceSuffix(o)}</td>
+          {spas.map((sp) => {
+            const href = bookUrl(o.square_id, sp);
+            return (
+              <td class="ptable__book">
+                {href ? (
+                  <a class="btn btn--outline btn--sm" href={href} target="_blank" rel="noopener" data-track="book_click"
+                     data-track-props={JSON.stringify({ spa: sp, service: s.id, placement })}>
+                    Book<span class="sr-only">: {spokenRow(s.name, v.options[i], sp)} (opens in a new tab)</span>
+                  </a>
+                ) : (
+                  <span class="meta">Not offered<span class="sr-only"> at {spaInfo(sp).name}</span></span>
+                )}
+              </td>
+            );
+          })}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+<style>
+  .ptable { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { padding: 0.7rem 0.5rem; text-align: left; border-bottom: 1px solid var(--hairline); vertical-align: middle; }
+  thead th { font-size: var(--fs-meta); font-weight: 500; font-stretch: var(--wdth-label); color: var(--text-muted); border-bottom-color: var(--border-ui); }
+  tbody th { font-weight: 500; font-size: var(--fs-label); white-space: nowrap; }
+  .ptable__price { font-family: var(--font-serif); font-size: 1.6rem; line-height: 1; white-space: nowrap; }
+  .ptable__spa, .ptable__book { text-align: right; }
+  th:first-child, td:first-child { padding-left: 0; }
+  th:last-child, td:last-child { padding-right: 0; }
+  .ptable__book .btn { --btn-pad: 1rem; }
+</style>

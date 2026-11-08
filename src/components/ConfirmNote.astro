@@ -1,0 +1,8 @@
+---
+/** The PREVIEW-only "Needs owner confirmation (…)" note for a pending claim (renders nothing once resolved). */
+import { claimPending, claimNote, claimVisible } from '../lib/confirm';
+interface Props { id: string }
+const { id } = Astro.props;
+const show = claimVisible(id) && claimPending(id);
+---
+{show && <span class="draft-note draft-note--inline">{claimNote(id)}</span>}

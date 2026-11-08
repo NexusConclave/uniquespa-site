@@ -1,0 +1,29 @@
+# Cloudflare Pages project for uniquespahouse.com (Katy's account). Deployed by GitHub Actions with
+# `wrangler pages deploy dist` (see .github/workflows). With this file in the repo it is the single source of
+# truth for the project's bindings: the dashboard shows them read-only. Holds no secrets.
+name = "unique-spa-house"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-07-01"
+
+# ---------- Production (and local `wrangler pages dev`) ----------
+# Booking-intent counter for functions/api/event.js (site-tracking DECISION.md). Create the database once:
+#   npx wrangler d1 create ush-events      -> paste the database_id below
+#   npx wrangler d1 execute ush-events --remote --file migrations/0001_events.sql
+[[d1_databases]]
+binding = "EVENTS_DB"
+database_name = "ush-events"
+database_id = "7217f259-0b02-44b8-8f02-8c9e6c57b105"
+
+# Uni's chat Worker. functions/api/{chat,lead,health}.js hand requests to it (src/lib/uni-proxy.mjs).
+# Deploy the Worker (uni-migrate/RUNBOOK.md steps 2-6) before the first site deploy that includes this.
+[[services]]
+binding = "UNI"
+service = "uni-chat"
+
+# ---------- Preview deployments (pull requests, *.unique-spa-house.pages.dev) ----------
+# Previews talk to the throwaway acceptance Worker (Telegram dry-run, its own lead database), so a test chat on a
+# preview never reaches Katy's Telegram or the real lead log. No EVENTS_DB: previews are never counted.
+[env.preview]
+[[env.preview.services]]
+binding = "UNI"
+service = "uni-chat-acceptance"

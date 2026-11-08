@@ -1,0 +1,356 @@
+---
+/**
+ * Home — seven beats (blueprint §4.1):
+ *  1 Hero "Come in" (DoorStage)  2 Brown band  3 Lymphatic + three cards  4 Katy
+ *  5 Offers band (never hides)   6 Your visit  7 The two spa doors + final Book · Ask Uni
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DoorStage from '../components/DoorStage.astro';
+import Section from '../components/Section.astro';
+import Button from '../components/Button.astro';
+import RatingLine from '../components/RatingLine.astro';
+import PullQuote from '../components/PullQuote.astro';
+import ArchFrame from '../components/ArchFrame.astro';
+import TreatmentTicker from '../components/TreatmentTicker.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import BookChooser from '../components/BookChooser.astro';
+import SpecialCard from '../components/SpecialCard.astro';
+import GiftCardVisual from '../components/GiftCardVisual.astro';
+import SpaDoor from '../components/SpaDoor.astro';
+import Icon from '../components/Icon.astro';
+import QuickAnswers from '../components/QuickAnswers.astro';
+import { Picture } from 'astro:assets';
+import { getService, getOption, formatMinutes, formatPrice, optionPriceText, priceSuffix, spasFor, giftUrl, type Service } from '../lib/catalog';
+import { activeOffers } from '../lib/offers';
+import { giftOffer as giftOfferView } from '../lib/giftOffer';
+import { review } from '../lib/reviews';
+import { asset, widthsFor, objectPosition } from '../lib/images';
+import { site } from '../lib/site';
+import { shortDate } from '../lib/dates';
+import { graph, orgNode, websiteNode, spaNode as spaSchema, faqNode } from '../lib/schema';
+import { priceOf, priceList } from '../lib/pageHelpers';
+import { entitySentence, OPENED, SPA_FACTS } from '../lib/entity';
+
+// ---- Beat 3 data (prices only from the catalog) ----
+const lymph = getService('lymphatic');
+const lymph60 = getOption(lymph, 60);
+const both = (s: Service) => (spasFor(s).length === 2 ? 'both spas' : `${site.spas[spasFor(s)[0]].name} only`);
+const luxe = activeOffers({ kind: 'special' }).find((o) => o.related_service === 'lymphatic');
+
+function cardMeta(id: string, minutes: number, lead?: string) {
+  const s = getService(id);
+  const o = getOption(s, minutes);
+  const len = /for two/i.test(o.label) ? o.label.replace(/, for two$/, '') : formatMinutes(o.minutes);
+  return { s, o, line: `${lead ?? s.name} ${len}`, price: optionPriceText(o) + priceSuffix(o), spas: spasFor(o) };
+}
+const massage = cardMeta('swedish', 60, 'Swedish');
+const facial = cardMeta('babor-sculpt-lift', 90, 'BABOR Sculpt & Lift');
+const couples = cardMeta('couples', 120);
+
+const cards = [
+  { href: '/massage', title: 'Massage', text: 'Swedish, deep tissue, lymphatic, sports, prenatal and more. Your therapist shapes the session around you.', meta: massage, img: asset('massage-1x1'), morph: 'svc-massage', quality: 60 },
+  { href: '/facials', title: 'Facials', text: 'BABOR facials and sculpting face massage, chosen for your skin after a short check.', meta: facial, img: asset('facial-1x1'), morph: 'svc-facials', quality: 60 },
+  { href: '/massage/couples', title: 'Couples', text: 'Two tables in a private room. Then 30 minutes together, with tea or coffee, fresh fruit and cheese.', meta: couples, img: null, morph: undefined, quality: 60 },
+];
+
+// ---- Beat 5: offers band (special → gifts → refer/rewards). It never hides. ----
+const specials = activeOffers({ kind: 'special' }).filter((o) => !o.name_only && o.related_service !== 'lymphatic').slice(0, 2);
+// Holiday gift card offer: site.json gift_offer (A = none; B/C = the gift kit wording). Upcoming within 14 days → hidden until its start.
+const giftView = giftOfferView({ days: 14 });
+const giftOffer = giftView?.offer ?? null;
+const giftUpcoming = !!giftView?.upcoming && !giftView.previewEarly;
+const giftDated = !!giftOffer && /^\d{4}-/.test(giftOffer.starts);
+
+// ---- Quick answers (GEO, answer-first): facts from lib/catalog + lib/entity only. Visible on the page, so also in FAQPage. ----
+const [sdF, dmF] = SPA_FACTS;
+const answers = [
+  { q: 'What is Unique Spa House?', a: `${entitySentence()} It opened in ${OPENED}.` },
+  { q: 'Where can I get a lymphatic drainage massage in San Diego?', a: `At both of our spas, in Mission Valley and in Del Mar: ${priceList('lymphatic')}. It's the only massage on our menu that includes gentle tummy work. <a href="/massage/lymphatic-drainage">About lymphatic drainage massage</a>.` },
+  { q: 'How much is a massage?', a: `A 60 min Swedish massage is ${priceOf('swedish', 60)}, a 60 min deep tissue massage is ${priceOf('deep-tissue', 60)} and a 60 min lymphatic drainage massage is ${priceOf('lymphatic', 60)}. Every price is on our <a href="/menu">menu</a>.` },
+  { q: 'What are your opening hours?', a: `${sdF.label}: ${sdF.hours.replace('Mon–Sun', 'Monday to Sunday,')}. ${dmF.label}: please call ${site.phone.display} for today's hours.` },
+  { q: 'How do I book?', a: `Online at either spa through our Square booking page, which takes about a minute, or call ${site.phone.display}. Please give us 24 hours' notice if you need to cancel (<a href="/policies">booking policies</a>).` },
+];
+
+// ---- JSON-LD: Organization, WebSite, both DaySpa nodes (Del Mar without openingHours) and the visible quick answers. No AggregateRating. ----
+const jsonLd = graph(orgNode(), websiteNode(), spaSchema('SD'), spaSchema('DM'), faqNode(answers));
+
+const steps = [
+  { t: 'Book', d: 'Choose your treatment, time and spa online. It takes about a minute.' },
+  { t: 'Arrive and settle', d: 'Come a few minutes early. Fill in a short form, then settle in.' },
+  { t: 'Talk to your therapist', d: 'Share your goals, the pressure you like and any health concerns.' },
+  { t: 'Relax, then aftercare', d: 'A calm, private room. Afterwards, simple tips to keep the feeling going.' },
+];
+const lymphImg = asset('lymphatic-4x5');
+const bandQuote = review('anna-k');   // null until approved (or PREVIEW)
+---
+<BaseLayout
+  title="Massage & Facials in San Diego & Del Mar | Unique Spa House"
+  description="Massage, facials and body treatments at two calm spas in San Diego (Mission Valley) and Del Mar. Real prices, booked online in a minute."
+  path="/"
+  jsonLd={jsonLd}
+>
+  <!-- 1 · Hero: "Come in" -->
+  <DoorStage>
+    <h1 id="hero-title" class="hero__title">Hands that <em>listen</em>.</h1>
+    <p class="hero__sub">Massage, facials and body treatments in San Diego (Mission Valley) and Del Mar.</p>
+    <div class="hero__actions">
+      <Button open="book" variant="outline" track="book_click" trackProps={{ placement: 'hero' }}>Book a visit</Button>
+      <button type="button" class="link-quiet" data-open="uni" aria-haspopup="dialog">or ask Uni</button>
+    </div>
+    <RatingLine class="hero__rating" />
+  </DoorStage>
+
+  <!-- 2 · The brown band -->
+  <Section tone="brown" labelledby="band-title" class="band" reveal={false} pad={bandQuote ? 'default' : 'tight'}>
+    <div class:list={['band__grid', !bandQuote && 'band__grid--solo']}>
+      <h2 id="band-title" class="band__title line-reveal"><span class="line">Come in.</span> <span class="line">Tell us what you <em>need</em>.</span></h2>
+      <div class="band__quote">
+        {bandQuote && <PullQuote review={bandQuote} size="large" tone="dark" />}
+        <RatingLine tone="dark" class="band__trust" />
+      </div>
+    </div>
+    <TreatmentTicker />
+  </Section>
+
+  <!-- 3 · Lymphatic, then three cards -->
+  <Section labelledby="lymph-title" class="lymph">
+    <div class="lymph__grid">
+      <figure class="lymph__media" transition:name="svc-lymphatic" data-parallax>
+        <Picture src={lymphImg.src} formats={['avif', 'webp']} widths={widthsFor(lymphImg.src)} sizes="(min-width: 900px) 40vw, 100vw" quality={62}
+          alt={lymphImg.alt} loading="lazy" decoding="async" style={`object-position: ${objectPosition(lymphImg)}`} />
+      </figure>
+      <div class="lymph__text">
+        <p class="eyebrow">Our most-loved treatment</p>
+        <h2 id="lymph-title">Lymphatic drainage massage</h2>
+        <p class="lede">The only massage on our menu that includes gentle tummy work.</p>
+        <p>Very gentle, rhythmic strokes, designed to encourage the flow of fluid. Most clients find it deeply calming.</p>
+        <p class="lymph__meta meta">{formatMinutes(lymph60.minutes)} · <b>{formatPrice(lymph60.price)}</b> · {both(lymph)}</p>
+        <div class="lymph__actions">
+          <BookChooser service="lymphatic" minutes={60} label="Book lymphatic" placement="card" />
+          <a class="link-arrow" href="/massage/lymphatic-drainage">About lymphatic massage<Icon name="arrow-right" /></a>
+        </div>
+        {luxe && <SpecialCard offer={luxe} variant="compact" headingLevel={3} showGift={false} placement="special" class="lymph__luxe" />}
+      </div>
+    </div>
+
+    <div class="cards">
+      <h2 id="cards-title" class="cards__title">What would you like <em>today</em>?</h2>
+      <ul role="list" class="cards__list" aria-labelledby="cards-title">
+        {cards.map((c) => (
+          <li class="card hover-zoom">
+            <div class="card__media" transition:name={c.morph}>
+              {c.img ? (
+                <Picture src={c.img.src} formats={c.img.formats} widths={widthsFor(c.img.src, [480, 800, 1100])} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw" quality={c.quality}
+                  alt="" loading="lazy" decoding="async" style={`object-position: ${objectPosition(c.img)}`} />
+              ) : (
+                <div class="card__type" aria-hidden="true"><span>for</span><span class="card__amp">two</span></div>
+              )}
+            </div>
+            <h3 class="card__title"><a href={c.href} class="card__link">{c.title}</a></h3>
+            <p class="card__text">{c.text}</p>
+            <p class="meta card__meta">{c.meta.line} · <b>{c.meta.price}</b>{c.meta.spas.length === 1 && <> · {site.spas[c.meta.spas[0]].name}</>}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Section>
+
+  <!-- 4 · Katy -->
+  <Section labelledby="katy-title" class="katy">
+    <div class="katy__grid">
+      <ArchFrame asset="hands-4x5" ratio="4 / 5" sizes="(min-width: 900px) 34vw, 80vw" class="katy__arch" parallax />
+      <div class="katy__text">
+        <p class="eyebrow">Book with the owner</p>
+        <h2 id="katy-title">Massage with <em>Katy</em></h2>
+        <p class="lede">Any 60, 90 or 120 min massage with Katy, our owner. Lymphatic, deep tissue, sports, relaxing or therapeutic, or a mix.</p>
+        <ServiceCard service="katy" variant="feature" showTitle={false} summary={null} defaultMinutes={60} placement="card" class="katy__svc" />
+        <PullQuote review="jessica-m" size="small" class="katy__quote" />
+      </div>
+    </div>
+  </Section>
+
+  <!-- 5 · Offers band (special → gift cards → refer/rewards). Never hides. -->
+  <Section tone="paper" labelledby="offers-title" class="offers" pad="tight">
+    <div class="offers__head">
+      <h2 id="offers-title">Something to look <em>forward</em> to</h2>
+      <a class="link-arrow" href="/specials">See this month's specials<Icon name="arrow-right" /></a>
+    </div>
+    <div class:list={['offers__grid', `offers__grid--${specials.length + 1}`, specials.length === 0 && 'offers__grid--gift-only']}>
+      {specials.map((o) => <SpecialCard offer={o} headingLevel={3} />)}
+      <article class="gift">
+        <GiftCardVisual />
+        <div class="gift__text">
+          <h3 class="gift__title">Give the gift of calm</h3>
+          <p>eGift cards from $100, or choose your own amount. Send by text or email, today or on a date you pick.</p>
+          {giftOffer && (
+            <div class="gift__offer" data-starts={giftDated && !giftView?.previewEarly ? giftOffer.starts : undefined} data-ends={giftDated ? giftOffer.ends : undefined}
+                 data-gift-option={giftOffer.option} hidden={giftUpcoming} data-reveal-on-start={giftUpcoming ? '' : undefined}>
+              <p class="gift__deal">{giftOffer.title} {giftOffer.deal}</p>
+              <p class="meta">{giftOffer.small}</p>
+              {giftView?.previewEarly && <p class="draft-note">Shows from {shortDate(giftOffer.starts)}</p>}
+            </div>
+          )}
+          <div class="gift__actions">
+            <Button href={giftUrl()} external variant="outline" icon="gift" track="gift_card_click" trackProps={{ placement: 'offers' }}>Buy a gift card</Button>
+            <a class="link-arrow" href="/gift-cards">How gift cards work<Icon name="arrow-right" /></a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </Section>
+
+  <!-- 6 · Your visit -->
+  <Section labelledby="visit-title" class="visit">
+    <div class="visit__head">
+      <h2 id="visit-title">Your visit</h2>
+      <p class="lede">No rushing and no hard sell. Here's how it goes.</p>
+    </div>
+    <ol class="visit__steps" role="list">
+      {steps.map((s, i) => (
+        <li class="step">
+          <span class="step__n" aria-hidden="true">{i + 1}</span>
+          <h3 class="step__t"><span class="sr-only">Step {i + 1}: </span>{s.t}</h3>
+          <p class="step__d">{s.d}</p>
+        </li>
+      ))}
+    </ol>
+  </Section>
+
+  <!-- Quick answers (GEO, answer-first; FAQPage above) -->
+  <Section tone="paper" labelledby="answers-title" class="answers" pad="tight">
+    <QuickAnswers items={answers} title="Quick answers" />
+  </Section>
+
+  <!-- 7 · The two spa doors, then Book · Ask Uni -->
+  <Section id="spas" labelledby="spas-title" class="spas" tone="cream">
+    <h2 id="spas-title" class="spas__title line-reveal"><span class="line">Two spas.</span> <span class="line">One standard of <em>care</em>.</span></h2>
+    <div class="spas__doors">
+      <SpaDoor spa="SD" />
+      <SpaDoor spa="DM" />
+    </div>
+    <div class="final">
+      <p class="final__title serif">Ready when you are.</p>
+      <p class="final__text">Book online in a minute, or ask Uni and we'll help you choose.</p>
+      <div class="final__actions">
+        <Button open="book" variant="outline" track="book_click" trackProps={{ placement: 'final' }}>Book a visit</Button>
+        <Button open="uni" variant="outline">Ask Uni</Button>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  /* ---- 1 Hero ---- */
+  .hero__title { font-size: var(--fs-h1); line-height: 0.98; max-width: 11ch; }
+  .hero__title em { margin-right: -0.035em; }   /* the italic n overhangs: pull the full stop in so it reads "listen." */
+  .hero__sub { margin-top: clamp(0.75rem, 1.4vw, 1.4rem); max-width: 34ch; font-size: clamp(1.0625rem, 0.98rem + 0.45vw, 1.3125rem); line-height: 1.5; }
+  .hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1rem; margin-top: clamp(1rem, 2vw, 2rem); }
+  :global(.hero__rating) { margin-top: 0.75rem; }
+  @media (min-width: 768px) { :global(.hero__rating) { display: none; } }   /* desktop trust line sits under the pull-quote */
+  @media (max-width: 767px) {
+    .hero__title { max-width: none; }
+    .hero__sub { font-size: 1.0625rem; }
+  }
+
+  /* ---- 2 Band ---- */
+  .band__grid { display: grid; gap: clamp(2rem, 5vw, 4rem); }
+  @media (min-width: 900px) { .band__grid:not(.band__grid--solo) { grid-template-columns: 1fr 1.25fr; align-items: end; } }
+  .band__grid--solo { gap: 1.5rem; }
+  .band__grid--solo .band__title { font-size: clamp(2.75rem, 1.6rem + 4.4vw, 6rem); }
+  .band__title { font-size: clamp(2.5rem, 1.7rem + 3.2vw, 4.75rem); line-height: 1; }
+  .band__title .line { display: block; }
+  .band__quote { display: flex; flex-direction: column; gap: 1.5rem; }
+  :global(.band__trust) { display: none; }
+  @media (min-width: 768px) { :global(.band__trust) { display: block; } }
+  .band__grid--solo :global(.band__trust) { display: block; }   /* no quote: the trust line shows on phones too (QA m-24) */
+
+  /* ---- 3 Lymphatic ---- */
+  .lymph__grid { display: grid; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+  @media (min-width: 900px) { .lymph__grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr); } }
+  .lymph__media { margin: 0; aspect-ratio: 4 / 5; border-radius: var(--radius-card); overflow: hidden; background: var(--sand); }
+  .lymph__media :global(img), .lymph__media :global(picture) { width: 100%; height: 100%; object-fit: cover; }
+  @media (max-width: 899px) { .lymph__media { aspect-ratio: 4 / 3; } }
+  .lymph__text { display: flex; flex-direction: column; gap: 1rem; }
+  .lymph__text h2 { margin-bottom: 0.25rem; }
+  .lymph__meta { font-size: var(--fs-label); }
+  .lymph__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; margin-top: 0.5rem; }
+  :global(.lymph__luxe) { margin-top: 1rem; }
+
+  /* ---- 3 Cards ---- */
+  .cards { margin-top: clamp(4rem, 9vw, 8rem); }
+  .cards__title { margin-bottom: clamp(1.75rem, 3.5vw, 3rem); max-width: 16ch; }
+  .cards__list { display: grid; gap: clamp(2rem, 3vw, 2.5rem); margin: 0; padding: 0; }
+  @media (min-width: 640px) { .cards__list { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .cards__list { grid-template-columns: repeat(3, 1fr); } }
+  .card { position: relative; display: flex; flex-direction: column; gap: 0.6rem; }
+  .card__media { aspect-ratio: 4 / 3; border-radius: var(--radius-card); overflow: hidden; background: var(--sand); margin-bottom: 0.6rem; }
+  .card__media :global(img), .card__media :global(picture) { width: 100%; height: 100%; object-fit: cover; }
+  @media (min-width: 640px) { .card__media { aspect-ratio: 1 / 1; } }
+  .card__type {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background-color: var(--sand); background-image: var(--grain);
+    font-family: var(--font-serif); color: var(--text); line-height: 0.9;
+  }
+  .card__type span:first-child { font-size: clamp(1.5rem, 1.2rem + 1vw, 2.25rem); color: var(--text-muted); }   /* roman: italics only in an H1/H2 (rule 5) */
+  .card__amp { font-size: clamp(5rem, 3rem + 8vw, 10rem); letter-spacing: -0.02em; }
+  .card__title { font-size: var(--fs-h3); }
+  .card__link { display: inline-flex; align-items: center; min-height: var(--tap); text-decoration: none; }
+  .card__link::after { content: ''; position: absolute; inset: 0; border-radius: var(--radius-card); }   /* whole card is the link */
+  .card:hover .card__link { text-decoration: underline; text-underline-offset: 0.15em; text-decoration-thickness: 1px; }
+  .card:focus-within { outline: 2px solid var(--focus); outline-offset: 6px; border-radius: var(--radius-card); }
+  .card__link:focus-visible { outline: none; }
+  .card__text { color: var(--text); }
+  .card__meta { margin-top: auto; padding-top: 0.25rem; }
+
+  /* ---- 4 Katy ---- */
+  .katy__grid { display: grid; gap: clamp(2rem, 6vw, 6rem); align-items: center; }
+  @media (min-width: 900px) { .katy__grid { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); } }
+  :global(.katy__arch) { width: min(100%, 440px); justify-self: center; }
+  @media (max-width: 899px) { :global(.katy__arch) { width: min(78%, 360px); } }
+  .katy__text { display: flex; flex-direction: column; gap: 1.1rem; }
+  :global(.katy__svc) { margin-top: 0.5rem; }
+  :global(.katy__quote) { margin-top: 1.25rem; padding-top: 1.5rem; border-top: 1px solid var(--hairline); }
+
+  /* ---- 5 Offers ---- */
+  .offers__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem 2rem; margin-bottom: clamp(1.75rem, 3.5vw, 2.75rem); }
+  .offers__grid { display: grid; gap: 1.25rem; }
+  @media (min-width: 760px) { .offers__grid--2, .offers__grid--3 { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .offers__grid--3 { grid-template-columns: repeat(3, 1fr); } }
+  .offers__grid--2 .gift { grid-template-columns: 1fr; }
+  @media (min-width: 1100px) { .offers__grid--2 .gift { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr); align-items: center; } }
+  .gift {
+    display: grid; gap: 1.5rem; align-content: start;
+    padding: clamp(1.25rem, 2.6vw, 2rem);
+    background: var(--bg); border: 1px solid var(--hairline); border-radius: var(--radius-card);
+  }
+  .offers__grid--gift-only .gift { grid-template-columns: minmax(0, 360px) minmax(0, 1fr); align-items: center; gap: clamp(1.5rem, 5vw, 4rem); }
+  @media (max-width: 899px) { .offers__grid--gift-only .gift { grid-template-columns: 1fr; } }
+  .gift :global(.giftcard) { max-width: 300px; margin: 0.5rem auto 0.25rem; }
+  .gift__text { display: flex; flex-direction: column; gap: 0.75rem; }
+  .gift__title { font-size: var(--fs-h3); }
+  .gift__deal { font-family: var(--font-serif); font-size: 1.5rem; line-height: 1.2; }
+  .gift__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; margin-top: 0.25rem; }
+
+  /* ---- 6 Your visit ---- */
+  .visit__head { display: grid; gap: 0.75rem; margin-bottom: clamp(2rem, 4vw, 3.5rem); }
+  @media (min-width: 900px) { .visit__head { grid-template-columns: 1fr 1fr; align-items: end; } }
+  .visit__steps { display: grid; gap: 0; margin: 0; padding: 0; counter-reset: none; }
+  @media (min-width: 700px) { .visit__steps { grid-template-columns: repeat(2, 1fr); column-gap: 2.5rem; } }
+  @media (min-width: 1100px) { .visit__steps { grid-template-columns: repeat(4, 1fr); } }
+  .step { display: grid; gap: 0.5rem; padding-block: 1.5rem 1.75rem; border-top: 1px solid var(--text); align-content: start; }
+  .step__n { font-family: var(--font-serif); font-size: clamp(3rem, 2.4rem + 2vw, 4.5rem); line-height: 1; color: var(--text-soft-lg); font-variant-numeric: lining-nums; }
+  .step__t { font-size: 1.6rem; }
+  .step__d { color: var(--text); }
+
+  /* ---- 7 Doors + final ---- */
+  .spas__title { font-size: clamp(2.5rem, 1.7rem + 3.2vw, 4.75rem); line-height: 1; text-align: center; margin-inline: auto; max-width: 14ch; }
+  .spas__title .line { display: block; }
+  .spas__doors { display: grid; gap: clamp(3rem, 6vw, 4rem); margin: clamp(2.5rem, 6vw, 5rem) auto 0; max-width: 980px; }
+  @media (min-width: 760px) { .spas__doors { grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 5rem); } }
+  @media (max-width: 759px) { .spas__doors { max-width: 400px; } }
+  .final { margin-top: clamp(4rem, 9vw, 7rem); padding-top: clamp(2.5rem, 5vw, 4rem); border-top: 1px solid var(--hairline); text-align: center; display: grid; justify-items: center; gap: 0.75rem; }
+  .final__title { font-size: var(--fs-h2); line-height: 1.05; }
+  .final__text { max-width: 40ch; }
+  .final__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-top: 0.75rem; }
+</style>

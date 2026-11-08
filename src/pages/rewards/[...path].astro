@@ -1,0 +1,141 @@
+---
+/**
+ * /rewards (blueprint §4.8, §8.5). Not linked from the nav until site.flags.rewards_live is on, and not BUILT in
+ * production until then (getStaticPaths below) — only PREVIEW (staging) shows it, marked as a draft.
+ * [CONFIRM O-S1] Is Square Loyalty included in the spa's Square plan (or a separate charge), and is it switched on?
+ *   Until rewards_live is true, "Unique Rewards" shows as "coming soon / ask at the desk". The program details
+ *   (§8.5 proposal: 1 point per $1; $10/$25/$50/$150 off at 200/500/1,000/3,000 points; 12-month expiry with a
+ *   14-day warning) render only when live, or in PREVIEW as a marked draft.
+ * Loyalty is spa-only: no points or rewards on gift cards or memberships, and none on any medical item (§650) —
+ *   which the site never names.
+ * The Refer section renders only when the referral offer is approved or PREVIEW. It links to /refer only once
+ *   site.flags.refer_live is on (the referral page is built but not linked before the owner says yes).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/Section.astro';
+import Button from '../../components/Button.astro';
+import Icon from '../../components/Icon.astro';
+import { offerById, isDraft } from '../../lib/offers';
+import { site, PREVIEW } from '../../lib/site';
+
+// Generated only when Rewards is live or in PREVIEW (QA M7): production has no /rewards until Square Loyalty is on.
+export function getStaticPaths() {
+  return site.flags.rewards_live || PREVIEW ? [{ params: { path: undefined } }] : [];
+}
+
+const live = site.flags.rewards_live;            // [CONFIRM O-S1]
+const showDetails = live || PREVIEW;
+const referral = offerById('referral-25');       // approved or PREVIEW
+const referLinked = site.flags.refer_live && !!referral;
+
+const tiers = [
+  { points: '200', off: '$10' },
+  { points: '500', off: '$25' },
+  { points: '1,000', off: '$50' },
+  { points: '3,000', off: '$150' },
+];
+---
+<BaseLayout
+  title="Unique Rewards | Unique Spa House"
+  description="Unique Rewards, the loyalty program at Unique Spa House in San Diego and Del Mar: points on spa visits, taken as dollars off in the spa."
+>
+  <Section class="rw-hero" pad="tight" reveal={false}>
+    <p class="eyebrow">{live ? 'Loyalty' : 'Coming soon'}</p>
+    <h1 class="rw-hero__h1">Unique <em>Rewards</em></h1>
+    {live ? (
+      <p class="lede rw-hero__lede">Points on every spa visit, taken as dollars off in the spa. Join at checkout with your phone number.</p>
+    ) : (
+      <>
+        <p class="lede rw-hero__lede">Our loyalty program is on its way: points on your spa visits, taken as dollars off in the spa.</p>
+        <p class="rw-hero__ask"><Icon name="check" />Ask at the desk on your next visit, and we'll tell you when it starts.</p>
+      </>
+    )}
+  </Section>
+
+  {showDetails && (
+    <Section tone="paper" labelledby="rw-how-title" class="rw-how">
+      {!live && <p class="draft-note rw-draft">Draft — proposed program details, needs owner approval</p>}
+      <div class="rw-how__grid">
+        <div class="rw-how__text">
+          <h2 id="rw-how-title">How it works</h2>
+          <ol class="rw-steps" role="list">
+            <li><span class="rw-steps__n" aria-hidden="true">1</span><p><strong>Join at checkout</strong> with your phone number. That's it.</p></li>
+            <li><span class="rw-steps__n" aria-hidden="true">2</span><p><strong>Earn 1 point for every $1</strong> you spend on spa services.</p></li>
+            <li><span class="rw-steps__n" aria-hidden="true">3</span><p><strong>Take your reward in the spa,</strong> as dollars off a visit.</p></li>
+          </ol>
+        </div>
+        <div class="rw-table-wrap">
+          <table class="rw-table">
+            <caption class="label">Rewards</caption>
+            <thead><tr><th scope="col">Points</th><th scope="col">Reward</th></tr></thead>
+            <tbody>
+              {tiers.map((t) => <tr><td>{t.points}</td><td><span class="rw-off">{t.off}</span> off</td></tr>)}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <ul class="rw-fine meta">
+        <li>Points are earned on spa services. No points on gift cards or memberships.</li>
+        <li>One reward or offer per visit. Rewards can't be used on top of a special.</li>
+        <li>Points expire after 12 months without a visit. We'll remind you 14 days before.</li>
+      </ul>
+    </Section>
+  )}
+
+  {referral && (
+    <Section labelledby="rw-refer-title" class="rw-refer" pad="tight">
+      <div class="rw-refer__grid">
+        <div>
+          <h2 id="rw-refer-title">Refer a <em>friend</em></h2>
+          {isDraft(referral) && <p class="draft-note">Draft offer — needs owner approval</p>}
+        </div>
+        <div class="rw-refer__text">
+          <p class="lede">Share the spa with a friend who hasn't been before. After their first paid visit, you get $25 off a spa service of $150 or more.</p>
+          <p>Your friend adds the note "Referred by" and your name when they book. We'll add the credit to your client record; use it within 90 days. Up to 5 credits a year.</p>
+          {referLinked && <a class="link-arrow" href="/refer">How referrals work<Icon name="arrow-right" /></a>}
+        </div>
+      </div>
+    </Section>
+  )}
+
+  <Section tone={showDetails ? 'cream' : 'paper'} labelledby="rw-now-title" class="rw-now" pad="tight">
+    <h2 id="rw-now-title" class="rw-now__title">{live ? 'More ways to treat yourself' : 'Treat yourself in the meantime'}</h2>
+    <div class="rw-now__actions">
+      <Button href="/specials" variant="outline" iconEnd="arrow-right">This month's specials</Button>
+      <Button href="/gift-cards" variant="outline" icon="gift">Gift cards</Button>
+      <Button open="book" variant="outline" track="book_click" trackProps={{ placement: 'rewards' }}>Book a visit</Button>
+    </div>
+    <p class="rw-now__call">Questions? Call <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"rewards"}'>{site.phone.display}</a> or <a href={site.sms} data-track="text_click" data-track-props='{"placement":"rewards"}'>text us</a>.</p>
+  </Section>
+</BaseLayout>
+
+<style>
+  .rw-hero__h1 { font-size: clamp(3rem, 1.8rem + 5vw, 6rem); }
+  .rw-hero__lede { margin-top: 1.25rem; }
+  .rw-hero__ask { display: flex; gap: 0.6rem; align-items: flex-start; margin-top: 1rem; font-weight: 500; font-stretch: var(--wdth-label); }
+  .rw-hero__ask :global(svg) { width: 18px; height: 18px; flex: none; margin-top: 0.25rem; }
+
+  .rw-draft { margin: 0 0 1.5rem; }
+  .rw-how__grid { display: grid; gap: clamp(2rem, 5vw, 5rem); }
+  @media (min-width: 900px) { .rw-how__grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); align-items: start; } }
+  .rw-steps { display: grid; gap: 0; margin: 1.5rem 0 0; padding: 0; }
+  .rw-steps li { display: grid; grid-template-columns: 3rem 1fr; gap: 1rem; align-items: baseline; padding-block: 1rem; border-top: 1px solid var(--text); max-width: none; }
+  .rw-steps__n { font-family: var(--font-serif); font-size: 2.5rem; line-height: 1; color: var(--text-soft-lg); }
+  .rw-table-wrap { padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--bg); }
+  .rw-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  .rw-table caption { text-align: left; padding-bottom: 0.75rem; }
+  .rw-table th { text-align: left; font-size: var(--fs-meta); font-weight: 500; color: var(--text-muted); padding: 0.4rem 0; border-bottom: 1px solid var(--text); }
+  .rw-table td { padding: 0.8rem 0; border-bottom: 1px solid var(--hairline); }
+  .rw-off { font-family: var(--font-serif); font-size: 1.75rem; line-height: 1; }
+  .rw-fine { margin: clamp(1.5rem, 3vw, 2.5rem) 0 0; padding-left: 1.1rem; display: grid; gap: 0.3rem; }
+
+  .rw-refer__grid { display: grid; gap: 1.5rem; }
+  @media (min-width: 900px) { .rw-refer__grid { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); } }
+  .rw-refer__text { display: flex; flex-direction: column; gap: 1rem; }
+
+  :global(.rw-refer + .rw-now) .rw-now__title { padding-top: clamp(1.5rem, 3vw, 2.5rem); border-top: 1px solid var(--hairline); }
+  .rw-now__title { font-size: var(--fs-h3); }
+  .rw-now__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
+  .rw-now__call { margin-top: 1.25rem; color: var(--text-muted); }
+  .rw-now__call a { color: var(--text); }
+</style>

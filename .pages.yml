@@ -1,0 +1,120 @@
+# Pages CMS (https://pagescms.org): Katy's simple editor.
+# Only SAFE content is editable here: client reviews, photos and photo descriptions.
+# NOT here on purpose: prices, specials, services, Square links, policies
+# (src/data/services.json, square-lock.json, offers.json, confirm.json, site.json).
+# Those change only from the facts source (Square), through a Builder pull request.
+#
+# Edits are saved to the branch chosen in Pages CMS (use "katy-edits", never main).
+# Every edit then goes through a pull request: preview + tests, and nothing is live
+# until it is merged and the production deployment is approved.
+
+media:
+  input: src/assets/photos
+  output: src/assets/photos
+  extensions: [jpg, jpeg, png, webp]
+
+content:
+  - name: reviews
+    label: Client reviews
+    type: file
+    path: src/data/reviews.json
+    format: json
+    description: >-
+      Real client words only, copied exactly. First name and last initial only.
+      No therapist names. No results promised (no "lost inches", "cured", "removed").
+      Never pair a review with a discount or a request for a review.
+      A review shows on the live site only when "Approved" is ticked.
+    fields:
+      - name: note
+        type: string
+        hidden: true
+      - name: reviews
+        label: Reviews
+        type: object
+        list: true
+        fields:
+          - name: id
+            label: ID (do not change)
+            type: string
+            readonly: true
+          - name: name
+            label: Name (first name + last initial, e.g. "Anna K.")
+            type: string
+            required: true
+            pattern:
+              regex: "^[A-Z][a-zA-Z'-]+ [A-Z]\\.$"
+              message: First name, a space, then last initial and a dot, e.g. Anna K.
+          - name: text
+            label: Their words (exactly as written)
+            type: text
+            required: true
+          - name: approved
+            label: Approved by Katy and OK'd by the reviewer
+            type: boolean
+          - name: use
+            type: string
+            hidden: true
+          - name: about
+            type: string
+            hidden: true
+          - name: owner_confirm
+            type: string
+            hidden: true
+
+  - name: photos
+    label: Photos
+    type: file
+    path: src/data/asset-manifest.json
+    format: json
+    description: >-
+      Real photos of Unique Spa House only: your rooms, your team, your products.
+      No before/after photos. No AI-made or stock room photos. Faces only with
+      written consent. Keep each upload under 2 MB; the site makes smaller copies.
+    fields:
+      - name: note
+        type: string
+        hidden: true
+      - name: assets
+        label: Photos on the site
+        type: object
+        list: true
+        fields:
+          - name: id
+            label: Where it is used (do not change)
+            type: string
+            readonly: true
+          - name: file
+            label: Photo
+            type: image
+            required: true
+          - name: alt
+            label: Description for blind visitors (what the photo shows)
+            type: string
+            required: true
+          - name: temp
+            label: Temporary photo (untick when this is a real Unique Spa House photo)
+            type: boolean
+          - name: focal
+            label: Focus point (percent from left and from top)
+            type: object
+            fields:
+              - name: x
+                type: number
+              - name: y
+                type: number
+          - name: use
+            type: string
+            hidden: true
+          - name: replace_with
+            type: string
+            hidden: true
+          - name: source_row
+            type: number
+            hidden: true
+          - name: source_file
+            type: string
+            hidden: true
+          - name: formats
+            type: string
+            list: true
+            hidden: true

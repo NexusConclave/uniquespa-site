@@ -1,0 +1,352 @@
+---
+/**
+ * /massage/lymphatic-drainage — flagship (blueprint §4.3; copy 03-massage.md; claims log 12).
+ * Summary box (duration chips, aria-live serif price, location chips, Book per spa), who it's for, steps,
+ * how it feels, lengths + price table, prep and aftercare, a block per spa, reviews (approved only),
+ * 10 FAQs (FAQPage schema), related, Ask Uni, Last reviewed. Lymphatic LUXE shows only while its offer is live.
+ * Every price comes from lib/catalog.ts.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/Section.astro';
+import PageIntro from '../../components/PageIntro.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import SpecialCard from '../../components/SpecialCard.astro';
+import PriceTable from '../../components/PriceTable.astro';
+import AddOnLine from '../../components/AddOnLine.astro';
+import SpaPanel from '../../components/SpaPanel.astro';
+import PullQuote from '../../components/PullQuote.astro';
+import Faq from '../../components/Faq.astro';
+import AskUni from '../../components/AskUni.astro';
+import HealthNote from '../../components/HealthNote.astro';
+import LastReviewed from '../../components/LastReviewed.astro';
+import Icon from '../../components/Icon.astro';
+import QuickAnswers from '../../components/QuickAnswers.astro';
+import GuideLink from '../../components/GuideLink.astro';
+import { Picture } from 'astro:assets';
+import { getService, formatMinutes, giftUrl, SPAS } from '../../lib/catalog';
+import { site } from '../../lib/site';
+import { giftCoversVerb, giftBothSpasConfirmed } from '../../lib/confirm';
+import { activeOffers, offerBookUrl } from '../../lib/offers';
+import { review } from '../../lib/reviews';
+import { asset, widthsFor, objectPosition } from '../../lib/images';
+import { priceOf, priceList, lengthsOf, offeredAt } from '../../lib/pageHelpers';
+import { graph, orgNode, spaNode, serviceNode, breadcrumbNode, faqNode, spaId, webPageNode, websiteNode } from '../../lib/schema';
+import { spaFacts } from '../../lib/entity';
+import { liveAddOns, formatPrice } from '../../lib/catalog';
+import '../../styles/pages-b.css';
+
+const REVIEWED = '2026-10-24';
+const PATH = '/massage/lymphatic-drainage';
+const lymph = getService('lymphatic');
+const luxe = activeOffers({ kind: 'special' }).find((o) => o.related_service === 'lymphatic');
+const img = asset('lymphatic-4x5');
+const quote = review('kristina-k');
+const bothSpas = SPAS.every((sp) => offeredAt(lymph, sp));
+const LENGTH_NOTES: Record<number, string> = {
+  60: 'A full-body session. A good first visit.',
+  90: "More time on the areas you'd like, such as legs and tummy.",
+  120: 'Our longest, slowest session, for when you want to fully switch off.',
+};
+
+const faqs = [
+  { q: 'What does lymphatic drainage massage feel like?', a: "Very light, slow and rhythmic. The strokes move the skin rather than pressing into the muscle, so it feels nothing like a deep tissue massage. Most clients find it deeply calming, and some fall asleep." },
+  { q: 'Does it hurt?', a: "It shouldn't. The pressure is very light. If anything feels uncomfortable, tell your therapist and they'll adjust straight away." },
+  { q: 'What should I wear?', a: "Whatever is comfortable to travel in. You undress to your comfort level in a private room and are covered with a sheet, with only the area being worked on uncovered. Tummy work is always with your OK first." },
+  { q: 'How long should I book?', a: `A 60 min session is a good first visit. Choose 90 or 120 min for more time on the areas you'd like. Prices: ${priceList('lymphatic')}.` },
+  { q: 'How much does lymphatic massage cost?', a: `${priceList('lymphatic')}${bothSpas ? '. The price is the same in San Diego and Del Mar' : ''}. The booking page always shows the latest price.` },
+  { q: 'Can I have it after cosmetic surgery?', a: "Only once your surgeon has cleared you, including on timing. Please don't share medical details in chat or forms; we'll ask at your visit." },
+  { q: "Can I book it while I'm pregnant?", a: `Please check with your doctor or midwife first, and tell us when you book. If you'd like a massage designed for pregnancy, our <a href="/massage#pregnancy">prenatal massage</a> is ${priceOf('prenatal', 60)} for 60 min.` },
+  { q: 'Will it make me slimmer?', a: "No. Lymphatic massage isn't a fat-loss treatment, and it won't change your shape or size. It's a very gentle massage, and most clients simply find it relaxing." },
+  { q: 'Can I book lymphatic massage with Katy?', a: `Yes. <a href="/massage/with-katy">Massage with Katy</a>, our owner, can be lymphatic. It's ${priceList('katy')}.` },
+  { q: 'How often should I come?', a: 'There is no set rule. Some clients come once as a treat; others book a series. Your therapist can suggest a rhythm after your first visit.' },
+];
+
+// Answer-first (GEO): where, how much, how it differs. Facts from lib/catalog + lib/entity only; also in FAQPage.
+const addOn = liveAddOns('massage')[0];
+const where = SPAS.filter((sp) => offeredAt(lymph, sp)).map((sp) => spaFacts(sp));
+const answers = [
+  { q: 'Where can I get lymphatic drainage massage in San Diego and Del Mar?', a: `At Unique Spa House, ${where.map((w) => `${w.label} (${w.address})`).join(' and ')}. Choose ${lengthsOf('lymphatic')}: ${priceList('lymphatic')}. Book online or call ${site.phone.display}.` },
+  { q: 'How is it different from other massages?', a: "The strokes are very light, slow and rhythmic, and move the skin rather than pressing into the muscle. It's the only massage on our menu that includes gentle tummy work, always with your OK first." },
+  addOn && { q: 'Can I add anything to my session?', a: `Yes. Add ${addOn.name} to any massage: ${addOn.options.map((o) => `${formatMinutes(o.minutes)} for ${formatPrice(o.price)}`).join(' or ')}, chosen when you book.` },
+].filter(Boolean) as Array<{ q: string; a: string }>;
+
+const service = serviceNode(lymph, {
+  path: PATH,
+  name: 'Lymphatic drainage massage',
+  alternateName: ['Manual lymphatic drainage', 'Lymph drainage', 'Lymphatic massage'],   // the names "What it is" lists
+  description: 'Very gentle, rhythmic massage designed to encourage the flow of fluid. The only massage on our menu that includes gentle tummy work.',
+});
+if (luxe) {
+  // Schema Offers only where the special has its own Square item (never a general booking page)
+  (service.offers as unknown[]).push(...SPAS.filter((sp) => luxe.spa.includes(sp) && offerBookUrl(luxe, sp)).map((sp) => ({
+    '@type': 'Offer', name: luxe.title, price: (luxe.price ?? 0).toFixed(2), priceCurrency: 'USD',
+    url: offerBookUrl(luxe, sp), validFrom: luxe.starts, validThrough: luxe.ends, availableAtOrFrom: { '@id': spaId(sp) },
+  })));
+}
+const jsonLd = graph(
+  webPageNode(PATH, 'Lymphatic drainage massage in San Diego and Del Mar', { dateModified: REVIEWED, about: `${service['@id']}` }),
+  websiteNode(), orgNode(), spaNode('SD'), spaNode('DM'), service,
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Massage', path: '/massage' }, { name: 'Lymphatic drainage massage', path: PATH }]),
+  faqNode([...answers, ...faqs]),
+);
+---
+<BaseLayout
+  title="Lymphatic Massage in San Diego & Del Mar | Unique Spa House"
+  description={`Gentle lymphatic drainage massage in Mission Valley, San Diego and Del Mar. The only massage on our menu with gentle tummy work. ${priceOf('lymphatic', 60)} for 60 min.`}
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Massage', href: '/massage' }, { name: 'Lymphatic drainage' }]}
+    eyebrow="Our most-loved treatment"
+    title="Lymphatic drainage massage in San Diego and Del Mar"
+    lede="Very gentle, rhythmic strokes, designed to encourage the flow of fluid. Most clients find it deeply calming. It's the only massage on our menu that includes gentle tummy work."
+  >
+    <div class="b-box">
+      <h2 class="b-box__label">Choose your length</h2>
+      <ServiceCard service="lymphatic" variant="feature" showTitle={false} summary={null} defaultMinutes={60} placement="flagship" />
+    </div>
+    <Fragment slot="aside">
+      <figure class="b-media lymph-media" transition:name="svc-lymphatic">
+        <Picture src={img.src} formats={['avif', 'webp']} widths={widthsFor(img.src)} sizes="(min-width: 960px) 44vw, 100vw" quality={62}
+          alt={img.alt} loading="eager" fetchpriority="high" decoding="async" style={`object-position: ${objectPosition(img)}`} />
+      </figure>
+    </Fragment>
+  </PageIntro>
+
+  {luxe && (
+    <Section tone="paper" pad="tight" label="This month's lymphatic special">
+      <div class="luxe">
+        <div class="luxe__text">
+          <p class="eyebrow">This month only</p>
+          <p class="luxe__lead serif">Lymphatic, then a little extra for your face and hands.</p>
+        </div>
+        <SpecialCard offer={luxe} headingLevel={2} placement="flagship" showGift={false} />
+      </div>
+    </Section>
+  )}
+
+  <Section tone="paper" labelledby="answers-title" pad="tight">
+    <QuickAnswers items={answers} title="Lymphatic drainage massage in short" />
+  </Section>
+
+  <Section labelledby="what-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="what-title">What it <em>is</em></h2>
+      </div>
+      <div class="b-split__body b-prose">
+        <p>You may also see it called manual lymphatic drainage, lymph drainage or simply lymphatic massage. They all describe the same light, rhythmic technique, and on our menu it's lymphatic drainage massage.</p>
+        <p>Lymphatic drainage massage is the gentlest massage we offer. Your therapist uses light, slow, rhythmic strokes that move the skin rather than pressing into the muscle beneath it. The technique is designed to encourage the flow of fluid.</p>
+        <p>It feels very different from a deep tissue or sports massage. There's no kneading and no firm pressure. Most clients find the steady rhythm deeply calming, and some drift off.</p>
+        <p>It's also the only massage on our menu that includes gentle tummy work. Your therapist always asks first, and you can skip any area you'd rather leave out.</p>
+        <p>A session usually covers the neck, shoulders, arms, legs and tummy. On a longer booking there's time to slow down even more, or to spend longer on the areas you choose. If you'd like more or less time anywhere, just say.</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="who-title" tone="paper">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="who-title">Who it's for</h2>
+        <p>Not sure it's right for you? Your therapist will help you choose on the day. You don't need a referral or any special preparation.</p>
+      </div>
+      <div class="b-split__body">
+        <ul class="b-ticks">
+          <li>Anyone who wants a very gentle, calming massage</li>
+          <li>Anyone who wants to slow down, for example after travel or long days on their feet</li>
+          <li>Anyone who finds firm pressure uncomfortable</li>
+          <li>Clients after cosmetic surgery, once their surgeon has said it's OK</li>
+          <li>Anyone who'd like a quiet hour that's all about them</li>
+        </ul>
+        <HealthNote />
+        <div class="wait">
+          <h3 class="wait__title">Please check with your doctor before booking if you have</h3>
+          <ul class="b-ticks">
+            <li>A fever, or an infection of any kind</li>
+            <li>A blood clot, or a history of them</li>
+            <li>A heart or kidney condition</li>
+            <li>Cancer, or you're having cancer treatment</li>
+            <li>Swelling that's new, painful or only on one side</li>
+          </ul>
+        </div>
+        <aside class="surgery" aria-labelledby="surgery-title">
+          <h3 id="surgery-title" class="surgery__title">Had surgery recently?</h3>
+          <p>Your surgeon must clear you first, including on timing. Please don't share medical details in chat or forms; we'll ask at your visit.</p>
+          <p class="b-note">Lymphatic massage isn't medical treatment, and it doesn't replace the care your doctor or surgeon gives you.</p>
+        </aside>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="steps-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="steps-title">What happens, step by step</h2>
+        <p>No rushing. You can ask questions at any point.</p>
+      </div>
+      <div class="b-split__body">
+        <ol class="b-steps" role="list">
+          <li><span class="b-steps__n" aria-hidden="true">1</span><h3 class="b-steps__t"><span class="sr-only">Step 1: </span>A short chat</h3><p class="b-steps__d">How you're feeling, what you'd like from the session, and any health conditions we should know about.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">2</span><h3 class="b-steps__t"><span class="sr-only">Step 2: </span>You get settled</h3><p class="b-steps__d">A private room with soft lighting and quiet music. You're covered with a sheet, and only the area being worked on is uncovered.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">3</span><h3 class="b-steps__t"><span class="sr-only">Step 3: </span>Light, rhythmic strokes</h3><p class="b-steps__d">Your therapist works area by area with slow, gentle strokes. It's meant to feel soft, so tell them if you'd like it lighter still.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">4</span><h3 class="b-steps__t"><span class="sr-only">Step 4: </span>Gentle tummy work, if you'd like it</h3><p class="b-steps__d">Always with your OK first. You can skip it, or any other area.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">5</span><h3 class="b-steps__t"><span class="sr-only">Step 5: </span>Time to come round</h3><p class="b-steps__d">Get up slowly, have some water, and ask anything you'd like before you go.</p></li>
+        </ol>
+      </div>
+    </div>
+  </Section>
+
+  <Section tone="brown" labelledby="results-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="results-title">How it <em>feels</em></h2>
+      </div>
+      <div class="b-split__body b-prose results">
+        <p class="results__lead serif">Slow, quiet and very light. Most clients say it's deeply relaxing.</p>
+        <p>Lymphatic massage isn't a fat-loss treatment, and it won't change your shape or size. If you enjoy it, some clients book a series; your therapist can suggest how often, based on how you feel after your first visit.</p>
+        <p>The next day, most people simply feel relaxed. Because the pressure is so light, soreness is unusual. Some clients notice they're thirsty or sleepy afterwards, so plan a calm evening if you can.</p>
+        <p>We'll never promise more than that. If you have a health condition, your doctor is the right person to ask whether lymphatic massage suits you.</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="prices-title" id="prices">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="prices-title">Lengths and prices</h2>
+        <p>{bothSpas ? 'Every length is bookable at both spas, at the same price.' : 'Book at the spa that suits you.'} If it's your first time, 60 min is plenty; you can always book longer next time.</p>
+      </div>
+      <div class="b-split__body">
+        <dl class="lengths">
+          {lymph.options.filter((o) => LENGTH_NOTES[o.minutes]).map((o) => <div><dt>{formatMinutes(o.minutes)}</dt><dd>{LENGTH_NOTES[o.minutes]}</dd></div>)}
+        </dl>
+        <PriceTable service="lymphatic" caption="Lymphatic drainage massage: lengths, prices and booking links at each spa" placement="flagship-table" />
+        <AddOnLine group="massage" />
+        <p class="b-note">Prices as currently listed on our online booking menu. The booking page always shows the latest price. Booking opens in a new tab.</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="compare-title" tone="paper">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="compare-title">Lymphatic or another massage?</h2>
+        <p>If you're choosing between two, this may help.</p>
+        <GuideLink slug="deep-tissue-vs-swedish-vs-sports-massage" label="Guide: deep tissue, Swedish or sports?" />
+      </div>
+      <div class="b-split__body">
+        <dl class="compare">
+          <div><dt>Lymphatic or Swedish?</dt><dd>Swedish uses long, flowing strokes with light to medium pressure on the muscles. Lymphatic is lighter and slower, works the skin rather than the muscle, and includes gentle tummy work. Swedish 60 min is {priceOf('swedish', 60)}.</dd></div>
+          <div><dt>Lymphatic or deep tissue?</dt><dd>Deep tissue uses slow, firm pressure for deeper muscle layers and stubborn knots. Lymphatic never presses hard. If you'd like both, book a longer session with Katy and ask for a mix.</dd></div>
+          <div><dt>Lymphatic or prenatal?</dt><dd>If you're pregnant, our prenatal massage is designed for it, with positioning and pressure adjusted for each stage. Please check with your doctor or midwife first.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="care-title">
+    <div class="b-head">
+      <h2 id="care-title">Before and after</h2>
+    </div>
+    <div class="b-duo">
+      <div class="care">
+        <h3>Before your visit</h3>
+        <ul class="b-ticks">
+          <li>Arrive a few minutes early to fill in a short form.</li>
+          <li>A light meal beforehand makes tummy work more comfortable.</li>
+          <li>Tell us about pregnancy, recent surgery, health conditions, or allergies to oils or scents.</li>
+        </ul>
+      </div>
+      <div class="care">
+        <h3>After your visit</h3>
+        <ul class="b-ticks">
+          <li>Get up slowly. You may feel a little sleepy.</li>
+          <li>Have some water, and keep the rest of the day calm if you can.</li>
+          <li>Wear loose, comfortable clothes for the journey home.</li>
+          <li>Tell us next time how you felt, so we can adjust the session.</li>
+        </ul>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="spas-title" tone="paper">
+    <div class="b-head">
+      <h2 id="spas-title">Lymphatic massage at our two spas</h2>
+      <p>Same treatment, same prices. Choose the spa that's easier for you.</p>
+    </div>
+    <div class="b-duo">
+      <SpaPanel spa="SD" service="lymphatic" minutes={60} bookLabel="Book lymphatic in San Diego" placement="flagship-spa">
+        <p>Our Mission Valley spa, just off Camino del Rio North, with our full menu. Lymphatic is bookable here at {lengthsOf('lymphatic', 'SD')}.</p>
+      </SpaPanel>
+      <SpaPanel spa="DM" service="lymphatic" minutes={60} bookLabel="Book lymphatic in Del Mar" placement="flagship-spa">
+        <p>A private treatment room in Del Mar. Lymphatic is bookable here at {lengthsOf('lymphatic', 'DM')}. Please call for today's hours.</p>
+      </SpaPanel>
+    </div>
+    {quote && <PullQuote review={quote} size="small" class="lymph-quote" />}
+  </Section>
+
+  <Section labelledby="tips-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="tips-title">Booking tips</h2>
+      </div>
+      <div class="b-split__body">
+        <dl class="compare">
+          <div><dt>Booking takes about a minute</dt><dd>Choose your length and spa above, then pick a time on our booking page. It opens in a new tab, and you'll get a confirmation once you've booked.</dd></div>
+          <div><dt>Want Katy, our owner?</dt><dd>Book <a href="/massage/with-katy">massage with Katy</a> and ask for lymphatic. It's {priceOf('katy', 60)} for 60 min.</dd></div>
+          <div><dt>Buying for someone else?</dt><dd>An eGift card for {priceOf('lymphatic', 60)} {giftCoversVerb()} a 60 min lymphatic massage{giftBothSpasConfirmed() && ', at either spa'}. <a href={giftUrl()} target="_blank" rel="noopener" data-track="gift_card_click" data-track-props='{"placement":"lymphatic"}'>Buy a gift card<span class="sr-only"> (opens in a new tab)</span></a></dd></div>
+          <div><dt>Need to change your time?</dt><dd>Call us on <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"lymphatic"}'>{site.phone.display}</a> or text us. Our <a href="/policies">booking policies</a> explain changes and cancellations.</dd></div>
+        </dl>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="faq-title" tone="paper">
+    <Faq items={faqs} title="Lymphatic massage questions"><GuideLink slot="head" slug="lymphatic-drainage-massage-what-to-expect" label="First time? Read what to expect" /></Faq>
+  </Section>
+
+  <Section labelledby="related-title">
+    <div class="b-head b-head--row">
+      <h2 id="related-title">You might also like</h2>
+      <a class="link-arrow" href="/massage">All massages<Icon name="arrow-right" /></a>
+    </div>
+    <ul class="b-cards b-cards--3" role="list">
+      <li><ServiceCard service="katy" class="b-card" placement="related" summary="Any massage with Katy, our owner. Lymphatic, deep tissue, sports, relaxing or a mix."><a class="link-arrow" href="/massage/with-katy">About massage with Katy<Icon name="arrow-right" /></a></ServiceCard></li>
+      <li><ServiceCard service="swedish" class="b-card" placement="related" summary="Long, flowing strokes with light to medium pressure. A great first massage." /></li>
+      <li><ServiceCard service="relaxing" class="b-card" placement="related" summary="A slow, soothing full session, just for unwinding." /></li>
+    </ul>
+  </Section>
+
+  <Section pad="tight" width="narrow" tone="paper">
+    <div class="b-tail">
+      <AskUni />
+      <LastReviewed date={REVIEWED} />
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .lymph-media { aspect-ratio: 4 / 5; max-height: 78svh; }
+  @media (max-width: 959px) { .lymph-media { aspect-ratio: 4 / 3; } }
+  .luxe { display: grid; gap: 1.5rem; align-items: center; }
+  @media (min-width: 900px) { .luxe { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 4rem; } }
+  .luxe__lead { font-size: var(--fs-h3); line-height: 1.15; max-width: 18ch; }
+  .wait { display: flex; flex-direction: column; gap: 0.75rem; }
+  .wait__title { font-size: 1.4rem; }
+  .surgery { display: flex; flex-direction: column; gap: 0.6rem; padding: 1.25rem; border: 1px solid var(--border-ui); border-radius: var(--radius-card); }
+  .surgery__title { font-size: 1.5rem; }
+  .results__lead { font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.6rem); line-height: 1.1; max-width: 22ch; }
+  .lengths { display: grid; gap: 0.75rem; margin: 0 0 0.5rem; }
+  .lengths div { display: grid; grid-template-columns: 5.5rem 1fr; gap: 1rem; align-items: baseline; }
+  .lengths dt { font-family: var(--font-serif); font-size: 1.35rem; }
+  .lengths dd { margin: 0; }
+  :global(.lymph-quote) { margin-top: clamp(2.5rem, 5vw, 3.5rem); padding-top: 2rem; border-top: 1px solid var(--hairline); }
+  .compare { display: grid; margin: 0; }
+  .compare div { display: grid; gap: 0.4rem; padding-block: 1.1rem 1.25rem; border-top: 1px solid var(--hairline); }
+  .compare div:last-child { border-bottom: 1px solid var(--hairline); }
+  .compare dt { font-family: var(--font-serif); font-size: 1.45rem; line-height: 1.2; }
+  .compare dd { margin: 0; }
+  .care { display: flex; flex-direction: column; gap: 0.9rem; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--paper); }
+  .care h3 { font-size: 1.6rem; }
+</style>

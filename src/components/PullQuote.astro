@@ -1,0 +1,34 @@
+---
+/**
+ * PullQuote — an editorial quote. size="large" on the brown band; size="small" elsewhere.
+ * First name + last initial only. Renders nothing unless the review is approved (or PREVIEW, marked as draft).
+ * Never next to an incentive or a review ask. No carousel.
+ */
+import { review as getReview, type Review } from '../lib/reviews';
+interface Props { review: string | Review; size?: 'large' | 'small'; tone?: 'dark' | 'light'; class?: string }
+const { review: r, size = 'small', tone = 'light', class: cls } = Astro.props;
+const q = typeof r === 'string' ? getReview(r) : r;
+---
+{q && (
+  <figure class:list={['pq', `pq--${size}`, `pq--${tone}`, cls]}>
+    <blockquote><p>“{q.text}”</p></blockquote>
+    <figcaption>{q.name}</figcaption>
+    {!q.approved && <p class="draft-note">Draft quote — needs owner and reviewer OK</p>}
+  </figure>
+)}
+<style>
+  .pq { margin: 0; display: flex; flex-direction: column; gap: 1rem; }
+  .pq blockquote { margin: 0; }
+  /* Hang the opening quote into the margin: text-indent where hanging-punctuation is unsupported (never both,
+     or Safari hangs it twice). Phones keep it inside the 16px gutter. */
+  .pq blockquote p { font-family: var(--font-serif); max-width: 24ch; text-wrap: balance; }
+  @media (min-width: 640px) {
+    .pq blockquote p { text-indent: -0.42em; }
+    @supports (hanging-punctuation: first) { .pq blockquote p { text-indent: 0; hanging-punctuation: first; } }
+  }
+  .pq--large blockquote p { font-size: clamp(2.25rem, 1.4rem + 3.6vw, 4.75rem); line-height: 1.02; letter-spacing: -0.015em; max-width: 18ch; }
+  .pq--small blockquote p { font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem); line-height: 1.25; max-width: 34ch; }
+  .pq figcaption { font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); color: var(--text-muted); }
+  .pq--dark figcaption { color: var(--on-dark-muted); }
+  .pq--large figcaption::before { content: ''; display: inline-block; width: 2.5rem; height: 1px; margin-right: 0.75rem; vertical-align: middle; background: currentColor; }
+</style>

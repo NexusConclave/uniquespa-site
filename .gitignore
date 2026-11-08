@@ -1,0 +1,36 @@
+# Dependencies and build output
+node_modules/
+dist/
+.astro/
+
+# Test screenshots and reports (made by npm test; never committed)
+shots/
+
+# Backups, archives, logs
+*.bak
+*.bak-*
+*.tar.gz
+*.zip
+*.log
+npm-debug.log*
+
+# Secrets: never commit. Keys live only in GitHub Actions secrets and Cloudflare.
+.env
+.env.*
+*.pem
+*.key
+*token*
+.dev.vars
+.wrangler/
+
+# Editor and OS clutter
+.DS_Store
+.vscode/
+.idea/
+__pycache__/
+dist-repro/
+dist-tracking/
+
+# The owner's FULL facts file (internal notes, open questions, staff names) never goes in this public repo.
+# Only its generated public subset does: facts/facts.public.json (scripts/make-public-facts.mjs).
+facts/facts.json

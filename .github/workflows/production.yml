@@ -1,0 +1,207 @@
+# main -> build and test again, then WAIT for approval, then publish to the live site.
+# The wait comes from the GitHub environment "production" (Settings -> Environments),
+# which lists who may approve. Building rights (opening PRs) never include this approval.
+# The Cloudflare deploy token lives ONLY in that environment (review finding 1).
+#
+# Rollback: run this workflow by hand ("Run workflow", branch main) with ref = the last good commit.
+# The commit must already be on main (review finding 10), and the price guard runs on it like on every release.
+# It is tested and approved like any other release. See ROLLBACK.md.
+name: Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Commit or tag to publish (rollback). Must already be on main. Leave as main for the latest.'
+        required: true
+        default: main
+      prices_checked:
+        description: 'Only if the price guard asks: I checked the prices in this older commit against Square.'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+env:
+  CF_PAGES_PROJECT: ${{ vars.CF_PAGES_PROJECT || 'unique-spa-house' }}
+
+jobs:
+  checks:
+    name: Build and test
+    # Only main's own copy of this workflow may release (a dispatch from another branch stops here).
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: read   # price guard: find the merged PR and its label
+    outputs:
+      sha: ${{ steps.sha.outputs.sha }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Commit being released
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      # Finding 10: a manual run may only publish a commit that is already on main (reviewed and merged).
+      - name: Release must be on main
+        env:
+          SHA: ${{ steps.sha.outputs.sha }}
+        run: |
+          set -euo pipefail
+          # fetch-depth: 0 above already fetched every branch, so origin/main is today's main.
+          git rev-parse --verify --quiet origin/main >/dev/null || { echo "::error::origin/main not found"; exit 1; }
+          if git merge-base --is-ancestor "$SHA" origin/main; then
+            echo "Commit ${SHA:0:7} is on main."
+          else
+            echo "::error::Commit ${SHA:0:7} is not on main. Only reviewed, merged commits can be released (rollback = an older commit of main)."
+            exit 1
+          fi
+
+      # Same hard rule as the PR check: prices and specials change only with the 'prices-from-facts' label
+      # (Katy or Ian checked them against Square). Compared with what main had before this release:
+      #   push: the previous main commit; the merged PR must carry the label.
+      #   manual run (rollback): today's main; publishing older prices needs the 'prices_checked' tick.
+      - name: Price guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+          SHA: ${{ steps.sha.outputs.sha }}
+          BEFORE: ${{ github.event.before }}
+          PRICES_CHECKED: ${{ inputs.prices_checked }}
+        run: |
+          set -euo pipefail
+          FILES="src/data/services.json src/data/square-lock.json src/data/offers.json facts/facts.public.json"
+          if [ "$EVENT" = "push" ]; then
+            BASE="$BEFORE"
+            if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+              echo "First push to main (initial import): nothing to compare. The prices were imported from the facts source."
+              exit 0
+            fi
+          else
+            BASE="$(git rev-parse origin/main)"
+          fi
+          # shellcheck disable=SC2086
+          changed="$(git diff --name-only "$BASE" "$SHA" -- $FILES)"
+          if [ -z "$changed" ]; then echo "No price or special data changes against ${BASE:0:7}."; exit 0; fi
+          echo "Price/special data differs from ${BASE:0:7}:"; echo "$changed"
+          # shellcheck disable=SC2086
+          git diff "$BASE" "$SHA" -- $FILES | grep -E '^[+-].*"(price|price_cents|price_type|square_id|starts|ends|approved|status)"' || true
+          if [ "$EVENT" = "push" ]; then
+            labels="$(gh api "repos/$REPO/commits/$SHA/pulls" --jq '[.[] | select(.merged_at != null and .base.ref == "main") | .labels[].name] | join(",")')"
+            if printf ',%s,' "$labels" | grep -q ',prices-from-facts,'; then
+              echo "Merged PR carries 'prices-from-facts': allowed."
+            else
+              echo "::error::Prices or specials changed on main without a merged PR labelled 'prices-from-facts'. Don't approve this release."
+              exit 1
+            fi
+          else
+            if [ "$PRICES_CHECKED" = "true" ]; then
+              echo "Manual run with 'prices_checked' ticked: allowed."
+            else
+              echo "::error::This rollback would publish different prices or specials than main has now. Check them against Square, then run again with 'prices_checked' ticked."
+              exit 1
+            fi
+          fi
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Install browser for tests
+        run: |
+          python -m pip install --quiet playwright==1.63.0
+          python -m playwright install --with-deps chromium
+
+      # Booking tracking (site-tracking-notes/DECISION.md) stays OFF until Katy adds the repository
+      # Variables PUBLIC_CF_ANALYTICS_TOKEN and PUBLIC_EVENTS_ENDPOINT=/api/event (launch day).
+      # Empty values build exactly the untracked site. Production only: previews are never counted.
+      - name: Build
+        env:
+          PUBLIC_CF_ANALYTICS_TOKEN: ${{ vars.PUBLIC_CF_ANALYTICS_TOKEN }}
+          PUBLIC_EVENTS_ENDPOINT: ${{ vars.PUBLIC_EVENTS_ENDPOINT }}
+          STAGING_URL: ${{ vars.STAGING_URL }}
+        run: npm run build
+
+      - name: Test
+        env:
+          STAGING_URL: ${{ vars.STAGING_URL }}
+        run: npm test
+
+      # Deploy bundle = exactly what was built and tested: the static site (dist), the Pages
+      # Functions (/api/chat, /api/lead, /api/health, /api/event), the code they import (src/lib,
+      # incl. the generated event vocabulary) and wrangler.toml (the EVENTS_DB and UNI bindings).
+      # Uploading dist alone would publish the pages but silently drop the functions and bindings.
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: site-bundle
+          path: |
+            dist
+            functions
+            src/lib
+            wrangler.toml
+          include-hidden-files: false
+          retention-days: 30
+
+  deploy:
+    name: Publish to live site (needs approval)
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Required reviewers + "main only" are set on this environment in GitHub. It alone holds the deploy token.
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.deployment-url }}
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: site-bundle
+          path: bundle
+
+      - name: Deploy to Cloudflare Pages (production)
+        id: deploy
+        uses: cloudflare/wrangler-action@9acf94ace14e7dc412b076f2c5c20b8ce93c79cd # v3.15.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.157.0'
+          workingDirectory: bundle
+          command: >-
+            pages deploy dist
+            --project-name=${{ env.CF_PAGES_PROJECT }}
+            --branch=main
+            --commit-hash=${{ needs.checks.outputs.sha }}
+            --commit-dirty=true
+
+      - name: Summary
+        env:
+          URL: ${{ steps.deploy.outputs.deployment-url }}
+          SHA: ${{ needs.checks.outputs.sha }}
+        run: |
+          {
+            echo "### Live"
+            echo "Published commit \`${SHA:0:7}\`."
+            echo "This deployment: $URL"
+            echo "To undo: Cloudflare Pages -> Deployments -> previous one -> Rollback (see ROLLBACK.md)."
+          } >> "$GITHUB_STEP_SUMMARY"

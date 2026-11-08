@@ -1,0 +1,111 @@
+---
+/**
+ * BaseLayout — every page. Head (title, description, robots meta + canonical from the launch switch, OG basics,
+ * Instrument Serif preload, JSON-LD slot), skip link, Header, <main id="main">, Footer, BottomBar,
+ * BookSheet, MobileMenu and the persisted Uni host. ClientRouter (no prefetch-all) for page transitions.
+ *
+ * Props: title (≤ 60 chars, no "med spa"), description, path (canonical path; defaults to the URL),
+ *        jsonLd (object or array), ogImage (absolute or root-relative), bodyClass.
+ * Slots: default (page), "head" (extra head tags).
+ */
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+import '../styles/motion.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import BottomBar from '../components/BottomBar.astro';
+import BookSheet from '../components/BookSheet.astro';
+import MobileMenu from '../components/MobileMenu.astro';
+import UniHost from '../components/UniHost.astro';
+import JsonLd from '../components/JsonLd.astro';
+import { site, SITE_URL, ROBOTS } from '../lib/site';
+import { CF_ANALYTICS_TOKEN } from '../lib/analytics';
+
+interface Props {
+  title: string;
+  description?: string;
+  path?: string;
+  jsonLd?: unknown;
+  ogImage?: string;
+  bodyClass?: string;
+}
+const { title, description = site.description, path, jsonLd, ogImage, bodyClass } = Astro.props;
+// Pages are served at /path/ (directory format): canonicals carry the trailing slash (QA m-11)
+const canonicalPath = ((path ?? Astro.url.pathname).replace(/\/+$/, '') || '') + '/';
+const canonical = new URL(canonicalPath, SITE_URL).href;
+const og = ogImage ? new URL(ogImage, SITE_URL).href : undefined;
+---
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <!-- Launch switch (site.json "launch"): staging is never indexed; _headers also sends X-Robots-Tag. -->
+    <meta name="robots" content={ROBOTS} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="en_US" />
+    {og && <meta property="og:image" content={og} />}
+    <meta name="twitter:card" content={og ? 'summary_large_image' : 'summary'} />
+    <meta name="theme-color" content="#F2E8DA" />
+    <meta name="format-detection" content="telephone=no" />
+    {import.meta.env.PUBLIC_TURNSTILE_SITE_KEY && (
+      <>
+        {/* Optional Turnstile for /api/lead (uni-chat finding #7). Off when PUBLIC_TURNSTILE_SITE_KEY is unset. */}
+        <meta name="ush-turnstile-site-key" content={import.meta.env.PUBLIC_TURNSTILE_SITE_KEY} />
+        <script is:inline src="/chat/turnstile.js" defer></script>
+      </>
+    )}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/instrument-serif-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <script is:inline>
+      /* Pause motion: applied before first paint (no flash). Storage can throw in private mode. */
+      try { if (localStorage.getItem('ush-motion') === 'paused') document.documentElement.setAttribute('data-motion', 'paused'); } catch (e) {}
+      /* Motion (styles/motion.css): JS is on, so load sequences may run; the lotus draws once per visit. */
+      document.documentElement.setAttribute('data-fx', '');
+      try { if (!sessionStorage.getItem('ush-intro')) { document.documentElement.setAttribute('data-fx-intro', ''); sessionStorage.setItem('ush-intro', '1'); } } catch (e) {}
+    </script>
+    {CF_ANALYTICS_TOKEN && (
+      <script is:inline define:vars={{ cfToken: CF_ANALYTICS_TOKEN }}>
+        /* Cloudflare Web Analytics (cookieless page views). Only when PUBLIC_CF_ANALYTICS_TOKEN is set at build time;
+           skipped when the browser sends Do Not Track or Global Privacy Control. Loads once (survives page swaps). */
+        (function () {
+          try {
+            var n = navigator;
+            if (window.__ushCfb || n.globalPrivacyControl === true || n.doNotTrack === '1' || window.doNotTrack === '1') return;
+            window.__ushCfb = 1;
+            var s = document.createElement('script');
+            s.defer = true;
+            s.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+            s.setAttribute('data-cf-beacon', JSON.stringify({ token: cfToken, spa: true }));
+            document.head.appendChild(s);
+          } catch (e) {}
+        })();
+      </script>
+    )}
+    {jsonLd && <JsonLd data={jsonLd} />}
+    <ClientRouter fallback="animate" />
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <BottomBar />
+    <BookSheet />
+    <MobileMenu />
+    <UniHost />
+    <script>
+      import '../scripts/site.ts';
+    </script>
+  </body>
+</html>

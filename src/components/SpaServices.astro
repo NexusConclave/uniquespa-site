@@ -1,0 +1,48 @@
+---
+/**
+ * SpaServices — everything bookable at one spa, generated from the catalog (§4.2 "services generated from
+ * status"): Massage / Facials / Body rows for items at both spas (only this spa's options and Book links),
+ * then "Only at {spa}" for single-spa items (§5.4: collapsed into a group in the spa view). Location chips
+ * are hidden: on a spa's own page every row is at that spa. Never a link to the other spa's items.
+ * Brazilian butt massage is left to /menu, /massage and /body (menu-row-only rule; the leak check enforces it).
+ */
+import ServiceRow from './ServiceRow.astro';
+import { type Group, type Spa } from '../lib/catalog';
+import { servicesAt, onlyAt, summaryOf, displayName, spaName } from '../lib/pageHelpers';
+interface Props { spa: Spa; headingLevel?: 3 | 4 }
+const { spa, headingLevel = 3 } = Astro.props;
+const EXCLUDE = new Set(['brazilian-butt']);
+const only = onlyAt(spa).filter((s) => !EXCLUDE.has(s.id));
+const onlyIds = new Set(only.map((s) => s.id));
+const GROUPS: Array<{ id: Group; title: string }> = [
+  { id: 'massage', title: 'Massage' }, { id: 'facials', title: 'Facials' }, { id: 'body', title: 'Body' },
+];
+const groups = GROUPS.map((g) => ({ ...g, services: servicesAt(spa, g.id).filter((s) => !onlyIds.has(s.id) && !EXCLUDE.has(s.id)) })).filter((g) => g.services.length);
+const H = `h${headingLevel}` as 'h3' | 'h4';
+const rowLevel = (headingLevel + 1) as 4 | 3;
+const key = spa.toLowerCase();
+---
+<div class="spa-svcs">
+  {groups.map((g) => (
+    <div class="b-group" id={`${key}-${g.id}`}>
+      <div class="b-group__head"><H class="spa-svcs__h">{g.title}</H></div>
+      <div class="b-rows">
+        {g.services.map((s) => <ServiceRow service={s.id} onlySpa={spa} showWhere={false} headingLevel={rowLevel} title={displayName(s)} summary={summaryOf(s)} placement={`location-${key}`} linkFlagship showAllPrices />)}
+      </div>
+    </div>
+  ))}
+  {only.length > 0 && (
+    <div class="b-group" id={`${key}-only`}>
+      <div class="b-group__head">
+        <H class="spa-svcs__h">Only at {spaName(spa)}</H>
+        <p>Not offered at our other spa.</p>
+      </div>
+      <div class="b-rows">
+        {only.map((s) => <ServiceRow service={s.id} onlySpa={spa} showWhere={false} headingLevel={rowLevel} title={displayName(s)} summary={summaryOf(s)} placement={`location-${key}`} linkFlagship showAllPrices />)}
+      </div>
+    </div>
+  )}
+</div>
+<style>
+  .spa-svcs__h { font-size: var(--fs-h2); }
+</style>

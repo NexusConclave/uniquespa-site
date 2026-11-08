@@ -1,0 +1,107 @@
+---
+/**
+ * Footer (§4.0, dark brown): both addresses, hours and Book links; phone and Text us;
+ * Gift cards · Offers (This month · Refer · Rewards, as they go live) · Change or cancel (→ /policies#canceling) ·
+ * Policies · Privacy · Accessibility · Terms · Google review links · Pause motion.
+ */
+import { site, addressLine } from '../lib/site';
+import { SPAS, spaBookingUrl } from '../lib/catalog';
+import { TREATMENTS, offerLinks } from '../lib/nav';
+import { GUIDES_LIVE, GUIDES_HUB } from '../lib/guides';
+import LotusMark from './LotusMark.astro';
+import Icon from './Icon.astro';
+import MotionToggle from './MotionToggle.astro';
+const year = new Date().getFullYear();
+---
+<footer class="site-footer on-dark">
+  <div class="container--wide footer__grid">
+    <div class="footer__brand">
+      <a class="footer__logo" href="/"><LotusMark size={34} /><span>Unique Spa House</span></a>
+      <p class="footer__tag">Massage, facials and body treatments in San Diego (Mission Valley) and Del Mar.</p>
+      <p class="footer__contact">
+        <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"footer"}'><Icon name="phone" />{site.phone.display}</a>
+        <a href={site.sms} data-track="text_click" data-track-props='{"placement":"footer"}'><Icon name="message" />Text us</a>
+        <a href={`mailto:${site.email}`}>{site.email}</a>
+      </p>
+    </div>
+
+    {SPAS.map((sp) => {
+      const s = site.spas[sp];
+      return (
+        <div class="footer__spa">
+          <h2 class="footer__h">{s.long_name}</h2>
+          <address>{s.street}<br />{s.city}, {s.region} {s.postal}</address>
+          <p class="footer__hours">{s.hours_text}</p>
+          <ul role="list" class="footer__links">
+            <li><a href={spaBookingUrl(sp)} target="_blank" rel="noopener" data-track="book_click" data-track-props={JSON.stringify({ spa: sp, placement: 'footer' })}>Book in {s.name}<span class="sr-only"> (opens in a new tab)</span></a></li>
+            <li><a href={s.page}>See the spa<span class="sr-only">: {s.long_name}</span></a></li>
+            <li><a href={s.directions_url} target="_blank" rel="noopener">Directions<span class="sr-only"> to {addressLine(s)} (opens in a new tab)</span></a></li>
+            {s.review_url && <li><a href={s.review_url} target="_blank" rel="noopener">Review us on Google<span class="sr-only"> ({s.name}, opens in a new tab)</span></a></li>}
+          </ul>
+        </div>
+      );
+    })}
+
+    <div class="footer__nav">
+      <h2 class="footer__h">Explore</h2>
+      <ul role="list" class="footer__links">
+        {TREATMENTS.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        {GUIDES_LIVE && <li><a href={GUIDES_HUB}>Guides</a></li>}
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+      </ul>
+    </div>
+
+    <div class="footer__nav">
+      <h2 class="footer__h">Offers</h2>
+      <ul role="list" class="footer__links">
+        {offerLinks().map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        <li><a href="/policies#canceling">Change or cancel a booking</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container--wide footer__base">
+    <ul role="list" class="footer__legal">
+      <li><a href="/policies">Policies</a></li>
+      <li><a href="/privacy">Privacy</a></li>
+      <li><a href="/accessibility">Accessibility</a></li>
+      <li><a href="/terms">Terms</a></li>
+      <li><a href={site.social.instagram} target="_blank" rel="noopener"><Icon name="instagram" />Instagram<span class="sr-only"> (opens in a new tab)</span></a></li>
+      <li><a href={site.social.facebook} target="_blank" rel="noopener"><Icon name="facebook" />Facebook<span class="sr-only"> (opens in a new tab)</span></a></li>
+    </ul>
+    <MotionToggle tone="dark" />
+    <p class="footer__small">© {year} Unique Spa House. Prices as currently listed on our online booking menu; the booking page always shows the latest price.</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer { padding-block: clamp(56px, 7vw, 96px) 2rem; }
+  .footer__grid {
+    display: grid;
+    gap: 2.5rem 2rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 640px) { .footer__grid { grid-template-columns: 1fr 1fr; } .footer__brand { grid-column: 1 / -1; } }
+  @media (min-width: 1100px) { .footer__grid { grid-template-columns: 1.4fr 1fr 1fr 0.8fr 0.8fr; } .footer__brand { grid-column: auto; } }
+  .footer__logo { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; font-family: var(--font-serif); font-size: 1.75rem; line-height: 1; min-height: var(--tap); }
+  .footer__tag { margin-top: 0.75rem; color: var(--on-dark-muted); max-width: 34ch; }
+  .footer__contact { display: flex; flex-direction: column; align-items: flex-start; margin-top: 1rem; }
+  .footer__contact a { display: inline-flex; align-items: center; gap: 0.5rem; min-height: var(--tap); text-decoration: none; }
+  .footer__contact :global(svg) { width: 18px; height: 18px; color: var(--on-dark-muted); }
+  .footer__h { font-size: 1.5rem; margin-bottom: 0.75rem; }
+  address { font-style: normal; color: var(--on-dark); line-height: 1.55; }
+  .footer__hours { margin-top: 0.5rem; color: var(--on-dark-muted); font-size: var(--fs-label); }
+  .footer__links { margin: 0.75rem 0 0; padding: 0; list-style: none; }
+  .footer__links a { display: inline-flex; align-items: center; min-height: var(--tap); min-width: var(--tap); text-decoration: none; color: var(--on-dark); font-size: var(--fs-label); }
+  .footer__nav .footer__links { margin-top: 0; }
+  .footer__base {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 2rem;
+    margin-top: clamp(40px, 5vw, 64px); padding-top: 1.25rem;
+    border-top: 1px solid var(--on-dark-border);
+  }
+  .footer__legal { display: flex; flex-wrap: wrap; gap: 0 1.25rem; margin: 0; padding: 0; list-style: none; }
+  .footer__legal a { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; min-height: var(--tap); min-width: var(--tap); font-size: var(--fs-label); text-decoration: none; }
+  .footer__legal :global(svg) { width: 16px; height: 16px; }
+  .footer__small { flex-basis: 100%; font-size: var(--fs-meta); color: var(--on-dark-muted); max-width: none; }
+</style>

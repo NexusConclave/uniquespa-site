@@ -1,0 +1,22 @@
+# Old site (Duda, www.uniquespahouse.com) → new site. 301 = permanent, so search engines move the ranking over.
+# Source: the old sitemap.xml + every link on its 10 pages (3 Nov 2026). Table: launch-notes/REDIRECTS.md.
+# /, /about and /contact keep their addresses on the new site, so they need no rule.
+# Medical/device pages go to /consultations/ (never named on the new site).
+# www.uniquespahouse.com → uniquespahouse.com is a Cloudflare Redirect Rule (host level), not this file.
+
+/home                               /                  301
+/home/                              /                  301
+/massage-therapy                    /massage/          301
+/massage-therapy/                   /massage/          301
+/body-treatments                    /body/             301
+/body-treatments/                   /body/             301
+/facial-and-skincare-treatments     /facials/          301
+/facial-and-skincare-treatments/    /facials/          301
+/spa-specials                       /specials/         301
+/spa-specials/                      /specials/         301
+/med-spa                            /consultations/    301
+/med-spa/                           /consultations/    301
+/laser-hair-removal                 /consultations/    301
+/laser-hair-removal/                /consultations/    301
+/iv-therapy                         /consultations/    301
+/iv-therapy/                        /consultations/    301

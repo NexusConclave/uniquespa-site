@@ -1,0 +1,92 @@
+---
+/**
+ * /consultations — neutral T0 page (blueprint §3.2, §4.10, §15.0). "Some treatments start with a consultation."
+ * NO treatment names, no prices, no booking link. Until counsel answers O-8, "Please call us on {spa phone}"
+ * and Text us are shown prominently beside the 3-field form (name, phone, spa + honeypot), which posts to
+ * /api/lead with source "consultation form". Thank-you has no booking link and there is no auto-reply.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import PageIntro from '../components/PageIntro.astro';
+import ConsultForm from '../components/ConsultForm.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../lib/site';
+import { SPAS } from '../lib/catalog';
+import { graph, orgNode, breadcrumbNode } from '../lib/schema';
+import '../styles/pages-b.css';
+
+const PATH = '/consultations';
+const jsonLd = graph(orgNode(), breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Consultations', path: PATH }]));
+---
+<BaseLayout
+  title="Consultations | Unique Spa House"
+  description={`Some treatments start with a consultation. Call us on ${site.phone.display}, text us, or leave your name and number and we'll call or text you.`}
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Consultations' }]}
+    title="Some treatments start with a <em>consultation</em>"
+    lede="It's a short conversation first, so we can talk through what you'd like and arrange a time that suits you."
+  />
+
+  <Section labelledby="call-title" tone="paper" class="consult">
+    <div class="consult__grid">
+      <div class="call">
+        <h2 id="call-title" class="call__title">Please call us on <a href={site.phone.tel} class="call__num" data-track="call_click" data-track-props='{"placement":"consultations"}'>{site.phone.display}</a></h2>
+        <p>We'll answer your questions and arrange your consultation at the spa that suits you.</p>
+        <div class="b-actions">
+          <a class="btn btn--outline" href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"consultations"}'><Icon name="phone" />Call {site.phone.display}</a>
+          <a class="btn btn--outline" href={site.sms} data-track="text_click" data-track-props='{"placement":"consultations"}'><Icon name="message" />Text us</a>
+          <button type="button" class="link-quiet" data-open="uni" aria-haspopup="dialog">Ask Uni</button>
+        </div>
+        <ul role="list" class="call__hours">
+          {SPAS.map((sp) => <li><span class="call__spa">{site.spas[sp].long_name}</span><span class="meta">{site.spas[sp].hours_text}</span></li>)}
+        </ul>
+      </div>
+      <div class="form-card">
+        <ConsultForm />
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="next-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="next-title">What happens <em>next</em></h2>
+      </div>
+      <div class="b-split__body">
+        <ol class="b-steps" role="list">
+          <li><span class="b-steps__n" aria-hidden="true">1</span><h3 class="b-steps__t"><span class="sr-only">Step 1: </span>We call or text you</h3><p class="b-steps__d">Or you call us. Either way, it's a quick conversation.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">2</span><h3 class="b-steps__t"><span class="sr-only">Step 2: </span>We arrange a time</h3><p class="b-steps__d">At our San Diego or Del Mar spa, whichever suits you.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">3</span><h3 class="b-steps__t"><span class="sr-only">Step 3: </span>Your consultation</h3><p class="b-steps__d">We talk through what you'd like and answer your questions. Any questions we need to ask you, we ask then, not online.</p></li>
+        </ol>
+        <p class="b-note">Please don't share medical or health details in chat or forms; we'll ask at your visit.</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="spa-title" tone="paper" pad="tight">
+    <div class="b-end">
+      <h2 id="spa-title" class="b-end__title">Looking for a massage or facial?</h2>
+      <p>Massage, facials and body treatments don't need a consultation. You can see every price and book online.</p>
+      <div class="b-actions">
+        <a class="btn btn--outline" href="/menu">See the menu and prices</a>
+        <a class="link-arrow" href="/massage">Massage<Icon name="arrow-right" /></a>
+        <a class="link-arrow" href="/facials">Facials<Icon name="arrow-right" /></a>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .consult__grid { display: grid; gap: clamp(2.5rem, 6vw, 5rem); align-items: start; }
+  @media (min-width: 960px) { .consult__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+  .call { display: flex; flex-direction: column; gap: 1.1rem; }
+  .call__title { font-size: clamp(2rem, 1.5rem + 2vw, 3.25rem); line-height: 1.05; }
+  .call__num { display: inline-block; min-height: var(--tap); white-space: nowrap; text-decoration-thickness: 1px; text-underline-offset: 0.12em; }
+  .call__hours { display: grid; gap: 0.25rem; margin-top: 0.5rem; padding-top: 1rem; border-top: 1px solid var(--hairline); }
+  .call__hours li { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; align-items: baseline; }
+  .call__spa { font-weight: 500; font-size: var(--fs-label); }
+  .form-card { padding: clamp(1.25rem, 3vw, 2.25rem); background: var(--bg); border: 1px solid var(--hairline); border-radius: var(--radius-card); }
+</style>

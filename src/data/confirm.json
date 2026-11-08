@@ -1,0 +1,10 @@
+{
+  "note": "Unconfirmed facts and promises (QA M7/M8). While resolved is false: PREVIEW builds show the claim with a draft note; production builds show the fallback (or nothing) and log the pending list. CONFIRM_STRICT=1 makes a production build fail while any used claim is unresolved. Set resolved:true once the owner (or the named gate) confirms.",
+  "claims": {
+    "dm-space": { "owner_confirm": "O-B1 / §4.2", "resolved": false, "what": "Del Mar: \"The recovery room\" and \"a private treatment room inside a performance-training facility\" (wording, and that the setting is permanent)" },
+    "gift-both-spas": { "owner_confirm": "O-P5", "resolved": false, "what": "Gift cards are good at both spas, for any service on the menu" },
+    "gift-not-on-specials": { "owner_confirm": "O-P5", "resolved": false, "what": "Gift cards can't be used to pay for specials" },
+    "g0-gift-no-fees": { "owner_confirm": "G0: Square 3% fee removed", "resolved": false, "what": "eGift cards carry no fees; an amount covers a whole visit at the menu price" },
+    "gift-never-expire": { "owner_confirm": "Q51 / gift kit decision 3", "resolved": false, "what": "eGift cards never expire (facts say 'ask owner'; Civ. Code §1749.5 makes it very likely; lawyer confirms)" }
+  }
+}

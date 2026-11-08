@@ -1,0 +1,86 @@
+---
+/**
+ * /menu — the full price list (blueprint §4.4), generated from the lockfile + status: liveServices() by group,
+ * each a ServiceRow (duration chips with the price announced, minutes, spa availability, Book per spa).
+ * Brazilian butt and liposuction massage are plain rows like every other (no card, no image anywhere here).
+ * Medical lines appear at T1 only (none at P1). Price note under the list.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import PageIntro from '../components/PageIntro.astro';
+import ServiceRow from '../components/ServiceRow.astro';
+import AddOnLine from '../components/AddOnLine.astro';
+import AskUni from '../components/AskUni.astro';
+import HealthNote from '../components/HealthNote.astro';
+import Icon from '../components/Icon.astro';
+import { liveServices, PRICES_CAPTURED, type Group } from '../lib/catalog';
+import { activeOffers } from '../lib/offers';
+import { longDate } from '../lib/dates';
+import { summaryOf, displayName } from '../lib/pageHelpers';
+import { graph, orgNode, spaNode, serviceNode, breadcrumbNode } from '../lib/schema';
+import '../styles/pages-b.css';
+
+const PATH = '/menu';
+const GROUPS: Array<{ id: Group; title: string; intro: string; hub: string }> = [
+  { id: 'massage', title: 'Massage', intro: 'Every massage starts with a short chat about what you need.', hub: '/massage' },
+  { id: 'facials', title: 'Facials', intro: 'Every facial begins with a short skin check.', hub: '/facials' },
+  { id: 'body', title: 'Body', intro: 'Warming wraps and firm, body-focused massage.', hub: '/body' },
+];
+const groups = GROUPS.map((g) => ({ ...g, services: liveServices(g.id) })).filter((g) => g.services.length);
+const hasSpecial = activeOffers({ kind: 'special' }).length > 0;
+
+const jsonLd = graph(
+  orgNode(), spaNode('SD'), spaNode('DM'),
+  ...groups.flatMap((g) => g.services.map((s) => serviceNode(s, { name: displayName(s), description: summaryOf(s), path: s.flagship ?? undefined }))),
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Menu and prices', path: PATH }]),
+);
+---
+<BaseLayout
+  title="Spa Menu & Prices | Unique Spa House"
+  description="Every massage, facial and body treatment at our San Diego (Mission Valley) and Del Mar spas, with lengths, prices and where to book each one."
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Menu and prices' }]}
+    title="Our menu and prices"
+    lede="Every massage, facial and body treatment at both spas. Choose a length to see its price, then book at the spa that suits you."
+  >
+    <nav aria-label="Menu sections">
+      <ul class="b-jump" role="list">
+        {groups.map((g) => <li><a href={`#${g.id}`}>{g.title}</a></li>)}
+        {hasSpecial && <li><a href="/specials">This month's specials</a></li>}
+      </ul>
+    </nav>
+  </PageIntro>
+
+  <Section label="Price list" tone="paper" class="menu">
+    {groups.map((g) => (
+      <div class="b-group" id={g.id}>
+        <div class="b-group__head menu__head">
+          <h2 id={`${g.id}-title`}>{g.title}</h2>
+          <p>{g.intro} <a class="link-arrow menu__hub" href={g.hub}>More about {g.title.toLowerCase()}<Icon name="arrow-right" /></a></p>
+        </div>
+        <div class="b-rows">
+          {g.services.map((s) => <ServiceRow service={s.id} title={displayName(s)} summary={summaryOf(s)} placement="menu" linkFlagship showAllPrices />)}
+        </div>
+        <AddOnLine group={g.id} class="menu__addon" />
+      </div>
+    ))}
+    <div class="menu__notes">
+      <p class="b-note">Prices as currently listed on our online booking menu (checked {longDate(PRICES_CAPTURED)}). The booking page always shows the latest price. Booking opens in a new tab.</p>
+      <HealthNote />
+    </div>
+  </Section>
+
+  <Section pad="tight" width="narrow">
+    <AskUni text="Tell Uni what you'd like and it will suggest a treatment and a length. Or call us on" />
+  </Section>
+</BaseLayout>
+
+<style>
+  .menu__head { margin-bottom: 0.5rem; }
+  .menu__head p { display: flex; flex-wrap: wrap; align-items: center; gap: 0 0.75rem; }
+  .b-group :global(.menu__addon) { margin-top: 1.25rem; }
+  .menu__notes { display: grid; gap: 1.25rem; margin-top: clamp(2.5rem, 5vw, 3.5rem); max-width: 760px; }
+</style>

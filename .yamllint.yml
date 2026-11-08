@@ -1,0 +1,7 @@
+# yamllint config for the workflows and .pages.yml (yamllint .github/workflows .pages.yml).
+extends: default
+rules:
+  line-length: {max: 200}
+  document-start: disable
+  truthy: {check-keys: false}   # GitHub's "on:" key
+  comments: {min-spaces-from-content: 1}

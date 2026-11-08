@@ -1,0 +1,33 @@
+/* Service guides (/guides/): shared styles. Builds on pages-b.css (b- prefix); guide-only pieces use g-. */
+.g-meta { font-size: var(--fs-meta); color: var(--text-muted); }
+.g-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.g-compare { display: grid; margin: 0; }
+.g-compare > div { display: grid; gap: 0.4rem; padding-block: 1.1rem 1.25rem; border-top: 1px solid var(--hairline); }
+.g-compare > div:last-child { border-bottom: 1px solid var(--hairline); }
+.g-compare dt { font-family: var(--font-serif); font-size: 1.45rem; line-height: 1.2; }
+.g-compare dd { margin: 0; }
+.g-pick { display: grid; gap: 1rem; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 900px) { .g-pick--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } .g-pick--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.g-pick > li { display: flex; flex-direction: column; gap: 0.75rem; padding: clamp(1.25rem, 3vw, 1.75rem); border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--paper); }
+.g-pick h3 { font-size: 1.6rem; line-height: 1.15; }
+.g-pick dl { display: grid; gap: 0.6rem; margin: 0; }
+.g-pick dl > div { display: grid; gap: 0.15rem; }
+.g-pick dt { font-size: var(--fs-meta); color: var(--text-muted); }
+.g-pick dd { margin: 0; }
+.g-lengths { display: grid; gap: 0.75rem; margin: 0 0 0.5rem; }
+.g-lengths > div { display: grid; grid-template-columns: 5.5rem 1fr; gap: 1rem; align-items: baseline; }
+.g-lengths dt { font-family: var(--font-serif); font-size: 1.35rem; }
+.g-lengths dd { margin: 0; }
+.g-care { display: flex; flex-direction: column; gap: 0.9rem; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--paper); }
+.g-care h3 { font-size: 1.6rem; }
+.g-general { font-size: var(--fs-label); color: var(--text-muted); max-width: 62ch; }
+.g-more { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.g-more > li { padding-block: 0.9rem 1rem; border-top: 1px solid var(--hairline); }
+.g-more > li:last-child { border-bottom: 1px solid var(--hairline); }
+.g-more a { font-family: var(--font-serif); font-size: 1.35rem; line-height: 1.2; }
+.g-more p { margin-top: 0.25rem; font-size: var(--fs-label); color: var(--text-muted); }
+.guide-link { margin-top: 0.5rem; }
+.g-health { margin-top: 1.5rem; }
+.g-door { width: min(100%, 400px); margin-inline: auto; }
+@media (max-width: 959px) { .g-door { width: min(86%, 340px); } }
+.b-cards + .b-note, .b-cards + * + .b-note { margin-top: 1rem; }

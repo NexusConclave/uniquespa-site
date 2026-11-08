@@ -1,0 +1,207 @@
+---
+/**
+ * /massage — hub (blueprint §4.3 hub; copy 03-massage.md; claims log 12). Groups from the copy, every
+ * service generated from the catalog (live only). Brazilian butt and liposuction massage appear as plain
+ * menu rows only (no card, no image). Links to the three flagships. Prices only via lib/catalog.ts.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import PageIntro from '../components/PageIntro.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import ServiceRow from '../components/ServiceRow.astro';
+import AddOnLine from '../components/AddOnLine.astro';
+import SpecialCard from '../components/SpecialCard.astro';
+import Faq from '../components/Faq.astro';
+import GuideLink from '../components/GuideLink.astro';
+import AskUni from '../components/AskUni.astro';
+import HealthNote from '../components/HealthNote.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import { Picture } from 'astro:assets';
+import { findLiveService, spaBookingUrl, giftUrl, SPAS } from '../lib/catalog';
+import { activeOffers } from '../lib/offers';
+import { asset, widthsFor, objectPosition } from '../lib/images';
+import { site } from '../lib/site';
+import { priceOf, priceList, summaryOf, displayName } from '../lib/pageHelpers';
+import { graph, orgNode, spaNode, serviceNode, breadcrumbNode, faqNode } from '../lib/schema';
+import '../styles/pages-b.css';
+
+const PATH = '/massage';
+const img = asset('massage-1x1');
+
+// Groups and order from copy 03. Only ids that are live render (findLiveService), so a status change can't leak.
+const GROUPS: Array<{ id: string; title: string; intro?: string; ids: string[]; rows?: boolean; flagship?: { href: string; label: string } }> = [
+  { id: 'relax', title: 'To relax', ids: ['swedish', 'relaxing', 'hot-stone', 'foot'] },
+  { id: 'recovery', title: 'For tension and recovery', ids: ['deep-tissue', 'therapeutic', 'sports', 'thai'] },
+  { id: 'lymphatic', title: 'Lymphatic drainage massage', intro: 'Gentle, slow and calming. Book it at either spa.', ids: ['lymphatic'], flagship: { href: '/massage/lymphatic-drainage', label: 'About lymphatic massage' } },
+  { id: 'sculpting', title: 'Body-sculpting massage', intro: 'Firmer, brisker massage with a sculpting focus, worked area by area.', ids: ['anti-cellulite', 'brazilian-butt', 'liposuction-massage'], rows: true },
+  { id: 'pregnancy', title: 'For pregnancy and new parents', ids: ['prenatal', 'postnatal'] },
+  { id: 'together', title: 'Together', ids: ['couples'], flagship: { href: '/massage/couples', label: 'About couples massage' } },
+  { id: 'owner', title: 'Book with our owner', ids: ['katy'], flagship: { href: '/massage/with-katy', label: 'About massage with Katy' } },
+].map((g) => ({ ...g, ids: g.ids.filter((id) => findLiveService(id)) })).filter((g) => g.ids.length);
+
+const services = GROUPS.flatMap((g) => g.ids).map((id) => findLiveService(id)!);
+const luxe = activeOffers({ kind: 'special' }).find((o) => o.related_service === 'lymphatic');
+
+const faqs = [
+  { q: 'Which massage is right for me?', a: 'New to massage? Try Swedish. Want firmer work on knots? Try deep tissue. One sore spot? Try therapeutic. After training? Try sports. Want something very gentle? Try <a href="/massage/lymphatic-drainage">lymphatic</a>. Still not sure? Your therapist will guide you.' },
+  { q: 'Do you offer prenatal massage?', a: `Yes. Our prenatal massage is ${priceOf('prenatal', 60)} for 60 min, at both spas. Positioning and pressure are adjusted for each stage of pregnancy. Please check with your doctor or midwife first.` },
+  { q: 'Which massage includes tummy work?', a: "Lymphatic massage. It's our only massage that includes gentle abdominal massage." },
+  { q: 'Do you offer couples massage?', a: `Yes, at our San Diego spa. It's ${priceOf('couples', 120)} (60 min) or ${priceOf('couples', 135)} (90 min). That includes 30 minutes together afterwards, with tea or coffee, fresh fruit and cheese. <a href="/massage/couples">About couples massage</a>.` },
+  { q: 'Can I book with the owner?', a: `Yes. Book any 60, 90 or 120 min massage with Katy, at either spa: ${priceList('katy')}. <a href="/massage/with-katy">About massage with Katy</a>.` },
+];
+
+const jsonLd = graph(
+  orgNode(), spaNode('SD'), spaNode('DM'),
+  ...services.map((s) => serviceNode(s, { name: displayName(s), description: summaryOf(s), path: s.flagship ?? undefined })),
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Massage', path: PATH }]),
+  faqNode(faqs),
+);
+---
+<BaseLayout
+  title="Massage in San Diego & Del Mar | Unique Spa House"
+  description={`Swedish, deep tissue, lymphatic, sports and prenatal massage in Mission Valley, San Diego and Del Mar. Swedish 60 min ${priceOf('swedish', 60)}. Book online.`}
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Massage' }]}
+    title="Massage in San Diego and Del Mar"
+    lede="Every massage starts with a short chat. Tell us what you need, and your therapist shapes the session around you."
+    asideWidth="narrow"
+  >
+    <p>Book a massage in Mission Valley at our San Diego spa, or at our Del Mar spa.</p>
+    <div class="b-actions">
+      {SPAS.map((sp) => (
+        <Button href={spaBookingUrl(sp)} external track="book_click" trackProps={{ spa: sp, placement: 'hub-intro' }}>Book in {site.spas[sp].name}</Button>
+      ))}
+    </div>
+    <AddOnLine group="massage" />
+    <nav aria-label="Massage types" class="jump">
+      <ul class="b-jump" role="list">
+        {GROUPS.map((g) => <li><a href={`#${g.id}`}>{g.title}</a></li>)}
+      </ul>
+    </nav>
+    <Fragment slot="aside">
+      <figure class="b-media hub-media" transition:name="svc-massage">
+        <Picture src={img.src} formats={['avif', 'webp']} widths={widthsFor(img.src)} sizes="(min-width: 960px) 34vw, 100vw" quality={62}
+          alt={img.alt} loading="eager" decoding="async" style={`object-position: ${objectPosition(img)}`} />
+      </figure>
+    </Fragment>
+  </PageIntro>
+
+  <Section labelledby="who-title" tone="paper" pad="tight">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="who-title">Who it's for</h2>
+        <p><strong>Not sure which massage?</strong> Your therapist will help you choose.</p>
+      </div>
+      <div class="b-split__body">
+        <ul class="b-ticks">
+          <li>Anyone who wants to switch off for an hour</li>
+          <li>Desk workers with a tight neck and shoulders</li>
+          <li>People who train and want to feel looser</li>
+          <li>Expecting and new parents</li>
+          <li>Couples who want time together</li>
+        </ul>
+        <HealthNote />
+      </div>
+    </div>
+  </Section>
+
+  {GROUPS.map((g, gi) => (
+    <Section id={g.id} labelledby={`${g.id}-title`} tone={gi % 2 ? 'paper' : 'cream'}>
+      <div class="b-head b-head--row">
+        <div class="b-group__head">
+          <h2 id={`${g.id}-title`}>{g.title}</h2>
+          {g.intro && <p>{g.intro}</p>}
+        </div>
+        {g.flagship && <a class="link-arrow" href={g.flagship.href}>{g.flagship.label}<Icon name="arrow-right" /></a>}
+      </div>
+      {g.rows ? (
+        <div class="b-rows">
+          {g.ids.map((id) => <ServiceRow service={id} title={displayName(id)} summary={summaryOf(id)} placement="hub" />)}
+        </div>
+      ) : (
+        <ul class:list={['b-cards', g.ids.length % 3 === 0 && 'b-cards--3', g.ids.length === 1 && !(g.id === 'lymphatic' && luxe) && 'b-cards--one']} role="list">
+          {g.ids.map((id) => (
+            <li>
+              <ServiceCard service={id} class="b-card" title={displayName(id)} summary={summaryOf(id)} placement="hub">
+                {g.flagship && <a class="link-arrow" href={g.flagship.href}>{g.flagship.label}<span class="sr-only"> (prices and FAQs)</span><Icon name="arrow-right" /></a>}
+              </ServiceCard>
+            </li>
+          ))}
+          {g.id === 'lymphatic' && luxe && <li><SpecialCard offer={luxe} headingLevel={3} placement="hub" showGift={false} /></li>}
+        </ul>
+      )}
+    </Section>
+  ))}
+
+  <Section tone="brown" labelledby="expect-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="expect-title">What to <em>expect</em></h2>
+        <p>Same care at both spas, whatever you book.</p>
+      </div>
+      <ol class="b-steps" role="list">
+        <li><span class="b-steps__n" aria-hidden="true">1</span><h3 class="b-steps__t"><span class="sr-only">Step 1: </span>A short chat first</h3><p class="b-steps__d">Your goals, preferences and any health conditions.</p></li>
+        <li><span class="b-steps__n" aria-hidden="true">2</span><h3 class="b-steps__t"><span class="sr-only">Step 2: </span>A private room</h3><p class="b-steps__d">Clean, calm, with soft lighting and quiet music.</p></li>
+        <li><span class="b-steps__n" aria-hidden="true">3</span><h3 class="b-steps__t"><span class="sr-only">Step 3: </span>Quality oils or lotions</h3><p class="b-steps__d">Unscented options are available.</p></li>
+        <li><span class="b-steps__n" aria-hidden="true">4</span><h3 class="b-steps__t"><span class="sr-only">Step 4: </span>Pressure that suits you</h3><p class="b-steps__d">Your therapist adjusts as you go. Speak up any time.</p></li>
+        <li><span class="b-steps__n" aria-hidden="true">5</span><h3 class="b-steps__t"><span class="sr-only">Step 5: </span>Time for questions</h3><p class="b-steps__d">When your session ends, ask anything you like.</p></li>
+      </ol>
+    </div>
+  </Section>
+
+  <Section labelledby="care-title">
+    <div class="b-head"><h2 id="care-title">Before and after</h2></div>
+    <div class="b-duo">
+      <div class="care">
+        <h3>Before</h3>
+        <ul class="b-ticks">
+          <li>Arrive a few minutes early to fill in a short form.</li>
+          <li>Tell us about pregnancy, recent surgery, health conditions, or allergies to oils or scents.</li>
+        </ul>
+      </div>
+      <div class="care">
+        <h3>After</h3>
+        <ul class="b-ticks">
+          <li>Get up slowly. You may feel a little dazed.</li>
+          <li>After deep tissue, some soreness for a day or two is common.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="b-note price-note">Prices as currently listed on our online booking menu. The booking page always shows the latest price. See every price on <a href="/menu">our full menu</a>.</p>
+  </Section>
+
+  <Section labelledby="faq-title" tone="paper">
+    <Faq items={faqs} title="Massage questions">
+      <GuideLink slot="head" slug="deep-tissue-vs-swedish-vs-sports-massage" label="Guide: deep tissue, Swedish or sports?" />
+      <GuideLink slot="head" slug="lymphatic-drainage-massage-what-to-expect" label="Guide: lymphatic massage, what to expect" />
+    </Faq>
+  </Section>
+
+  <Section labelledby="end-title">
+    <div class="b-end">
+      <h2 id="end-title" class="b-end__title">Ready to <em>relax</em>?</h2>
+      <p>Book a massage at our Mission Valley or Del Mar spa. It only takes a minute.</p>
+      <div class="b-actions">
+        {SPAS.map((sp) => <Button href={spaBookingUrl(sp)} external track="book_click" trackProps={{ spa: sp, placement: 'hub-end' }}>Book in {site.spas[sp].name}</Button>)}
+        <Button href={giftUrl()} external icon="gift" track="gift_card_click" trackProps={{ placement: 'massage' }}>Buy a gift card</Button>
+      </div>
+    </div>
+    <div class="ask-wrap"><AskUni /></div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .hub-media { aspect-ratio: 1 / 1; }
+  @media (max-width: 959px) { .hub-media { aspect-ratio: 4 / 3; } }
+  .jump { margin-top: 0.75rem; }
+  .care { display: flex; flex-direction: column; gap: 0.9rem; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--paper); }
+  .care h3 { font-size: 1.6rem; }
+  .price-note { margin-top: 1.5rem; }
+  .ask-wrap { max-width: 760px; margin: clamp(2.5rem, 6vw, 4rem) auto 0; }
+  :global(.b-cards--one) { max-width: 620px; }
+  @media (min-width: 700px) { :global(.b-cards--one) { grid-template-columns: 1fr; } }
+</style>

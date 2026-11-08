@@ -1,0 +1,14 @@
+---
+/** The lotus mark (logo and Uni's mark only — never inside an arch). Line art, currentColor. Interim drawing until the P0 SVG exists.
+    pathLength=1 on every path lets styles/motion.css draw it (header once per visit, footer on view). */
+interface Props { size?: number | string; class?: string; label?: string }
+const { size = 28, class: cls, label } = Astro.props;
+const petal = 'M24 35C18.6 28.4 18.2 17.6 24 8c5.8 9.6 5.4 20.4 0 27z';
+---
+<svg class:list={['lotus', cls]} width={size} height={size} viewBox="0 0 48 44" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" aria-hidden={label ? undefined : 'true'} role={label ? 'img' : undefined} aria-label={label} focusable="false">
+  <path d={petal} pathLength="1" />
+  <path d={petal} transform="rotate(-34 24 35)" pathLength="1" />
+  <path d={petal} transform="rotate(34 24 35)" pathLength="1" />
+  <path d="M24 35c-6-.2-13.5-3-17.5-8.5M24 35c6-.2 13.5-3 17.5-8.5" pathLength="1" />
+  <path d="M15 39.5h18" pathLength="1" />
+</svg>

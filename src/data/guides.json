@@ -1,0 +1,37 @@
+{
+  "note": "Service guides (answer-first, for local and AI search). Built, linked and listed only while site.json flags.guides_live is on (env GUIDES=1/0 overrides). Each slug renders src/components/guides/<component>.astro at /guides/<slug>/. Prices never live here.",
+  "guides": [
+    {
+      "slug": "lymphatic-drainage-massage-what-to-expect",
+      "component": "GuideLymphatic",
+      "label": "Lymphatic drainage massage: what to expect",
+      "summary": "How a first session goes, how long to book, what it costs at each spa, and what it can and can't do.",
+      "services": ["lymphatic"],
+      "related_pages": ["/massage/lymphatic-drainage", "/massage"]
+    },
+    {
+      "slug": "deep-tissue-vs-swedish-vs-sports-massage",
+      "component": "GuideMassageChoice",
+      "label": "Deep tissue, Swedish or sports massage: which to book",
+      "summary": "How the three feel, who each one suits, lengths and prices at each spa, and how to choose.",
+      "services": ["swedish", "deep-tissue", "sports"],
+      "related_pages": ["/massage"]
+    },
+    {
+      "slug": "couples-massage-san-diego",
+      "component": "GuideCouples",
+      "label": "Couples massage in San Diego: a planning guide",
+      "summary": "What's included, which length to choose, how to book for two, and giving it as a gift.",
+      "services": ["couples"],
+      "related_pages": ["/massage/couples", "/massage"]
+    },
+    {
+      "slug": "babor-facials-which-one",
+      "component": "GuideBabor",
+      "label": "BABOR facials: which one is right for your skin",
+      "summary": "Our BABOR facials side by side: what each includes, how long it takes, where to book it and what it costs.",
+      "services": ["babor-sculpt-lift", "babor-deep-cleanse", "pure-detox", "express-hydration", "signature-facial"],
+      "related_pages": ["/facials"]
+    }
+  ]
+}

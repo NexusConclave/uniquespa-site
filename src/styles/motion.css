@@ -1,0 +1,261 @@
+/* =====================================================================================================
+   Motion (client request, 24 Oct 2026: "more animations"). See shots/motion/EFFECTS.md for the list.
+
+   Contract
+   - Only transform (translate / scale / rotate), opacity, clip-path and stroke-dashoffset move. 400–900 ms,
+     calm easing. Nothing loops except the treatment ticker, which has its own Pause button.
+   - Nothing starts hidden unless JS has run: the head script sets html[data-fx] (load sequences), and
+     src/scripts/motion.ts arms below-the-fold elements with [data-rv="kind"] and adds .is-in on entry
+     (IntersectionObserver, so it works in every browser — scroll-driven CSS is only used for parallax).
+   - prefers-reduced-motion and the Pause motion toggle switch every hidden state off (content shows at once).
+   - The hero H1 is never hidden or delayed (mobile LCP).
+   ===================================================================================================== */
+
+:root {
+  --fx-ease: cubic-bezier(0.22, 1, 0.36, 1);   /* entrances */
+  --fx-silk: cubic-bezier(0.32, 0, 0.06, 0.99); /* curtains, lines */
+  --fx-rise: 28px;
+  --fx-step: 80ms;
+}
+@media (max-width: 767px) { :root { --fx-rise: 18px; } }
+
+@keyframes fx-in-rise { from { opacity: 0; translate: 0 var(--fx-rise); } to { opacity: 1; translate: 0 0; } }
+@keyframes fx-in-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fx-settle { from { scale: 1.06; } to { scale: 1; } }
+@keyframes fx-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes fx-swap { from { opacity: 0; translate: 0 0.35em; } to { opacity: 1; translate: 0 0; } }
+@keyframes fx-ticker { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+
+/* Word-split headings (motion.ts): the original text stays in .fx-sr for assistive tech */
+.fx-sr { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.fx-words .w { display: inline-block; vertical-align: top; text-indent: 0; }   /* text-indent is inherited: each word is its own block */
+.fx-words .w > span { display: inline-block; white-space: nowrap; text-indent: 0; }
+
+/* Steps: the top rule is drawn by a pseudo-element when armed */
+.visit__steps > li { --fx-line: var(--text); }
+.b-steps > li { --fx-line: var(--hairline); }
+
+/* Spa doors: once motion.ts has built the SVG outline, the CSS borders step aside */
+.door-card .door-card__arch[data-fx-door] { border-color: transparent; }
+.door-card .door-card__arch[data-fx-door]::after { border-top-color: transparent; }
+.door-card .door-card__arch[data-fx-door] .door-card__inner { border-color: transparent; }
+.door-svg { position: absolute; left: -1px; top: -1px; overflow: visible; pointer-events: none; fill: none; }
+.door-svg path { fill: none; stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.door-svg .o, .door-svg .t { stroke: var(--text); }
+.door-svg .i { stroke: var(--border-ui); }
+
+/* Chip prices are single tokens: inline-block so they can rise (identical layout to inline) */
+[data-svc-num], [data-svc-price] { display: inline-block; }
+
+/* ---------- Hover and focus (pointer devices; keyboard focus everywhere) ---------- */
+
+/* Outline buttons: a fill sweeps in from the left */
+.btn--outline { position: relative; isolation: isolate; overflow: hidden; transition: color 0.35s var(--fx-ease) 0.05s, border-color 0.35s var(--fx-ease); }
+.btn--outline::before {
+  content: ''; position: absolute; inset: 0; z-index: -1;   /* square: overflow:hidden clips it to the inner pill edge */
+  background: var(--btn); transform: scaleX(0); transform-origin: left center;
+  transition: transform 0.45s var(--fx-ease);
+}
+.on-dark .btn--outline::before { background: var(--on-dark); }
+@media (hover: hover) {
+  .btn--outline:hover { background: transparent; color: var(--on-dark); }
+  .btn--outline:hover::before { transform: scaleX(1); }
+  .on-dark .btn--outline:hover { background: transparent; color: var(--text); }
+}
+.btn--outline:focus-visible { color: var(--on-dark); }
+.btn--outline:focus-visible::before { transform: scaleX(1); }
+.on-dark .btn--outline:focus-visible { color: var(--text); }
+.btn--outline:active::before { transform: scaleX(1); }
+.btn--outline:active { color: var(--on-dark); }
+.on-dark .btn--outline:active { color: var(--text); }
+
+/* Text links: the underline grows from the left */
+.nav__link, .actions__link, .footer__links a, .footer__contact a, .footer__legal a, .link-arrow { position: relative; }
+.nav__link::after, .actions__link::after, .footer__links a::after, .footer__contact a::after, .footer__legal a::after, .link-arrow::after {
+  content: ''; position: absolute; left: 0; right: 0; top: calc(50% + 0.7em); height: 1px;
+  background: currentColor; transform: scaleX(0); transform-origin: left center;
+  transition: transform 0.45s var(--fx-ease); pointer-events: none;
+}
+.link-arrow::after { right: 1.4em; top: calc(50% + 0.72em); }
+.footer__legal a::after { left: auto; width: 100%; }
+@media (hover: hover) {
+  .nav__link:hover, .actions__link:hover, .footer__links a:hover, .footer__contact a:hover, .footer__legal a:hover, .link-arrow:hover { text-decoration-color: transparent; }
+  .nav__link:hover::after, .actions__link:hover::after, .footer__links a:hover::after, .footer__contact a:hover::after, .footer__legal a:hover::after, .link-arrow:hover::after { transform: scaleX(1); }
+}
+.nav__link:focus-visible::after, .actions__link:focus-visible::after, .footer__links a:focus-visible::after, .footer__contact a:focus-visible::after, .footer__legal a:focus-visible::after, .link-arrow:focus-visible::after { transform: scaleX(1); }
+.nav__link:focus-visible, .actions__link:focus-visible, .link-arrow:focus-visible { text-decoration-color: transparent; }
+/* the current page keeps its underline */
+.nav__link[aria-current='page']::after, .nav__btn[data-current='true']::after { transform: scaleX(0); }
+
+/* ---------- Treatment ticker (Home band) ---------- */
+.ticker { display: flex; align-items: center; gap: 0.75rem; margin-top: clamp(2.5rem, 6vw, 4.5rem); padding-top: clamp(1rem, 2.5vw, 1.5rem); border-top: 1px solid var(--on-dark-border); }
+.ticker__viewport { flex: 1; min-width: 0; display: flex; overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+.ticker__track { display: flex; flex: none; margin: 0; padding: 0; list-style: none; }
+.ticker__track li { display: flex; align-items: center; max-width: none; white-space: nowrap; font-family: var(--font-serif); font-size: clamp(1.375rem, 1.15rem + 1vw, 2.125rem); line-height: 1.2; color: var(--on-dark); }
+.ticker__track li::after { content: ''; width: 6px; height: 6px; margin-inline: clamp(1rem, 2.4vw, 1.75rem); border-radius: 50%; background: var(--on-dark-muted); flex: none; }
+.ticker__toggle {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  min-height: var(--tap); min-width: var(--tap); padding: 0 0.85rem;
+  border: 1px solid var(--on-dark-border); border-radius: var(--radius-pill); background: transparent; color: var(--on-dark);
+  font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label);
+}
+.ticker__toggle:hover { border-color: var(--on-dark); }
+.ticker__toggle svg { width: 14px; height: 14px; }
+.ticker__toggle [data-icon='play'] { display: none; }
+.ticker[data-paused] .ticker__toggle [data-icon='play'] { display: block; }
+.ticker[data-paused] .ticker__toggle [data-icon='pause'] { display: none; }
+/* Static list: no JS, reduced motion, or Pause motion */
+.ticker__track[aria-hidden='true'] { display: none; }
+.ticker__toggle { display: none; }
+.ticker__viewport { -webkit-mask-image: none; mask-image: none; }
+.ticker__track { flex-wrap: wrap; row-gap: 0.25rem; }
+@media screen and (prefers-reduced-motion: no-preference) {
+  :root[data-fx]:not([data-motion='paused']) .ticker__track { flex-wrap: nowrap; animation-name: fx-ticker; animation-duration: var(--ticker-dur, 80s); animation-timing-function: linear; animation-iteration-count: infinite; }
+  :root[data-fx]:not([data-motion='paused']) .ticker__track[aria-hidden='true'] { display: flex; }
+  :root[data-fx]:not([data-motion='paused']) .ticker__toggle { display: inline-flex; }
+  :root[data-fx]:not([data-motion='paused']) .ticker__viewport {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  }
+  .ticker:hover .ticker__track, .ticker:focus-within .ticker__track, .ticker[data-paused] .ticker__track { animation-play-state: paused; }
+}
+
+/* =====================================================================================================
+   Everything below only applies on screen, with motion allowed, after JS has run.
+   ===================================================================================================== */
+@media screen and (prefers-reduced-motion: no-preference) {
+
+  /* ---------- 1 · Load sequences (no IntersectionObserver needed) ---------- */
+  /* Home hero: the H1 is painted at once; subhead, buttons and rating line follow */
+  :root[data-fx]:not([data-motion='paused']) .hero__sub,
+  :root[data-fx]:not([data-motion='paused']) .hero__actions,
+  :root[data-fx]:not([data-motion='paused']) .hero__rating {
+    animation-name: fx-in-rise; animation-duration: 0.8s; animation-timing-function: var(--fx-ease); animation-fill-mode: both;
+  }
+  :root[data-fx]:not([data-motion='paused']) .hero__sub { animation-delay: 0.12s; }
+  :root[data-fx]:not([data-motion='paused']) .hero__actions { animation-delay: 0.24s; }
+  :root[data-fx]:not([data-motion='paused']) .hero__rating { animation-delay: 0.36s; }
+
+  /* Inner-page heroes: whatever follows the H1 rises in sequence (never the H1 itself) */
+  :root[data-fx]:not([data-motion='paused']) :is(.intro__text, .doc__head, .gc-hero__text, .nf__text, .ab-hero > .container, .ct-hero > .container, .sp-hero > .container) > h1 ~ * {
+    animation-name: fx-in-rise; animation-duration: 0.8s; animation-timing-function: var(--fx-ease); animation-fill-mode: both; animation-delay: 0.42s;
+  }
+  :root[data-fx]:not([data-motion='paused']) :is(.intro__text, .doc__head, .gc-hero__text, .nf__text, .ab-hero > .container, .ct-hero > .container, .sp-hero > .container) > h1 + * { animation-delay: 0.1s; }
+  :root[data-fx]:not([data-motion='paused']) :is(.intro__text, .doc__head, .gc-hero__text, .nf__text, .ab-hero > .container, .ct-hero > .container, .sp-hero > .container) > h1 + * + * { animation-delay: 0.2s; }
+  :root[data-fx]:not([data-motion='paused']) :is(.intro__text, .doc__head, .gc-hero__text, .nf__text, .ab-hero > .container, .ct-hero > .container, .sp-hero > .container) > h1 + * + * + * { animation-delay: 0.3s; }
+  /* Hero asides: photos settle (scale only, so the LCP image paints at once); boxes and doors rise */
+  :root[data-fx]:not([data-motion='paused']) .intro__aside img,
+  :root[data-fx]:not([data-motion='paused']) .gc-hero__card,
+  :root[data-fx]:not([data-motion='paused']) .nf__grid img {
+    animation-name: fx-settle; animation-duration: 0.9s; animation-timing-function: var(--fx-ease); animation-fill-mode: both;
+  }
+  :root[data-fx]:not([data-motion='paused']) .intro__aside:not(:has(img)) {
+    animation-name: fx-in-rise; animation-duration: 0.9s; animation-timing-function: var(--fx-ease); animation-fill-mode: both; animation-delay: 0.18s;
+  }
+
+  /* Header lotus: draws itself once per visit (html[data-fx-intro] is set by the head script on the first page) */
+  :root[data-fx-intro]:not([data-motion='paused']) .brand .lotus path {
+    stroke-dasharray: 1 1;
+    animation-name: fx-draw; animation-duration: 0.9s; animation-timing-function: var(--fx-ease); animation-fill-mode: both;
+    animation-delay: calc(0.15s + var(--pi, 0) * 0.09s);
+  }
+  .lotus path:nth-child(2) { --pi: 1; }
+  .lotus path:nth-child(3) { --pi: 2; }
+  .lotus path:nth-child(4) { --pi: 3; }
+  .lotus path:nth-child(5) { --pi: 4; }
+
+  /* Mobile menu and Book sheet: items cascade in as the dialog opens */
+  :root[data-fx]:not([data-motion='paused']) dialog[open] :is(.mm__actions > *, .mm__nav > *, .sheet__rows li) {
+    animation-name: fx-in-rise; animation-duration: 0.5s; animation-timing-function: var(--fx-ease); animation-fill-mode: both;
+    animation-delay: calc(0.06s + var(--ci, 0) * 0.045s);
+  }
+  :is(.mm__actions, .mm__nav, .sheet__rows ul) > :nth-child(2) { --ci: 1; }
+  :is(.mm__actions, .mm__nav, .sheet__rows ul) > :nth-child(3) { --ci: 2; }
+  :is(.mm__actions, .mm__nav, .sheet__rows ul) > :nth-child(4) { --ci: 3; }
+  :is(.mm__actions, .mm__nav, .sheet__rows ul) > :nth-child(5) { --ci: 4; }
+  :is(.mm__actions, .mm__nav, .sheet__rows ul) > :nth-child(6) { --ci: 5; }
+  :is(.mm__actions, .mm__nav, .sheet__rows ul) > :nth-child(n + 7) { --ci: 6; }
+
+  /* Chip price: the new number cross-fades in (class re-added by site.ts on every change) */
+  :root[data-fx]:not([data-motion='paused']) .fx-swap { animation-name: fx-swap; animation-duration: 0.45s; animation-timing-function: var(--fx-ease); }
+
+  /* ---------- 2 · Scroll reveals ([data-rv] set by motion.ts, below the fold only) ---------- */
+  /* Sections and staggered items: fade and rise. --d is the stagger set per batch. */
+  :root[data-fx]:not([data-motion='paused']) :is([data-rv='section'], [data-rv='rise']) {
+    opacity: 1; translate: 0 0;
+    transition-property: opacity, translate; transition-duration: 0.8s, 0.9s; transition-timing-function: var(--fx-ease); transition-delay: var(--d, 0ms);
+  }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='section']:not(.is-in) { opacity: 0; translate: 0 calc(var(--fx-rise) * 0.7); }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='rise']:not(.is-in) { opacity: 0; translate: 0 var(--fx-rise); }
+
+  /* Images: a soft curtain from the bottom, the photo settling inside it */
+  :root[data-fx]:not([data-motion='paused']) [data-rv='img'] { clip-path: inset(0 0 0 0); transition: clip-path 0.9s var(--fx-silk) var(--d, 0ms); }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='img']:not(.is-in) { clip-path: inset(100% 0 0 0); }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='img']:not(.arch) img { scale: 1; transition: scale 0.9s var(--fx-ease) var(--d, 0ms), transform 0.8s var(--ease); }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='img']:not(.arch):not(.is-in) img { scale: 1.12; }
+
+  /* Headings and the band quote: words rise from behind their own baseline */
+  :root[data-fx]:not([data-motion='paused']) [data-rv='words'] .w { clip-path: inset(-0.4em -0.6em -0.16em -0.6em); }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='words'] .w > span {
+    opacity: 1; translate: 0 0;
+    transition-property: translate, opacity; transition-duration: 0.8s, 0.6s; transition-timing-function: var(--fx-ease);
+    transition-delay: calc(var(--d, 0ms) + var(--wi, 0) * var(--wstep, 45ms));
+  }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='words']:not(.is-in) .w > span { opacity: 0; translate: 0 115%; }
+  .pq--large blockquote p { --wstep: 60ms; }
+
+  /* Steps: the rule draws left to right, then the number, title and text arrive */
+  :root[data-fx]:not([data-motion='paused']) [data-rv='step'] { position: relative; border-top-color: transparent; }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='step']::before {
+    content: ''; position: absolute; left: 0; right: 0; top: -1px; height: 1px; background: var(--fx-line, var(--text));
+    transform: scaleX(1); transform-origin: left center; transition: transform 0.9s var(--fx-silk) var(--d, 0ms);
+  }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='step']:not(.is-in)::before { transform: scaleX(0); }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='step'] > * {
+    opacity: 1; translate: 0 0;
+    transition-property: opacity, translate; transition-duration: 0.7s, 0.8s; transition-timing-function: var(--fx-ease);
+    transition-delay: calc(var(--d, 0ms) + 0.22s + var(--ci, 0) * 0.09s);
+  }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='step']:not(.is-in) > * { opacity: 0; translate: 0 0.6em; }
+  [data-rv='step'] > :nth-child(2) { --ci: 1; }
+  [data-rv='step'] > :nth-child(3) { --ci: 2; }
+
+  /* Spa doors: outer arch, then the inner arch, then the threshold */
+  :root[data-fx]:not([data-motion='paused']) [data-rv='door'] .door-svg path { stroke-dasharray: 1 1; stroke-dashoffset: 0; transition: stroke-dashoffset 0.9s var(--fx-silk) var(--d, 0ms); }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='door'] .door-svg .i { transition-delay: calc(var(--d, 0ms) + 0.25s); }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='door'] .door-svg .t { transition-duration: 0.6s; transition-delay: calc(var(--d, 0ms) + 0.5s); }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='door']:not(.is-in) .door-svg path { stroke-dashoffset: 1; }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='door'] .door-card__inner > * { opacity: 1; transition: opacity 0.8s var(--fx-ease) calc(var(--d, 0ms) + 0.45s); }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='door']:not(.is-in) .door-card__inner > * { opacity: 0; }
+
+  /* Footer lotus: draws when the footer comes into view */
+  :root[data-fx]:not([data-motion='paused']) [data-rv='lotus'] path { stroke-dasharray: 1 1; stroke-dashoffset: 0; transition: stroke-dashoffset 0.9s var(--fx-ease); transition-delay: calc(var(--pi, 0) * 0.09s); }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='lotus']:not(.is-in) path { stroke-dashoffset: 1; }
+
+  /* Gift card: tips up into place */
+  :root[data-fx]:not([data-motion='paused']) [data-rv='gift'] .giftcard__face {
+    opacity: 1; translate: 0 0; rotate: x 0deg;
+    transition-property: opacity, translate, rotate; transition-duration: 0.7s, 0.9s, 0.9s; transition-timing-function: var(--fx-ease); transition-delay: calc(var(--d, 0ms) + 0.1s);
+  }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='gift']:not(.is-in) .giftcard__face { opacity: 0; translate: 0 36px; rotate: x 24deg; }
+}
+
+/* ---------- 3 · Parallax drift on large photos (scroll-linked; motion.ts covers browsers without it) ---------- */
+[data-parallax] { --drift: 36px; }
+@media (max-width: 767px) { [data-parallax] { --drift: 18px; } }
+@keyframes fx-drift { from { translate: 0 var(--drift); } to { translate: 0 calc(var(--drift) * -1); } }
+@supports (animation-timeline: view()) {
+  @media screen and (prefers-reduced-motion: no-preference) {
+    :root[data-fx]:not([data-motion='paused']) [data-parallax] {
+      animation-name: fx-drift; animation-duration: auto; animation-timing-function: linear; animation-fill-mode: both;
+      animation-timeline: view(); animation-range: cover 0% cover 100%;
+    }
+  }
+}
+
+@media print {
+  [data-rv], [data-rv] * { opacity: 1 !important; translate: none !important; clip-path: none !important; stroke-dashoffset: 0 !important; }
+  .ticker__track[aria-hidden='true'], .ticker__toggle { display: none !important; }
+}

@@ -1,0 +1,123 @@
+---
+/**
+ * /policies — booking policies (copy 10 #policies; bot/knowledge/policies.md; blueprint §4.6, §4.8, §8.1, G-RwG, G5).
+ * Only what the spa publishes. Unknowns stay out: no-show fee, which services need a deposit, late-arrival
+ * shortening, minimum age, refunds beyond specials [CONFIRM: owner].
+ * The medical-treatments bullet from copy 10 is dropped (status gate).
+ * The Google note is required before Reserve with Google goes live (G-RwG); it renders only once
+ * site.flags.google_booking_live is on (QA m-7), so the site never advertises a channel that doesn't exist yet.
+ * Gift cards: the holiday offer line follows site.json gift_offer (A = none; B/C = the gift kit wording, dated);
+ * "never expire" waits on confirm.json "gift-never-expire" (Q51).
+ */
+import DocPage from '../components/DocPage.astro';
+import { site } from '../lib/site';
+import ConfirmNote from '../components/ConfirmNote.astro';
+import { claimVisible } from '../lib/confirm';
+import { giftOffer } from '../lib/giftOffer';
+import { shortDate } from '../lib/dates';
+// Unconfirmed claims (QA M7/M8) and the Google note (QA m-7: only once Reserve with Google is live)
+const noFees = claimVisible('g0-gift-no-fees');
+const bothSpas = claimVisible('gift-both-spas');
+const notOnSpecials = claimVisible('gift-not-on-specials');
+const neverExpire = claimVisible('gift-never-expire');
+// Holiday gift card offer (site.json gift_offer). Upcoming within 30 days → hidden until its start date.
+const giftView = giftOffer({ days: 30 });
+const gift = giftView?.offer ?? null;
+const giftHidden = !!giftView?.upcoming && !giftView.previewEarly;
+const giftDated = !!gift && /^\d{4}-/.test(gift.starts);
+const google = site.flags.google_booking_live;
+
+const toc = [
+  { id: 'canceling', label: 'Canceling and rescheduling' },
+  { id: 'card-on-file', label: 'Card on file and deposits' },
+  ...(google ? [{ id: 'google', label: 'Bookings made through Google' }] : []),
+  { id: 'arriving', label: 'Arriving and running late' },
+  { id: 'health', label: 'Your health' },
+  { id: 'specials', label: 'Specials' },
+  { id: 'gift-cards', label: 'Gift cards' },
+  { id: 'questions', label: 'Questions' },
+];
+---
+<DocPage
+  title="Booking Policies | Unique Spa House"
+  description={`Booking policies at Unique Spa House: 24-hour cancellation, card on file, ${google ? 'bookings made through Google, ' : ''}specials and gift card terms.`}
+  eyebrow="Good to know before you book"
+  h1="Booking policies"
+  lede="The short version: please give us 24 hours' notice if you need to cancel, arrive a few minutes early, and tell us about anything that affects your treatment."
+  dateLine="Last updated October 24, 2026"
+  toc={toc}
+>
+  <section id="canceling" aria-labelledby="canceling-h">
+    <h2 id="canceling-h">Canceling and rescheduling</h2>
+    <p>Please cancel or reschedule at least 24 hours before your appointment. After that, you may be charged a cancellation fee of $50.</p>
+    <p>You can cancel or reschedule online through your booking confirmation, or call or text us on <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"policies"}'>{site.phone.display}</a>.</p>
+  </section>
+
+  <section id="card-on-file" aria-labelledby="card-h">
+    <h2 id="card-h">Card on file and deposits</h2>
+    <ul>
+      <li>Online booking asks for a card on file. We don't take a deposit online.</li>
+      <li>Some services need a deposit or prepayment, especially on busy weekends and holidays.</li>
+      <li>We never ask for card details by chat, text or email. Cards are entered only on our Square booking page, or by phone with the spa.</li>
+    </ul>
+  </section>
+
+  {google && (
+  <section id="google" aria-labelledby="google-h">
+    <h2 id="google-h">Bookings made through Google</h2>
+    <p>Bookings made through Google don't carry a card hold or the $50 late-cancellation fee.</p>
+    <p>If you can't make it, please still let us know as early as you can, so someone else can take the time.</p>
+  </section>
+  )}
+
+  <section id="arriving" aria-labelledby="arriving-h">
+    <h2 id="arriving-h">Arriving and running late</h2>
+    <p>Please arrive a few minutes early to fill in a short form and settle in.</p>
+    <p>Running late? Call or text us on <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"policies"}'>{site.phone.display}</a> so we can plan around it.</p>
+  </section>
+
+  <section id="health" aria-labelledby="health-h">
+    <h2 id="health-h">Your health</h2>
+    <p>Every visit starts with a short chat about your goals and any health concerns. Please tell us about pregnancy, medicines, allergies or recent surgery before your visit.</p>
+    <p>Pregnant, recently had surgery, or taking medication? Check with your doctor first, and tell us before your visit.</p>
+    <p>Please don't share health details through the website, our forms or Uni. We'll ask at your visit.</p>
+  </section>
+
+  <section id="specials" aria-labelledby="specials-h">
+    <h2 id="specials-h">Specials</h2>
+    <ul>
+      <li>Each special shows its price and end date. To book one, use the Book button on its card: it opens the special's own booking page, so there's no code.</li>
+      <li>You can also call or text us and mention the special by name.</li>
+      <li>Specials may change without notice.</li>
+      <li>One offer per visit. Specials can't be combined with other discounts{notOnSpecials && ' or gift cards'}.<ConfirmNote id="gift-not-on-specials" /></li>
+      <li>No cash value, and no refunds on unused sessions.</li>
+      <li>To reschedule a special, choose a new date before the offer ends.</li>
+      <li>Our 24-hour cancellation policy applies.</li>
+    </ul>
+    <p><a class="link-arrow" href="/specials">See this month's specials</a></p>
+  </section>
+
+  <section id="gift-cards" aria-labelledby="gift-h">
+    <h2 id="gift-h">Gift cards</h2>
+    <ul>
+      <li>{neverExpire && noFees ? 'eGift cards never expire and carry no fees. ' : neverExpire ? 'eGift cards never expire. ' : noFees ? 'eGift cards carry no fees. ' : ''}Balances under $15 can be cashed out.{neverExpire && <ConfirmNote id="gift-never-expire" />}{noFees && <ConfirmNote id="g0-gift-no-fees" />}</li>
+      {bothSpas && <li>Gift cards can be used at both spas, for any service on the menu.<ConfirmNote id="gift-both-spas" /></li>}
+      {notOnSpecials && <li>Gift cards can't be used to pay for specials.<ConfirmNote id="gift-not-on-specials" /></li>}
+      <li>To redeem, book online, then mention your gift card at checkout.</li>
+      <li>You can check a balance or reload a card on our gift card page.</li>
+      {gift && (
+        <li data-gift-option={gift.option} data-ends={giftDated ? gift.ends : undefined}
+            data-starts={giftDated && !giftView?.previewEarly ? gift.starts : undefined}
+            hidden={giftHidden} data-reveal-on-start={giftHidden ? '' : undefined}>
+          {gift.title} {gift.deal} {gift.small}{giftView?.previewEarly && <span class="draft-note draft-note--inline">Shows from {shortDate(gift.starts)}</span>}
+        </li>
+      )}
+    </ul>
+    <p><a class="link-arrow" href="/gift-cards">About gift cards</a></p>
+  </section>
+
+  <section id="questions" aria-labelledby="questions-h">
+    <h2 id="questions-h">Questions</h2>
+    <p>Call or text <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"policies"}'>{site.phone.display}</a>, email <a href={`mailto:${site.email}`}>{site.email}</a>, or <a href="/contact">send us a message</a>.</p>
+  </section>
+</DocPage>

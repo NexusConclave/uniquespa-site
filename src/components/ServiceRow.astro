@@ -1,0 +1,127 @@
+---
+/**
+ * ServiceRow — a menu row for price lists (/menu, hubs): name and one-liner on the left; duration chips,
+ * price (aria-live), location chips and "Book in {city}" on the right. Hairline divider between rows.
+ * Same client behaviour as ServiceCard (data-svc). Use `onlySpa="DM"` for a spa-filtered view.
+ */
+import { getService, type Spa } from '../lib/catalog';
+import { viewService, spaName } from '../lib/serviceView';
+import Icon from './Icon.astro';
+import { pageUid } from '../lib/uid';
+interface Props {
+  service: string;
+  onlySpa?: Spa;
+  headingLevel?: 2 | 3 | 4;
+  title?: string;
+  summary?: string | null;
+  placement?: string;
+  /** false hides the location chips (a spa's own page, where every item is at that spa). Default true. */
+  showWhere?: boolean;
+  /** Optional id for the row (e.g. an in-page anchor). */
+  id?: string;
+  /** true links the name to the service's flagship page when it has one (services.json `flagship`). Default false. */
+  linkFlagship?: boolean;
+  /** true adds a static line with every length and price ("60 min $150 · 90 min $200"), for scannable price lists. Default false. */
+  showAllPrices?: boolean;
+  class?: string;
+}
+const { service, onlySpa, headingLevel = 3, title, summary, placement = 'menu', showWhere = true, id, linkFlagship = false, showAllPrices = false, class: cls } = Astro.props;
+const s = getService(service);
+const v = viewService(s, onlySpa);
+const cur = v.options[0];
+const H = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
+const uid = pageUid(Astro.locals, `row-${v.id}`);
+const name = title ?? v.name;
+const text = summary === undefined ? v.summary : summary;
+const optData = v.options.map((o) => ({
+  price: o.priceText, num: o.priceNumber, suffix: o.suffix, min: o.minutesText, spoken: o.spokenMinutes,
+  links: o.links, locs: o.locations,
+}));
+---
+{v.options.length > 0 && (
+<article id={id} class:list={['row', cls]} data-svc data-svc-name={name} data-svc-id={v.id} data-options={JSON.stringify(optData)}>
+  <div class="row__text">
+    <H class="row__title">{linkFlagship && v.flagship ? <a href={v.flagship}>{name}</a> : name}</H>
+    {text && <p class="row__summary">{text}</p>}
+    {showAllPrices && v.options.length > 1 && (
+      <p class="row__all meta">
+        {v.options.map((o, i) => (
+          <>{i > 0 && <span aria-hidden="true"> · </span>}<span class="row__opt"><span class="nowrap">{o.chip} <b>{o.priceText}</b></span>{!v.single && o.locations.length === 1 && <> ({spaName(o.locations[0])} only)</>}</span></>
+        ))}
+      </p>
+    )}
+    <ul class="where" role="list" aria-label="Where" hidden={!showWhere}>
+      {v.single ? (
+        <li class="where__chip where__chip--single"><Icon name="pin" />{spaName(v.single)} only</li>
+      ) : (
+        v.spas.map((sp) => <li class="where__chip" data-where={sp} hidden={cur.locations.length === 1}>{spaName(sp)}</li>)
+      )}
+      {!v.single && <li class="where__chip where__chip--single" data-where-only hidden={cur.locations.length !== 1}><Icon name="pin" /><span data-where-only-name>{cur.locations.length === 1 ? spaName(cur.locations[0]) : ''}</span> only</li>}
+    </ul>
+  </div>
+  <div class="row__act">
+    {v.options.length > 1 ? (
+      <fieldset class="chips">
+        <legend class="sr-only">Length of {name.toLowerCase()}</legend>
+        <div class="chips__row">
+          {v.options.map((o, i) => (
+            <label class="chip"><input type="radio" name={`len-${uid}`} value={i} checked={i === 0} data-opt={i} /><span>{o.chip}</span></label>
+          ))}
+        </div>
+      </fieldset>
+    ) : null}
+    <p class="row__price" aria-live="polite" aria-atomic="true">
+      <span aria-hidden="true" class="meta"><span data-svc-min>{cur.minutesText}</span> · <b data-svc-price>{cur.priceText}</b></span>
+      <span class="sr-only" data-svc-spoken>{cur.spokenMinutes}, {cur.priceText}</span>
+    </p>
+    <div class="row__book">
+      {v.spas.map((sp) => (
+        <a class="btn btn--outline btn--sm" href={cur.links[sp] ?? v.options.find((o) => o.links[sp])?.links[sp]} target="_blank" rel="noopener"
+          data-book={sp} hidden={!cur.links[sp]} data-track="book_click" data-track-props={JSON.stringify({ spa: sp, service: v.id, placement })}
+        >Book in {spaName(sp)}<span class="sr-only">: {name}, <span data-svc-sr-len>{cur.spokenMinutes}</span> (opens in a new tab)</span></a>
+      ))}
+    </div>
+  </div>
+</article>
+)}
+
+<style>
+  .row {
+    display: grid;
+    gap: 1rem 2.5rem;
+    padding-block: 1.75rem;
+    border-top: 1px solid var(--hairline);
+  }
+  @media (min-width: 900px) { .row { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: start; } }
+  .row__text { display: flex; flex-direction: column; gap: 0.6rem; }
+  .row__title { font-size: var(--fs-h3); }
+  .row__all { font-size: var(--fs-label); }
+  .row__opt { white-space: normal; }
+  .nowrap { white-space: nowrap; }
+  .row__title a { display: inline-flex; align-items: center; min-height: var(--tap); }
+  .row__act { display: flex; flex-direction: column; gap: 0.8rem; }
+  @media (min-width: 900px) { .row__act { align-items: flex-end; text-align: right; } .row__act .chips__row { justify-content: flex-end; } }
+  .row__price { margin: 0; }
+  .row__book { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+  .chips__row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chip { position: relative; display: inline-flex; }
+  .chip input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .chip span {
+    display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 1rem;
+    border: 1px solid var(--border-ui); border-radius: var(--radius-pill);
+    font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); font-variant-numeric: tabular-nums;
+  }
+  .chip input:checked + span { background: var(--text); border-color: var(--text); color: var(--on-dark); }
+  .chip input:hover + span { border-color: var(--text); }
+  .chip input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .where { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+  .where__chip {
+    display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.6rem;
+    border: 1px solid var(--hairline); border-radius: 6px;
+    font-size: var(--fs-meta); line-height: 1.6; color: var(--text-muted); font-stretch: var(--wdth-label); font-weight: 500;
+  }
+  .where__chip--single { border-color: var(--border-ui); }
+  .where__chip :global(svg) { width: 15px; height: 15px; }
+</style>

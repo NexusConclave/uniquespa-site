@@ -1,0 +1,193 @@
+---
+/**
+ * Guide: BABOR facials, which one is right for your skin. Only LIVE facials (catalog); the claims-log name for the
+ * Square "Pure Detox" item (displayName); no on-hold or consult-only treatments; no result claims. Prices, lengths
+ * and spas via lib/catalog + lib/pageHelpers. FAQPage = the visible quick answers + FAQ.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../Section.astro';
+import PageIntro from '../PageIntro.astro';
+import QuickAnswers from '../QuickAnswers.astro';
+import ServiceCard from '../ServiceCard.astro';
+import Faq from '../Faq.astro';
+import AskUni from '../AskUni.astro';
+import HealthNote from '../HealthNote.astro';
+import LastReviewed from '../LastReviewed.astro';
+import Icon from '../Icon.astro';
+import GuideMore from './GuideMore.astro';
+import GuideMedia from './GuideMedia.astro';
+import { getService, getOption, formatMinutes, SPAS, type Service } from '../../lib/catalog';
+import { site } from '../../lib/site';
+import { priceOf, lengthOf, whereText, offeredAt, displayName, inText, listJoin, summaryOf } from '../../lib/pageHelpers';
+import { guideBySlug } from '../../lib/guides';
+import { graph, orgNode, websiteNode, webPageNode, spaNode, serviceNode, breadcrumbNode, faqNode } from '../../lib/schema';
+import '../../styles/pages-b.css';
+import '../../styles/guides.css';
+
+const SLUG = 'babor-facials-which-one';
+const PATH = `/guides/${SLUG}`;
+const REVIEWED = '2026-11-03';
+const H1 = 'BABOR facials: which one is right for your skin?';
+const g = guideBySlug(SLUG);
+
+const BABOR = ['express-hydration', 'pure-detox', 'babor-deep-cleanse', 'babor-sculpt-lift'] as const;
+const svc: Record<string, Service> = Object.fromEntries([...BABOR, 'signature-facial'].map((id) => [id, getService(id)]));
+const name = (id: string) => displayName(svc[id]);
+const facts = (id: string) => { const o = getOption(svc[id]); return `${lengthOf(o)}, ${priceOf(id, o.minutes)}, ${whereText(svc[id])}`; };
+const atDM = BABOR.filter((id) => offeredAt(svc[id], 'DM'));
+const sig = getOption(svc['signature-facial']);
+
+const PICK = [
+  { id: 'express-hydration', skin: 'Dry or tired skin, or not much time', why: 'Our shortest BABOR facial. Hyaluronic serums, a gentle enzyme exfoliation and a hydro-gel mask.' },
+  { id: 'pure-detox', skin: 'Oily, congested or breakout-prone skin', why: 'A BABOR facial chosen for skin that feels oily or clogged.' },
+  { id: 'babor-deep-cleanse', skin: 'You want a thorough deep clean', why: 'A deep cleanse with extractions. Ultrasound, high frequency or a peel are added only if your skin needs them.' },
+  { id: 'babor-sculpt-lift', skin: 'You love a facial massage, or you book in Del Mar', why: 'A sculpting face massage, a BABOR lifting ampoule (a sealed serum vial), an anti-wrinkle mask and LED light.' },
+];
+
+const answers = [
+  { q: 'Which BABOR facial should I book?', a: `Dry or tired skin: ${name('express-hydration')}. Oily or congested skin: ${name('pure-detox')}. A thorough deep clean: ${name('babor-deep-cleanse')}. A sculpting face massage: ${name('babor-sculpt-lift')}. Not sure: our ${inText(name('signature-facial'))}, tailored on the day.` },
+  { q: 'How much are BABOR facials at Unique Spa House?', a: `${BABOR.map((id) => `${name(id)} ${priceOf(id)} (${lengthOf(getOption(svc[id]))})`).join('; ')}. The booking page always shows the latest price.` },
+  { q: 'Can I book a BABOR facial in Del Mar?', a: atDM.length ? `Yes: ${listJoin(atDM.map(name))} is bookable at both spas. Every other facial here is at our San Diego (Mission Valley) spa.` : 'Our BABOR facials are booked at our San Diego (Mission Valley) spa.' },
+  { q: 'Does every facial start with a skin check?', a: 'Yes. We look at your skin and ask about your routine and goals, then explain each step before we start.' },
+];
+
+const faqs = [
+  { q: 'What is BABOR?', a: 'BABOR is the professional skincare brand we use in our facials. Your esthetician chooses the products for your skin on the day.' },
+  { q: 'What is an ampoule?', a: `A small sealed vial of concentrated serum, opened fresh for your facial. The ${name('babor-sculpt-lift')} includes a BABOR lifting ampoule.` },
+  { q: 'Do the facials include extractions?', a: `The ${name('babor-deep-cleanse')} does, and the ${inText(name('signature-facial'))} includes gentle extractions where needed. Tell us if you'd rather skip them.` },
+  { q: 'How often should I have a facial?', a: 'Every 4 to 6 weeks suits most clients. We will work around your schedule and goals.' },
+  { q: 'How should I prepare?', a: 'Skip harsh exfoliants and retinol for 48 hours. Come without makeup if you can, and bring a list of the products you use.' },
+  { q: `Why can't I find the ${name('pure-detox')} on the booking page?`, a: "The booking page may still list it under an older name until the menu is updated. It's the same BABOR facial, at the same price." },
+];
+
+const jsonLd = graph(
+  webPageNode(PATH, H1, { dateModified: REVIEWED }),
+  websiteNode(), orgNode(), ...SPAS.map((sp) => spaNode(sp)),
+  ...BABOR.map((id) => serviceNode(svc[id], { name: name(id), description: summaryOf(svc[id]) })),
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Guides', path: '/guides' }, { name: 'BABOR facials: which one', path: PATH }]),
+  faqNode([...answers, ...faqs]),
+);
+---
+<BaseLayout
+  title="BABOR Facials in San Diego: Which One to Book"
+  description={`Our BABOR facials side by side: dry, oily or congested skin, a deep clean or a sculpting massage. ${name('express-hydration')} ${priceOf('express-hydration')}. San Diego and Del Mar.`}
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Guides', href: '/guides' }, { name: 'BABOR facials' }]}
+    eyebrow="Guide"
+    title={H1}
+    lede={`Choose by how your skin feels. Dry or tired: ${name('express-hydration')}. Oily or congested: ${name('pure-detox')}. A thorough deep clean: ${name('babor-deep-cleanse')}. A sculpting face massage: ${name('babor-sculpt-lift')}, also bookable in Del Mar. Every facial starts with a short skin check.`}
+  >
+    <div class="g-actions">
+      <a class="link-arrow" href="#booking-title">Prices and booking<Icon name="arrow-right" /></a>
+      <a class="link-arrow" href="/facials">All facials<Icon name="arrow-right" /></a>
+    </div>
+    <p class="g-meta">{g.summary}</p>
+    <Fragment slot="aside"><GuideMedia asset="facial-1x1" ratio="1 / 1" /></Fragment>
+  </PageIntro>
+
+  <Section tone="paper" labelledby="answers-title" pad="tight">
+    <QuickAnswers items={answers} title="The short answer" />
+  </Section>
+
+  <Section labelledby="pick-title">
+    <div class="b-head">
+      <h2 id="pick-title">Match the facial to your <em>skin</em></h2>
+      <p>Not a diagnosis, just a starting point. Your esthetician confirms the choice at your skin check.</p>
+    </div>
+    <ul class="g-pick g-pick--2" role="list">
+      {PICK.map((p) => (
+        <li>
+          <h3>{name(p.id)}</h3>
+          <dl>
+            <div><dt>Best starting point for</dt><dd>{p.skin}</dd></div>
+            <div><dt>What's included</dt><dd>{p.why}</dd></div>
+            <div><dt>Length, price and where</dt><dd>{facts(p.id)}</dd></div>
+          </dl>
+        </li>
+      ))}
+    </ul>
+  </Section>
+
+  <Section labelledby="unsure-title" tone="paper">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="unsure-title">Still not sure?</h2>
+      </div>
+      <div class="b-split__body b-prose">
+        <p>Book our {inText(name('signature-facial'))}. {summaryOf(svc['signature-facial'])}</p>
+        <p>It runs {lengthOf(sig)}, and the price is set at your visit, depending on what your skin needs. It's booked at our San Diego (Mission Valley) spa.</p>
+        <p>Prefer a hands-on face massage without the facial steps? Our <a href="/facials#sculpting">sculpting face massages</a> work the face, jawline and neck.</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="expect-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="expect-title">What happens at your facial</h2>
+      </div>
+      <div class="b-split__body">
+        <ol class="b-steps" role="list">
+          <li><span class="b-steps__n" aria-hidden="true">1</span><h3 class="b-steps__t"><span class="sr-only">Step 1: </span>Skin check</h3><p class="b-steps__d">We look at your skin and ask about your routine and goals.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">2</span><h3 class="b-steps__t"><span class="sr-only">Step 2: </span>Your plan</h3><p class="b-steps__d">We explain each step before we start, and adjust if you'd like to skip one.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">3</span><h3 class="b-steps__t"><span class="sr-only">Step 3: </span>Your facial</h3><p class="b-steps__d">In a calm, private room, with BABOR products chosen for your skin.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">4</span><h3 class="b-steps__t"><span class="sr-only">Step 4: </span>Aftercare</h3><p class="b-steps__d">Simple tips and product ideas for home.</p></li>
+        </ol>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="booking-title" tone="paper">
+    <div class="b-head">
+      <h2 id="booking-title">Prices and booking</h2>
+      <p>Book at the spa that offers your facial. Booking opens in a new tab.</p>
+    </div>
+    <ul class="b-cards" role="list">
+      {BABOR.map((id) => <li><ServiceCard service={id} title={name(id)} class="b-card" placement="guide" /></li>)}
+    </ul>
+    <p class="b-note">Prices as currently listed on our online booking menu. The booking page always shows the latest price.</p>
+  </Section>
+
+  <Section labelledby="care-title">
+    <div class="b-head"><h2 id="care-title">Before and after</h2></div>
+    <div class="b-duo">
+      <div class="g-care">
+        <h3>Before your facial</h3>
+        <ul class="b-ticks">
+          <li>Skip harsh exfoliants and retinol for 48 hours.</li>
+          <li>Come without makeup if you can.</li>
+          <li>Bring a list of the products you use.</li>
+          <li>Tell us about allergies or sensitive skin.</li>
+        </ul>
+      </div>
+      <div class="g-care">
+        <h3>After your facial</h3>
+        <ul class="b-ticks">
+          <li>Follow the aftercare tips we give you.</li>
+          <li>Every 4 to 6 weeks suits most clients for the next visit.</li>
+          <li>Tell us next time how your skin felt, so we can adjust.</li>
+        </ul>
+      </div>
+    </div>
+    <HealthNote class="g-health" />
+  </Section>
+
+  <Section labelledby="faq-title" tone="paper">
+    <Faq items={faqs} title="More questions" />
+  </Section>
+
+  <Section labelledby="more-title">
+    <GuideMore current={SLUG} />
+  </Section>
+
+  <Section pad="tight" width="narrow" tone="paper">
+    <div class="b-tail">
+      <p class="g-general">This guide is general information about our facials, not medical or dermatology advice. For a skin condition, please see your doctor or a dermatologist.</p>
+      <AskUni />
+      <LastReviewed date={REVIEWED} />
+    </div>
+  </Section>
+</BaseLayout>

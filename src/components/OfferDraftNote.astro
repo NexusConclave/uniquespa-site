@@ -1,0 +1,12 @@
+---
+/**
+ * OfferDraftNote — the one "Draft offer — needs owner approval" note that every unapproved offer (approved:false in
+ * offers.json) carries wherever it renders: special cards, the home offers band, the gift page holiday block.
+ * Renders nothing for an approved offer. Production builds never render an unapproved offer (lib/offers.ts
+ * isRenderable), so in practice this only shows in PREVIEW (staging). Optional slot: a short suffix.
+ */
+import { isDraft, type Offer } from '../lib/offers';
+interface Props { offer: Offer; class?: string }
+const { offer, class: cls } = Astro.props;
+---
+{isDraft(offer) && <p class:list={['draft-note', cls]}>Draft offer — needs owner approval<slot /></p>}

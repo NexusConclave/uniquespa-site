@@ -1,0 +1,184 @@
+---
+/**
+ * Guide: couples massage in San Diego (planning angle; /massage/couples stays the service page). San Diego only,
+ * generated from the catalog. Prices "for two" via lib/pageHelpers; gift wording via lib/confirm (pending claims
+ * use their safe wording); no "complimentary", no package discount; FAQPage = the visible quick answers + FAQ.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../Section.astro';
+import PageIntro from '../PageIntro.astro';
+import QuickAnswers from '../QuickAnswers.astro';
+import BookChooser from '../BookChooser.astro';
+import PriceTable from '../PriceTable.astro';
+import SpaPanel from '../SpaPanel.astro';
+import Faq from '../Faq.astro';
+import AskUni from '../AskUni.astro';
+import HealthNote from '../HealthNote.astro';
+import LastReviewed from '../LastReviewed.astro';
+import Icon from '../Icon.astro';
+import GuideMore from './GuideMore.astro';
+import SpaDoor from '../SpaDoor.astro';
+import { getService, formatMinutes, formatPrice, giftUrl, spasFor, SPAS } from '../../lib/catalog';
+import { site } from '../../lib/site';
+import { giftCoversVerb } from '../../lib/confirm';
+import { priceOf, lengthOf, listJoin, spaName } from '../../lib/pageHelpers';
+import { guideBySlug } from '../../lib/guides';
+import { graph, orgNode, websiteNode, webPageNode, spaNode, serviceNode, breadcrumbNode, faqNode } from '../../lib/schema';
+import '../../styles/pages-b.css';
+import '../../styles/guides.css';
+
+const SLUG = 'couples-massage-san-diego';
+const PATH = `/guides/${SLUG}`;
+const REVIEWED = '2026-11-03';
+const H1 = 'Couples massage in San Diego: a planning guide';
+const g = guideBySlug(SLUG);
+const couples = getService('couples');
+const spas = spasFor(couples);
+const home = spas[0];
+const homeSpa = site.spas[home];
+const others = SPAS.filter((sp) => !spas.includes(sp));
+const opts = couples.options;
+const first = opts[0];
+const optsText = opts.map((o) => `${lengthOf(o)} massage: ${priceOf('couples', o.minutes)} (a ${formatMinutes(o.minutes, 'visit')} visit)`).join('; ');
+
+const answers = [
+  { q: 'Where can we get a couples massage in San Diego?', a: `At our ${homeSpa.long_name} spa, ${homeSpa.street}, ${homeSpa.city}.${others.length ? ` Couples massage isn't on our ${listJoin(others.map(spaName))} booking menu.` : ''}` },
+  { q: 'How much is a couples massage?', a: `${optsText}. The price is for both of you, and it includes 30 minutes together afterwards.` },
+  { q: "What's included?", a: 'Two massages side by side on two tables in a private room. Then 30 minutes together, with tea or coffee, fresh fruit and cheese. All included.' },
+  { q: 'How do we book?', a: `Book one couples massage online; it's one booking for two people. Or call ${site.phone.display}.` },
+];
+
+const faqs = [
+  { q: 'Can we each choose our own pressure?', a: "Yes. Tell your therapist what you like, and they'll adjust for each of you. Speak up any time." },
+  { q: 'Do we have to be a couple?', a: 'No. Any two people can book it together: partners, friends, a parent and grown-up child.' },
+  { q: 'Can we use a package discount?', a: "No. Couples massages aren't eligible for package discounts." },
+  { q: 'What if one of us is pregnant?', a: 'Please check with your doctor or midwife first, and tell us when you book.' },
+  { q: 'Can we talk during the massage?', a: "Of course. Some couples talk and some prefer quiet. The 30 minutes afterwards are a good time to catch up." },
+  { q: 'Can I give it as a gift?', a: `Yes. Buy an eGift card for the amount you choose, such as ${listJoin(opts.map((o) => formatPrice(o.price))).replace(/ and /, ' or ')}, and they can book online when it suits them.` },
+];
+
+const jsonLd = graph(
+  webPageNode(PATH, H1, { dateModified: REVIEWED }),
+  websiteNode(), orgNode(), ...spas.map((sp) => spaNode(sp)),
+  serviceNode(couples, { description: 'Two tables in a private room, then 30 minutes together with tea or coffee, fresh fruit and cheese. All included.' }),
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Guides', path: '/guides' }, { name: 'Couples massage in San Diego', path: PATH }]),
+  faqNode([...answers, ...faqs]),
+);
+---
+<BaseLayout
+  title="Couples Massage in San Diego: A Planning Guide"
+  description={`Planning a couples massage in San Diego? What's included, 60 or 90 min, prices for two (${priceOf('couples', first.minutes)} for 60 min) and how to book at our Mission Valley spa.`}
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Guides', href: '/guides' }, { name: 'Couples massage' }]}
+    asideWidth="narrow"
+    eyebrow="Guide"
+    title={H1}
+    lede={`Our couples massage is two massages side by side in a private room, then 30 minutes together with tea or coffee, fresh fruit and cheese. It's ${priceOf('couples', first.minutes)} for a ${lengthOf(first)} massage, booked at our ${spaName(home)} spa in Mission Valley.`}
+  >
+    <div class="g-actions">
+      <BookChooser service="couples" minutes={first.minutes} label="Book a couples massage" placement="guide" />
+      <a class="link-arrow" href="/massage/couples">About couples massage<Icon name="arrow-right" /></a>
+    </div>
+    <p class="g-meta">{g.summary}</p>
+    <Fragment slot="aside"><SpaDoor spa={home} showLinks={false} headingLevel={2} class="g-door" /></Fragment>
+  </PageIntro>
+
+  <Section tone="paper" labelledby="answers-title" pad="tight">
+    <QuickAnswers items={answers} title="The short answer" />
+  </Section>
+
+  <Section labelledby="visit-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="visit-title">How the visit <em>goes</em></h2>
+        <p>Plan for the whole visit, not just the massage.</p>
+      </div>
+      <div class="b-split__body">
+        <ol class="b-steps" role="list">
+          <li><span class="b-steps__n" aria-hidden="true">1</span><h3 class="b-steps__t"><span class="sr-only">Step 1: </span>Arrive together, a few minutes early</h3><p class="b-steps__d">There's a short form for each of you.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">2</span><h3 class="b-steps__t"><span class="sr-only">Step 2: </span>A quick chat</h3><p class="b-steps__d">Each therapist asks about the pressure you like and anything we should know about your health.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">3</span><h3 class="b-steps__t"><span class="sr-only">Step 3: </span>Two tables, one private room</h3><p class="b-steps__d">You each have your own therapist, side by side. You undress to your comfort level and stay covered with a sheet.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">4</span><h3 class="b-steps__t"><span class="sr-only">Step 4: </span>30 minutes together</h3><p class="b-steps__d">Afterwards, time to slow down with tea or coffee, fresh fruit and cheese. It's included in the price.</p></li>
+        </ol>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="length-title" tone="paper" id="prices">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="length-title">60 or 90 minutes?</h2>
+        <p>Both include the 30 minutes together. Prices are for two people.</p>
+      </div>
+      <div class="b-split__body">
+        <dl class="g-lengths">
+          {opts.map((o, i) => (
+            <div><dt>{lengthOf(o)}</dt><dd>{i === 0 ? `A full-body massage each. A ${formatMinutes(o.minutes, 'visit')} visit in all. The easiest to fit into a day.` : `More time on the areas you each choose. A ${formatMinutes(o.minutes, 'visit')} visit in all, for a slower afternoon or evening.`}</dd></div>
+          ))}
+        </dl>
+        <PriceTable service="couples" caption="Couples massage: lengths, prices for two and booking links" placement="guide-table" />
+        <p class="b-note">Prices as currently listed on our online booking menu. The booking page always shows the latest price. Booking opens in a new tab.</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="plan-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="plan-title">Planning tips</h2>
+      </div>
+      <div class="b-split__body">
+        <dl class="g-compare">
+          <div><dt>Pick a time that suits you both</dt><dd>Our {spaName(home)} spa is open {homeSpa.hours_text}. If you have a date in mind, book a little ahead.</dd></div>
+          <div><dt>Choosing a massage style</dt><dd>Tell your therapists the pressure you each like at the start; each one works to their own client. If you'd like something specific, call us before you book.</dd></div>
+          <div><dt>Celebrating something?</dt><dd>A birthday, an anniversary or a visit from family? The 30 minutes together afterwards give you time to make an occasion of it.</dd></div>
+          <div><dt>Need to change the time?</dt><dd>Call us on <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"guide"}'>{site.phone.display}</a>. Please give us 24 hours' notice; our <a href="/policies">booking policies</a> explain changes and cancellations.</dd></div>
+        </dl>
+        <HealthNote />
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="gift-title" tone="paper">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="gift-title">Giving it as a <em>gift</em></h2>
+      </div>
+      <div class="b-split__body b-prose">
+        <p>A couples massage makes a thoughtful present for partners, parents and friends. Buy an eGift card online for the amount you choose. An eGift card for {formatPrice(first.price)} {giftCoversVerb()} a {lengthOf(first)} couples massage, and they book a time that suits them.</p>
+        <p><a href={giftUrl()} target="_blank" rel="noopener" data-track="gift_card_click" data-track-props='{"placement":"guide"}'>Buy a gift card<span class="sr-only"> (opens in a new tab)</span></a> or read about <a href="/gift-cards">our gift cards</a>.</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="where-title">
+    <div class="b-head">
+      <h2 id="where-title">Where to find us</h2>
+      {others.length > 0 && <p>Couples massage is booked at our {spaName(home)} spa only.</p>}
+    </div>
+    <div class="b-duo">
+      <SpaPanel spa={home} service="couples" minutes={first.minutes} bookLabel={`Book couples in ${spaName(home)}`} placement="guide-spa">
+        <p>Mission Valley, just off Camino del Rio North.</p>
+      </SpaPanel>
+    </div>
+  </Section>
+
+  <Section labelledby="faq-title" tone="paper">
+    <Faq items={faqs} title="More questions" />
+  </Section>
+
+  <Section labelledby="more-title">
+    <GuideMore current={SLUG} />
+  </Section>
+
+  <Section pad="tight" width="narrow" tone="paper">
+    <div class="b-tail">
+      <p class="g-general">This guide is general information about our spa services, not medical advice.</p>
+      <AskUni />
+      <LastReviewed date={REVIEWED} />
+    </div>
+  </Section>
+</BaseLayout>

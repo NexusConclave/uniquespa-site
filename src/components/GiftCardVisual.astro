@@ -1,0 +1,39 @@
+---
+/** Decorative CSS gift card (no photo until shoot #12). aria-hidden: the surrounding copy carries the meaning. */
+import LotusMark from './LotusMark.astro';
+interface Props { amount?: string; class?: string }
+const { amount, class: cls } = Astro.props;
+---
+<div class:list={['giftcard', cls]} aria-hidden="true">
+  <div class="giftcard__face on-dark">
+    <LotusMark size={34} />
+    <span class="giftcard__brand">Unique Spa House</span>
+    <span class="giftcard__kind">eGift card</span>
+    {amount && <span class="giftcard__amt">{amount}</span>}
+  </div>
+</div>
+<style>
+  .giftcard { perspective: 900px; max-width: 360px; width: 100%; }
+  .giftcard__face {
+    position: relative;
+    aspect-ratio: 1.586;
+    border-radius: 14px;
+    padding: 1.25rem 1.4rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto 1fr auto;
+    align-items: start;
+    gap: 0 0.75rem;
+    transform: rotate(-4deg);
+    box-shadow: 0 30px 50px -28px rgba(52, 18, 4, 0.55), inset 0 0 0 1px rgba(242, 232, 218, 0.14);
+    overflow: hidden;
+  }
+  .giftcard__face::before {
+    content: ''; position: absolute; inset: 10px; border-radius: 9px;
+    border: 1px solid rgba(242, 232, 218, 0.18); pointer-events: none;
+  }
+  .giftcard__face :global(.lotus) { color: var(--on-dark); }
+  .giftcard__brand { font-family: var(--font-serif); font-size: 1.5rem; line-height: 1.1; align-self: center; }
+  .giftcard__kind { grid-column: 1 / -1; grid-row: 3; font-size: var(--fs-meta); color: var(--on-dark-muted); font-stretch: var(--wdth-label); }
+  .giftcard__amt { grid-column: 2; grid-row: 3; justify-self: end; font-family: var(--font-serif); font-size: 2rem; line-height: 1; }
+</style>

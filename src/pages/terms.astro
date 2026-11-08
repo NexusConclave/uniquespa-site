@@ -1,0 +1,81 @@
+---
+/**
+ * /terms — short terms of use for the website. PREVIEW shows "Draft — pending legal review" [CONFIRM: counsel;
+ * legal entity name]. Booking rules live on /policies; privacy on /privacy.
+ */
+import DocPage from '../components/DocPage.astro';
+import { site } from '../lib/site';
+
+const toc = [
+  { id: 'using', label: 'Using this site' },
+  { id: 'booking', label: 'Booking and payment' },
+  { id: 'prices', label: 'Prices and offers' },
+  { id: 'uni-assistant', label: 'Uni, our AI assistant' },
+  { id: 'health', label: 'Health information' },
+  { id: 'content', label: 'Our content' },
+  { id: 'links', label: 'Other websites' },
+  { id: 'liability', label: 'Liability' },
+  { id: 'law', label: 'Law and changes' },
+  { id: 'contact', label: 'Contact' },
+];
+---
+<DocPage
+  title="Terms of Use | Unique Spa House"
+  description="The terms for using the Unique Spa House website, our message forms and Uni, our AI assistant."
+  eyebrow="Terms"
+  h1="Terms of use"
+  lede="By using this website, you agree to these terms. They're short, and written in plain English."
+  dateLine="Effective date: October 24, 2026"
+  draftNote="Draft — pending legal review"
+  toc={toc}
+>
+  <section id="using" aria-labelledby="using-h">
+    <h2 id="using-h">Using this site</h2>
+    <p>This website tells you about Unique Spa House and helps you book. Please use it lawfully, and don't try to disrupt it, copy it wholesale, or send us anything harmful or untrue.</p>
+  </section>
+
+  <section id="booking" aria-labelledby="booking-h">
+    <h2 id="booking-h">Booking and payment</h2>
+    <p>Appointments, payments and gift cards are handled by Square, on Square's pages and under Square's terms. Our <a href="/policies">booking policies</a> (including the 24-hour cancellation policy) apply to every visit.</p>
+  </section>
+
+  <section id="prices" aria-labelledby="prices-h">
+    <h2 id="prices-h">Prices and offers</h2>
+    <p>Prices on this site come from our online booking menu. The booking page always shows the latest price. Specials show their end date and stop on that date. If we make a mistake with a price or an offer, we'll tell you before your visit and you can choose what to do.</p>
+  </section>
+
+  <section id="uni-assistant" aria-labelledby="uni-h">
+    <h2 id="uni-h">Uni, our AI assistant</h2>
+    <p>Uni is an AI assistant, not a person. It can make mistakes. Please check important details, like prices, times and which spa offers a treatment, on the booking page or with our team. Uni doesn't give medical advice. Chats and voice calls may be recorded and transcribed, as explained in our <a href="/privacy">privacy policy</a>.</p>
+  </section>
+
+  <section id="health" aria-labelledby="health-h">
+    <h2 id="health-h">Health information</h2>
+    <p>Information on this site is general and isn't medical advice. Pregnant, recently had surgery, or taking medication? Check with your doctor first, and tell us before your visit.</p>
+  </section>
+
+  <section id="content" aria-labelledby="content-h">
+    <h2 id="content-h">Our content</h2>
+    <p>The words, photos and design on this site belong to Unique Spa House or are used with permission. Product and brand names, such as BABOR, belong to their owners.</p>
+  </section>
+
+  <section id="links" aria-labelledby="links-h">
+    <h2 id="links-h">Other websites</h2>
+    <p>We link to other sites, such as Square, Google Maps, Instagram and Facebook. We're not responsible for their content or how they handle your information.</p>
+  </section>
+
+  <section id="liability" aria-labelledby="liability-h">
+    <h2 id="liability-h">Liability</h2>
+    <p>We work hard to keep this site accurate and available, but we provide it "as is". As far as the law allows, we're not liable for losses that come from using the site. Nothing in these terms limits rights you have by law.</p>
+  </section>
+
+  <section id="law" aria-labelledby="law-h">
+    <h2 id="law-h">Law and changes</h2>
+    <p>These terms are governed by the laws of California. We may update them from time to time; the effective date above shows when they last changed.</p>
+  </section>
+
+  <section id="contact" aria-labelledby="contact-h">
+    <h2 id="contact-h">Contact</h2>
+    <p>Questions? Email <a href={`mailto:${site.email}`}>{site.email}</a> or call <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"terms"}'>{site.phone.display}</a>.</p>
+  </section>
+</DocPage>

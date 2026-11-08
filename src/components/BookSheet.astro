@@ -1,0 +1,152 @@
+---
+/**
+ * BookSheet — the dialog behind every Book tap that isn't tied to a service (§4.0).
+ * Step 1: the spa, as a radio group (remembered in localStorage; shown as "Booking at San Diego · Change").
+ * Step 2: six rows per spa, each a Square deep link; "Full menu" last.
+ * Dialog: focus goes to the heading, Esc closes, focus returns to the opener (site.ts).
+ * Rows read in full, e.g. "Swedish massage, 60 minutes, $150, San Diego".
+ */
+import { SPAS } from '../lib/catalog';
+import { sheetRows } from '../lib/booksheet';
+import { site, spa as spaInfo } from '../lib/site';
+import Icon from './Icon.astro';
+const rowsBySpa = Object.fromEntries(SPAS.map((sp) => [sp, sheetRows(sp)]));
+const firstVisit = site.flags.first_visit_live;
+---
+<dialog id="book-sheet" class="sheet" aria-labelledby="book-title">
+  <div class="sheet__panel">
+    <div class="sheet__head">
+      <h2 id="book-title" class="sheet__title" tabindex="-1">Book a visit</h2>
+      <button type="button" class="sheet__close" data-close aria-label="Close"><Icon name="close" /></button>
+    </div>
+
+    <p class="sheet__chosen" data-sheet-chosen hidden>
+      Booking at <strong data-sheet-spa-name>San Diego</strong>
+      <span aria-hidden="true">·</span>
+      <button type="button" class="link-quiet sheet__change" data-sheet-change aria-controls="sheet-spa">Change<span class="sr-only"> spa</span></button>
+    </p>
+
+    <fieldset id="sheet-spa" class="sheet__spa" data-sheet-spa>
+      <legend class="sheet__legend label">Which spa?</legend>
+      {SPAS.map((sp) => (
+        <label class="spa-opt">
+          <input type="radio" name="book-spa" value={sp} data-spa-name={spaInfo(sp).name} />
+          <span class="spa-opt__text">
+            <span class="spa-opt__name">{spaInfo(sp).name}</span>
+            <span class="spa-opt__street" aria-hidden="true"> · {spaInfo(sp).street_short}</span>
+            <span class="sr-only">, {spaInfo(sp).street}</span>
+          </span>
+          <span class="spa-opt__dot" aria-hidden="true"></span>
+        </label>
+      ))}
+      <p class="meta sheet__hint">Not every treatment is offered at both spas. The list below changes with your choice.</p>
+    </fieldset>
+
+    {SPAS.map((sp) => (
+      <div class="sheet__rows" data-sheet-rows={sp} hidden>
+        <h3 class="sr-only">Popular at {spaInfo(sp).name}</h3>
+        <ul role="list">
+          {rowsBySpa[sp].map((r) => (
+            <>
+              <li data-ends={r.ends} data-starts={r.starts} data-sheet-row={r.key}>
+                <a href={r.href} target="_blank" rel="noopener" data-track="book_click" data-track-props={JSON.stringify({ spa: sp, service: r.service, placement: 'sheet' })}>
+                  <span class="row__name">{r.name}</span>
+                  <span class="row__meta" aria-hidden="true">{r.meta}{r.draft && <span class="row__draft"> · draft offer, needs owner approval</span>}</span>
+                  <span class="sr-only">{r.spoken} (opens in a new tab)</span>
+                  <Icon name="arrow-up-right" class="row__ext" />
+                </a>
+              </li>
+              {r.fallback && (
+                <li data-fallback-for={r.key} hidden>
+                  <a href={r.fallback.href} target="_blank" rel="noopener" data-track="book_click" data-track-props={JSON.stringify({ spa: sp, service: r.fallback.service, placement: 'sheet' })}>
+                    <span class="row__name">{r.fallback.name}</span>
+                    <span class="row__meta" aria-hidden="true">{r.fallback.meta}</span>
+                    <span class="sr-only">{r.fallback.spoken} (opens in a new tab)</span>
+                    <Icon name="arrow-up-right" class="row__ext" />
+                  </a>
+                </li>
+              )}
+            </>
+          ))}
+          {firstVisit && (
+            <li><a href="/specials#first-visit"><span class="row__name">New here? First-visit prices</span><Icon name="arrow-right" class="row__ext" /></a></li>
+          )}
+          <li class="row--menu"><a href="/menu" data-close-on-nav><span class="row__name">Full menu</span><span class="row__meta" aria-hidden="true">Every treatment and price</span><Icon name="arrow-right" class="row__ext" /></a></li>
+        </ul>
+      </div>
+    ))}
+
+    <p class="sheet__foot meta">
+      Not sure? <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"sheet"}'
+        data-call-label={`Call ${site.phone.display}`} data-afterhours-label={`Call and leave a message: ${site.phone.display}`}>Call {site.phone.display}</a>
+      <span aria-hidden="true">·</span>
+      <a href={site.sms} data-track="text_click" data-track-props='{"placement":"sheet"}'>Text us</a>
+      <span aria-hidden="true">·</span>
+      <button type="button" class="link-quiet" data-open="uni" aria-haspopup="dialog">Ask Uni</button>
+    </p>
+  </div>
+</dialog>
+
+<style>
+  .sheet {
+    width: min(100%, 560px);
+    max-width: 100%;
+    max-height: min(92svh, 860px);
+    margin: auto auto 0;
+    padding: 0;
+    border: 0;
+    border-radius: 18px 18px 0 0;
+    background-color: var(--paper);
+    background-image: var(--grain);
+    box-shadow: 0 -20px 60px -20px rgba(52, 18, 4, 0.45);
+    overscroll-behavior: contain;
+  }
+  @media (min-width: 640px) {
+    .sheet { margin: auto; border-radius: 18px; box-shadow: 0 40px 80px -30px rgba(52, 18, 4, 0.55); }
+  }
+  .sheet[open] { animation: sheet-in 0.32s var(--ease); }
+  @keyframes sheet-in { from { opacity: 0; transform: translateY(24px); } }
+  .sheet::backdrop { background: rgba(52, 18, 4, 0.42); }
+  .sheet__panel { padding: 0.5rem clamp(1.1rem, 4vw, 2rem) calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
+  .sheet__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: 0.75rem 0.5rem; }
+  .sheet__title { font-size: clamp(2rem, 1.6rem + 1.5vw, 2.75rem); }
+  .sheet__close { display: grid; place-items: center; width: var(--tap); height: var(--tap); flex: none; border: 1px solid var(--border-ui); border-radius: 50%; background: transparent; }
+  .sheet__close :global(svg) { width: 20px; height: 20px; }
+
+  .sheet__chosen { display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem; font-size: var(--fs-label); margin-bottom: 0.25rem; }
+  .sheet__chosen strong { font-weight: 650; }
+
+  .sheet__spa { display: grid; gap: 0.5rem; margin-block: 0.25rem 1rem; }
+  .sheet__legend { margin-bottom: 0.4rem; }
+  .spa-opt {
+    position: relative; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    min-height: 56px; padding: 0.6rem 1rem;
+    border: 1px solid var(--border-ui); border-radius: 12px;
+    cursor: pointer;
+  }
+  .spa-opt input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .spa-opt__name { font-family: var(--font-serif); font-size: 1.4rem; line-height: 1.1; }
+  .spa-opt__street { font-size: var(--fs-meta); color: var(--text-muted); }
+  .spa-opt__dot { width: 20px; height: 20px; flex: none; border: 1px solid var(--border-ui); border-radius: 50%; display: grid; place-items: center; }
+  .spa-opt:has(input:checked) { border-color: var(--text); background: rgba(52, 18, 4, 0.04); }
+  .spa-opt:has(input:checked) .spa-opt__dot { border-color: var(--text); box-shadow: inset 0 0 0 5px var(--paper); background: var(--text); }
+  .spa-opt:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .sheet__hint { margin-top: 0.25rem; }
+
+  .sheet__rows ul { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--hairline); }
+  .sheet__rows li { border-bottom: 1px solid var(--hairline); }
+  .sheet__rows a {
+    display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: 1rem;
+    min-height: 64px; padding: 0.7rem 0.25rem;
+    text-decoration: none;
+  }
+  .sheet__rows a:hover .row__name { text-decoration: underline; text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+  .row__name { grid-column: 1; font-family: var(--font-serif); font-size: 1.45rem; line-height: 1.15; }
+  .row__meta { grid-column: 1; font-size: var(--fs-meta); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .row__draft { font-style: normal; }
+  .sheet__rows :global(.row__ext) { grid-column: 2; grid-row: 1 / span 2; width: 18px; height: 18px; color: var(--text-muted); }
+  .row--menu .row__name { font-family: var(--font-sans); font-size: var(--fs-label); font-weight: 600; font-stretch: var(--wdth-label); }
+  .sheet__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; margin-top: 1rem; }
+  .sheet__foot a { color: var(--text); }
+  .sheet__foot .link-quiet { color: var(--text); font-size: var(--fs-meta); }
+</style>

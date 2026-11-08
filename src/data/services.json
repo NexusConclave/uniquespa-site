@@ -1,0 +1,1227 @@
+{
+ "note": "Site catalog. Status: live | hold | consult | hidden. Medical: yes | no | pending. Prices and minutes come from square-lock.json (captured 2026-10-23). Never show hold/consult/hidden items or medical names. addons: extras a guest adds in the Square booking flow next to a service of that group. Shown as one line (lib/catalog liveAddOns + AddOnLine) with no Book link of their own. Only list extras that exist on Square.",
+ "services": [
+  {
+   "id": "swedish",
+   "name": "Swedish massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "J7KUIIPVUMSJ2XQNGDRRHACZ",
+     "price": 150,
+     "minutes": 60,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Swedish Massage 60 min (Top Massage Therapist)"
+    },
+    {
+     "label": "90 min",
+     "square_id": "32OTYPLAXE5CZVA7QOPR4T5E",
+     "price": 200,
+     "minutes": 90,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Swedish massage 90 min (Top Massage Therapist)"
+    },
+    {
+     "label": "120 min",
+     "square_id": "TPRWAKXYGPW7KFXA6ET7L7WM",
+     "price": 250,
+     "minutes": 120,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Swedish Massage 120 min (Top Massage Therapist)"
+    }
+   ],
+   "summary": "Long, flowing strokes to help you unwind.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "deep-tissue",
+   "name": "Deep tissue massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "30 min",
+     "square_id": "4SP5L4GZLH7XURKHPNMBTFOH",
+     "price": 120,
+     "minutes": 30,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Deep tissue 30 min (Top massage therapist)"
+    },
+    {
+     "label": "60 min",
+     "square_id": "WIYSGZKZBFVYANQINUXR7F3Q",
+     "price": 165,
+     "minutes": 60,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Deep Tissue Massage 60 min (Top Massage Therapist)"
+    },
+    {
+     "label": "90 min",
+     "square_id": "3XQVNTCO5D66VPF4FALNHGHX",
+     "price": 225,
+     "minutes": 90,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Deep Tissue Massage 90 min (Top Massage Therapist)"
+    },
+    {
+     "label": "120 min",
+     "square_id": "7FT74RUYMFDKG24JE42QHCF3",
+     "price": 275,
+     "minutes": 120,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Deep Tissue Massage 120 min (Top Massage Therapist)"
+    }
+   ],
+   "summary": "Slower, firmer work on deeper layers of muscle.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "therapeutic",
+   "name": "Therapeutic massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "30 min",
+     "square_id": "RMTICQYVNDZV65EBYBWG7JRT",
+     "price": 120,
+     "minutes": 30,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Therapeutic Massage, 30 min (Top massage therapist)"
+    },
+    {
+     "label": "60 min",
+     "square_id": "5OSJY5FTE7WQGAUWKO7YACJY",
+     "price": 165,
+     "minutes": 60,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Therapeutic Massage, 60 min (Top massage therapist)"
+    },
+    {
+     "label": "90 min",
+     "square_id": "R36KI2BNFS2QP36DBUTCZLEB",
+     "price": 225,
+     "minutes": 90,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Therapeutic Massage, 90 min (Top massage therapist)"
+    }
+   ],
+   "summary": "Focused work on the areas that need it most.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "sports",
+   "name": "Sports massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "NCWPANQ47NQO3FCUPJAZ5XI2",
+     "price": 165,
+     "minutes": 60,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Sports Massage 60 min (Top Massage Therapist)"
+    },
+    {
+     "label": "90 min",
+     "square_id": "PGTFLHK27EQSII4FKR3PW6HX",
+     "price": 225,
+     "minutes": 90,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Sports Massage 90 min (Top Massage Therapist)"
+    },
+    {
+     "label": "120 min",
+     "square_id": "7ODRIO7BFFCMGL5VMHIBWXMI",
+     "price": 275,
+     "minutes": 120,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Sports Massage 120 min (Top Massage Therapist)"
+    },
+    {
+     "label": "90 min with stretching",
+     "square_id": "PRGLVMFSCKTMVS6AEMHQBGXJ",
+     "price": 235,
+     "minutes": 90,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Sports Massage + Stretching 90 min (Top Massage Therapist)"
+    }
+   ],
+   "summary": "For training, recovery and active bodies.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "lymphatic",
+   "name": "Lymphatic drainage massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "W4OL72LTHTKTPIUWGRF757JH",
+     "price": 150,
+     "minutes": 60,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Lymphatic Massage 60 min (Top Massage Therapist)"
+    },
+    {
+     "label": "90 min",
+     "square_id": "SUA4OVPO4ULNIEGP2OO7HTXU",
+     "price": 200,
+     "minutes": 90,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Lymphatic Massage 90 min (Top Massage Therapist)"
+    },
+    {
+     "label": "120 min",
+     "square_id": "REISDT7UKUD62TS2E7OIUO2J",
+     "price": 250,
+     "minutes": 120,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Lymphatic Massage 120 min (Top Massage Therapist)"
+    }
+   ],
+   "summary": "Gentle, rhythmic strokes; the only massage on our menu that includes gentle tummy work.",
+   "flagship": "/massage/lymphatic-drainage",
+   "notes": null
+  },
+  {
+   "id": "relaxing",
+   "name": "Relaxing massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "90 min",
+     "square_id": "GDLGAFIU5RWB3QCXBPUNMEW5",
+     "price": 200,
+     "minutes": 90,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Relaxing Massage"
+    }
+   ],
+   "summary": "Slow, soothing pressure to switch off.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "hot-stone",
+   "name": "Hot stone massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "VYAAHMF2P67UMSE73XJN6D24",
+     "price": 150,
+     "minutes": 60,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Hot Stone massage"
+    }
+   ],
+   "summary": "Warm stones melt tension as you relax.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "thai",
+   "name": "Thai massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "RMDZVT7EW5N3DCAJA7KC7GGS",
+     "price": 150,
+     "minutes": 60,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Tai Massage 60 min"
+    },
+    {
+     "label": "90 min",
+     "square_id": "GNPDZWBCNOLBT4HWWSKWMILV",
+     "price": 180,
+     "minutes": 90,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Tai Massage 90 min"
+    }
+   ],
+   "summary": "Assisted stretches and pressure, done clothed.",
+   "flagship": null,
+   "notes": "Square name \"Tai\"; O-18 rename pending"
+  },
+  {
+   "id": "prenatal",
+   "name": "Prenatal massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "7BORZCKYCOXC53RXIAV52PX5",
+     "price": 160,
+     "minutes": 60,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Prenatal Massage"
+    }
+   ],
+   "summary": "Positioning and pressure adjusted for each stage of pregnancy.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "postnatal",
+   "name": "Postnatal massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "DTODUJOS37OREP5ALU5MGFEK",
+     "price": 160,
+     "minutes": 60,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Postnatal Massage"
+    }
+   ],
+   "summary": "Gentle care for the weeks and months after birth.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "anti-cellulite",
+   "name": "Anti-cellulite massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "JOQ7Q2Q6QPZ2ELH5VVFOYCJJ",
+     "price": 160,
+     "minutes": 60,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Anti-Cellulite Massage, 60 min (Top Massage Therapist)"
+    },
+    {
+     "label": "90 min",
+     "square_id": "2SOLB3YGXZ3UCEYJ3MGV5EQ5",
+     "price": 210,
+     "minutes": 90,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Anti-Cellulite Massage, 90 min (Top Massage Therapist)"
+    }
+   ],
+   "summary": "Firm, brisk massage focused on hips, thighs and legs.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "brazilian-butt",
+   "name": "Brazilian butt massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "FK56S3RXXX7MDQYZ3SKD5ZJT",
+     "price": 180,
+     "minutes": 60,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Brazilian Butt Massage 60 min (Top Massage Therapist)"
+    },
+    {
+     "label": "90 min",
+     "square_id": "PP6XV5CFKHPQMCUAQPUKXIMJ",
+     "price": 260,
+     "minutes": 90,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Brazilian Butt Massage 90 min (Top Massage Therapist)"
+    }
+   ],
+   "summary": "Massage with Brazilian wooden tools.",
+   "flagship": null,
+   "notes": "Menu row only: never a card or image"
+  },
+  {
+   "id": "foot",
+   "name": "Foot massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "30 min",
+     "square_id": "KL7AXKFRKGPORE3ZPJNJRWNO",
+     "price": 100,
+     "minutes": 30,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Foot Massage 30 min"
+    }
+   ],
+   "summary": "Thirty minutes for tired feet.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "couples",
+   "name": "Couples massage",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min, for two",
+     "square_id": "QTJAGJ2NE5W6I7A3WEPZ5JPI",
+     "price": 336,
+     "minutes": 120,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Couples Massage, 60 min"
+    },
+    {
+     "label": "90 min, for two",
+     "square_id": "5LBW2B3AK4NUQCRPAAMBGWDO",
+     "price": 436,
+     "minutes": 135,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Couples Massage, 90 min"
+    }
+   ],
+   "summary": "Side by side in a private room, then 30 minutes together with tea or coffee, fruit and cheese.",
+   "flagship": "/massage/couples",
+   "notes": null
+  },
+  {
+   "id": "katy",
+   "name": "Massage with Katy, owner",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "VUHCC2QWXVAAHTZ74TS7NSVQ",
+     "price": 165,
+     "minutes": 60,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Any 60 min Massage with Katy (owner)"
+    },
+    {
+     "label": "90 min",
+     "square_id": "YIWAUSGWSOHAV5OCGFFM6S3Q",
+     "price": 225,
+     "minutes": 90,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Any 90 min Massage with Katy (owner)"
+    },
+    {
+     "label": "120 min",
+     "square_id": "ZIBZ7HVEVR5X6TQSCLYUC2KA",
+     "price": 275,
+     "minutes": 120,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Any 120 min Massage with Katy (owner)"
+    }
+   ],
+   "summary": "Lymphatic, deep tissue, sports, relaxing or a mix, with the owner.",
+   "flagship": "/massage/with-katy",
+   "notes": null
+  },
+  {
+   "id": "liposuction-massage",
+   "name": "Liposuction massage",
+   "group": "massage",
+   "status": "hold",
+   "medical": "no",
+   "options": [
+    {
+     "label": "about 3 hours, one area",
+     "square_id": "EMOHQ67OC2IOOJ2AMUM6Y3GN",
+     "price": 436,
+     "minutes": 180,
+     "locations": [
+      "DM"
+     ],
+     "square_name": "Liposuction Massage (Top Massage Therapist)"
+    }
+   ],
+   "summary": "A long, focused session on one area.",
+   "flagship": null,
+   "notes": "HOLD (review #2, 4 Nov 2026): not named, priced or bookable anywhere until Katy answers Q13 (what it is, who it is for, post-surgery clearance). O-17: contents and name to confirm. To bring back: set status live and re-add the check-leaks.mjs allow-list."
+  },
+  {
+   "id": "babor-sculpt-lift",
+   "name": "BABOR Sculpt & Lift ritual",
+   "group": "facials",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "90 min",
+     "square_id": "2ILLETQEH4NCTFFGRA3XCTZW",
+     "price": 186,
+     "minutes": 90,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Babor sculpt and lift ritual"
+    }
+   ],
+   "summary": "Sculpting facial massage, a BABOR lifting ampoule, mask and LED.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "babor-deep-cleanse",
+   "name": "BABOR Deep Cleanse & Glow ritual",
+   "group": "facials",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "90 min",
+     "square_id": "ETSSY3BPLN4WMQGGWOBMGCF6",
+     "price": 220,
+     "minutes": 90,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Babor Deep Cleans & Glow ritual 60-120 min"
+    }
+   ],
+   "summary": "Deep cleansing with extractions where needed.",
+   "flagship": null,
+   "notes": "SD only; Square category Specials"
+  },
+  {
+   "id": "signature-facial",
+   "name": "Signature custom facial",
+   "group": "facials",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 to 120 min",
+     "square_id": "AKCRLOX6JJFFZQIURABQ6XSD",
+     "price": null,
+     "minutes": 120,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Signature Custom Facial 60-120 min"
+    }
+   ],
+   "summary": "Customised after a skin assessment; price set at your visit.",
+   "flagship": null,
+   "notes": "Square price 0 / varies: show \"Price set at your visit (from $164)\" — menu knowledge says from $164"
+  },
+  {
+   "id": "pure-detox",
+   "name": "Pure Cleanse and Rebalance facial",
+   "group": "facials",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "GHJR5PRWPRMTKMZG3SMI5OML",
+     "price": 164,
+     "minutes": 60,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Pure Detox -  Cleansing and Skin Rebalancing (60 min)"
+    }
+   ],
+   "summary": "BABOR cleansing for oily, congested or breakout-prone skin.",
+   "flagship": null,
+   "notes": "rename pending"
+  },
+  {
+   "id": "express-hydration",
+   "name": "Deep express hydration",
+   "group": "facials",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "45 min",
+     "square_id": "NAPMETWDKBAG3JNDCZQYON76",
+     "price": 119,
+     "minutes": 45,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Deep Express Hydration on Babor cosmetics"
+    }
+   ],
+   "summary": "Hyaluronic hydration, enzyme exfoliation and a hydro-gel mask.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "joelle-ciocco",
+   "name": "Sculpture face massage",
+   "group": "facials",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "AYBATMLQFUC62L5OPW6LITY2",
+     "price": 160,
+     "minutes": 60,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Joëlle Ciocco Sculpture Face Massage, 60 min"
+    }
+   ],
+   "summary": "A manual sculpting face massage.",
+   "flagship": null,
+   "notes": "O-B2: shown as \"Sculpture face massage\" (claims log: rename unless the therapist trained with Joëlle Ciocco's team); the one-liner may say \"inspired by the Paris skin expert Joëlle Ciocco\". Square name unchanged."
+  },
+  {
+   "id": "face-sculpture",
+   "name": "Face massage sculpture and lifting",
+   "group": "facials",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "MRTM7JQMJLNK3KKVHMJ7BVOW",
+     "price": 160,
+     "minutes": 60,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Face Massage Sculpture + Lifting"
+    }
+   ],
+   "summary": "Manual massage for face, jawline and neck.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "foot-glow",
+   "name": "Royal Foot & Glow ritual",
+   "group": "facials",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "90 min",
+     "square_id": "QCKMHDRE5BJ5RBSMF5KKYFLB",
+     "price": 149,
+     "minutes": 90,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "October Special: Royal Foot & Glow Renewal Ritual (90 min)"
+    }
+   ],
+   "summary": "Foot steam, scrub, massage and paraffin, plus a facial cleanse while it sets.",
+   "flagship": null,
+   "notes": "October special item; offer only while live"
+  },
+  {
+   "id": "lymphatic-luxe",
+   "name": "Lymphatic LUXE renewal",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "120 min",
+     "square_id": "ZL6LISB6GX4P7WMPYF46F6ZX",
+     "price": 199,
+     "minutes": 120,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "October Special:  120 min Lymphatic LUXE Renewal treatment"
+    }
+   ],
+   "summary": "60 min lymphatic drainage, then neck and face lymphatic work, a hand massage and a hydrating mask.",
+   "flagship": null,
+   "notes": "October special item; offer only while live"
+  },
+  {
+   "id": "lymphatic-body-face",
+   "name": "Lymphatic Body & Face",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "90 min",
+     "square_id": "5DG36PERSRQXHJN2AXXIJX2O",
+     "price": 164,
+     "minutes": 90,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "November Special: Lymphatic Body & Face 90 min"
+    }
+   ],
+   "summary": "60 min full-body lymphatic massage by hand, then 30 min of gentle neck and face lymphatic massage.",
+   "flagship": null,
+   "notes": "November special item; offer only while live"
+  },
+  {
+   "id": "hydro-facial",
+   "name": "Hydro facial (Glass Skin Glow by Glacē)",
+   "group": "facials",
+   "status": "hold",
+   "medical": "no",
+   "options": [
+    {
+     "label": "60 min",
+     "square_id": "VSU7BVXWGFACRNM4M5IKLIRZ",
+     "price": 239,
+     "minutes": 60,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Hydro facial (Glass Skin Glow by Glace)  60 min"
+    },
+    {
+     "label": "120 min, with deep cleaning",
+     "square_id": "3ZSWZ74S6UYSJ35TZ24M6OXD",
+     "price": 319,
+     "minutes": 120,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Hydro facial + deep cleaning (Glass Skin Glow by Glacé)  120min"
+    }
+   ],
+   "summary": "Hydrodermabrasion, serum, mask and LED.",
+   "flagship": "/facials/hydro-facial",
+   "notes": "O-19 peel product"
+  },
+  {
+   "id": "buccal",
+   "name": "Buccal massage",
+   "group": "facials",
+   "status": "hold",
+   "medical": "no",
+   "options": [
+    {
+     "label": "30 min",
+     "square_id": "ZEZPVQUJDE64VXFFBSAAZGYA",
+     "price": 120,
+     "minutes": 30,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "Buccal Massage 30 min"
+    },
+    {
+     "label": "90 min European buccal sculpt",
+     "square_id": "WHQBOWROOWLWSMWZFRPFNOB5",
+     "price": 164,
+     "minutes": 90,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "October Special: European Buccal Sculpt Facial 90 min (reg price $285)"
+    }
+   ],
+   "summary": "Face massage worked outside and inside the mouth, with gloves.",
+   "flagship": "/facials/buccal-massage",
+   "notes": "O-4 scope"
+  },
+  {
+   "id": "lpg",
+   "name": "LPG Endermologie",
+   "group": "body",
+   "status": "hold",
+   "medical": "pending",
+   "options": [
+    {
+     "label": "Body 40 min",
+     "square_id": "ZLNV2O4I6VHAREE4SOKA5J3F",
+     "price": 120,
+     "minutes": 40,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "LPG Endermologie Body 40 min"
+    },
+    {
+     "label": "Body 60 min",
+     "square_id": "MYJ23N4V34NGCGURL23YZEBV",
+     "price": 175,
+     "minutes": 60,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "LPG Endermologie Body, 60 min"
+    },
+    {
+     "label": "Face 40 min",
+     "square_id": "RAXQJTAZYCLLHYWY7DWNK3UJ",
+     "price": 120,
+     "minutes": 40,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "LPG Endermologie Face 40 min"
+    },
+    {
+     "label": "Body + face 80 min",
+     "square_id": "SYWRKZR3BQ4O5KKLYD3VCCTK",
+     "price": 136,
+     "minutes": 80,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "Promotion: LPG Endermologie body and Face"
+    }
+   ],
+   "summary": "Mechanical massage with suction and rollers, in an Endermowear suit.",
+   "flagship": null,
+   "notes": "O-15 suit, O-2 operator"
+  },
+  {
+   "id": "wrap-me-up",
+   "name": "Wrap Me Up body wrap",
+   "group": "body",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "80 min",
+     "square_id": "23BUGHKYIDSFAJW4DETGTIWE",
+     "price": 199,
+     "minutes": 80,
+     "locations": [
+      "DM"
+     ],
+     "square_name": "Wrap Me Up"
+    },
+    {
+     "label": "2 hr, with 60 min massage",
+     "square_id": "ZPP5B6RUORYKOGV44YE5ICUO",
+     "price": 299,
+     "minutes": 120,
+     "locations": [
+      "DM"
+     ],
+     "square_name": "Wrap Me Up + 60 min Massage"
+    }
+   ],
+   "summary": "A warming body wrap, on its own or with a 60 minute massage.",
+   "flagship": null,
+   "notes": null
+  },
+  {
+   "id": "med-t-shape",
+   "name": "T-Shape",
+   "group": "medical",
+   "status": "consult",
+   "medical": "yes",
+   "options": [
+    {
+     "square_id": "3WCKEWHGBNJU54RWSMWWAT77",
+     "square_name": "T-Shape Mesosphere, 40min",
+     "price": 130,
+     "minutes": 40,
+     "locations": [
+      "SD",
+      "DM"
+     ]
+    },
+    {
+     "square_id": "VU3SQFZR3B5UODEDEUB2X2PQ",
+     "square_name": "T-Shape Mesosphere, 60min",
+     "price": 160,
+     "minutes": 60,
+     "locations": [
+      "SD",
+      "DM"
+     ]
+    },
+    {
+     "square_id": "LHADTFKP3JPINPZZB7PJH5N3",
+     "square_name": "T-Shape Vacuum RF + Laser Body Massage, 40 min",
+     "price": 179,
+     "minutes": 40,
+     "locations": [
+      "SD",
+      "DM"
+     ]
+    },
+    {
+     "square_id": "2AHHYKAOWOROK2LZK7GEAVJB",
+     "square_name": "T-Shape Vacuum RF + Laser Body Massage, 60 min",
+     "price": 219,
+     "minutes": 60,
+     "locations": [
+      "SD",
+      "DM"
+     ]
+    },
+    {
+     "square_id": "G3AHC5SPGEB2OWOQHC7MXO7X",
+     "square_name": "T-Shape Vacuum RF + Laser body Massage, 30 min",
+     "price": 149,
+     "minutes": 30,
+     "locations": [
+      "SD",
+      "DM"
+     ]
+    },
+    {
+     "square_id": "SEYKJRKTUBOCZJJP5OWPOGIT",
+     "square_name": "T-Shape body contouring 120 min",
+     "price": 279,
+     "minutes": 120,
+     "locations": [
+      "SD",
+      "DM"
+     ]
+    },
+    {
+     "square_id": "4V7BKB6TF2AICH37UPTMPBT6",
+     "square_name": "T-Shape RF Vacuum Mesoporation Face",
+     "price": 189,
+     "minutes": 40,
+     "locations": [
+      "SD",
+      "DM"
+     ]
+    },
+    {
+     "square_id": "IR2BWOUPVAEMLDBCGMCI7XRA",
+     "square_name": "T-Shape RF Vacuum Mesoporation Face",
+     "price": 159,
+     "minutes": 30,
+     "locations": [
+      "SD",
+      "DM"
+     ]
+    },
+    {
+     "square_id": "TAGQINQFKDJU7PGGMI5DAAOT",
+     "square_name": "October special: T-shape body 40 min + T-shape face 30 min",
+     "price": 199,
+     "minutes": 70,
+     "locations": [
+      "SD",
+      "DM"
+     ]
+    }
+   ],
+   "summary": null,
+   "flagship": null,
+   "notes": "T0: never shown by name; leads only"
+  },
+  {
+   "id": "med-t-sculpt",
+   "name": "T-Sculpt",
+   "group": "medical",
+   "status": "consult",
+   "medical": "yes",
+   "options": [
+    {
+     "square_id": "TPRHQPE2PW3BG4FX2DXAXEIS",
+     "square_name": "October Special: 90 min T-Sculpt Body Massage (Regular price $299)",
+     "price": 219,
+     "minutes": 90,
+     "locations": [
+      "SD",
+      "DM"
+     ]
+    }
+   ],
+   "summary": null,
+   "flagship": null,
+   "notes": "T0: never shown by name; leads only"
+  },
+  {
+   "id": "med-ems",
+   "name": "EMS",
+   "group": "medical",
+   "status": "consult",
+   "medical": "yes",
+   "options": [
+    {
+     "square_id": "E4F6AIRSH7BAAKLIRGO3BKBN",
+     "square_name": "EMS",
+     "price": 70,
+     "minutes": 35,
+     "locations": [
+      "SD"
+     ]
+    }
+   ],
+   "summary": null,
+   "flagship": null,
+   "notes": "T0: never shown by name; leads only"
+  },
+  {
+   "id": "med-rf-lifting",
+   "name": "RF lifting",
+   "group": "medical",
+   "status": "consult",
+   "medical": "yes",
+   "options": [
+    {
+     "square_id": "VGCNAGLRLIJJZNDIIT64AU2H",
+     "square_name": "Joëlle Ciocco Sculpture Face Massage + RF Lifting",
+     "price": 199,
+     "minutes": 90,
+     "locations": [
+      "SD"
+     ]
+    },
+    {
+     "square_id": "5DN3W2A45O64OSA5D2XQWB33",
+     "square_name": "LPG Endermologie Face + RF Lifting (face + neckline)",
+     "price": 186,
+     "minutes": 75,
+     "locations": [
+      "SD"
+     ]
+    }
+   ],
+   "summary": null,
+   "flagship": null,
+   "notes": "T0: never shown by name; leads only"
+  },
+  {
+   "id": "med-microneedling",
+   "name": "Microneedling",
+   "group": "medical",
+   "status": "consult",
+   "medical": "yes",
+   "options": [
+    {
+     "square_id": "WAQ7E6EDHMBZ6XYG7I3EPKBZ",
+     "square_name": "Microneedeling with Salmon DNA (per treatment)",
+     "price": 399,
+     "minutes": 70,
+     "locations": [
+      "SD"
+     ]
+    },
+    {
+     "square_id": "3MQIQNL27AIINXW6K4TADL7W",
+     "square_name": "October Special: Buy 6 Get 2 free  Microneedling with BABOR Exosomes (Face + Neck) + 2 TSA 30% peel",
+     "price": 199,
+     "minutes": 70,
+     "locations": [
+      "SD"
+     ]
+    }
+   ],
+   "summary": null,
+   "flagship": null,
+   "notes": "T0: never shown by name; leads only"
+  },
+  {
+   "id": "med-weight-loss",
+   "name": "Weight loss",
+   "group": "medical",
+   "status": "consult",
+   "medical": "yes",
+   "options": [
+    {
+     "square_id": "HMIA5QOP2CP34VJSDF7TQ7OH",
+     "square_name": "Weight loss consultation",
+     "price": 0,
+     "minutes": 30,
+     "locations": [
+      "SD"
+     ]
+    },
+    {
+     "square_id": "WXPQNE2MCEWZTHDQ742BLZVS",
+     "square_name": "Weightloss consultation",
+     "price": 0,
+     "minutes": 30,
+     "locations": [
+      "SD",
+      "DM"
+     ]
+    }
+   ],
+   "summary": null,
+   "flagship": null,
+   "notes": "T0: never shown by name; leads only"
+  },
+  {
+   "id": "bamboo",
+   "name": "Bamboo deep tissue (Sept special)",
+   "group": "massage",
+   "status": "hidden",
+   "medical": "no",
+   "options": [
+    {
+     "label": "90 min",
+     "square_id": "R3AZCBBXGXCSRK4Z7MWAB7V3",
+     "price": 199,
+     "minutes": 90,
+     "locations": [
+      "SD"
+     ],
+     "square_name": "September special: bamboo deep tissue massage body 90 min (reg price $245)"
+    }
+   ],
+   "summary": null,
+   "flagship": null,
+   "notes": "O-P3 validity"
+  }
+ ],
+ "addons": [
+  {
+   "id": "hot-stones-or-cupping",
+   "name": "hot stones or cupping",
+   "group": "massage",
+   "status": "live",
+   "medical": "no",
+   "options": [
+    {
+     "label": "10 min",
+     "square_id": "EWKMFQK4BTONSGNIWNUISKAR",
+     "price": 10,
+     "minutes": 10,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "$10 to add 10 min of cupping or hot stones"
+    },
+    {
+     "label": "20 min",
+     "square_id": "ZCJEJ6W63JZOGZUHZ2ZUVZRG",
+     "price": 20,
+     "minutes": 20,
+     "locations": [
+      "SD",
+      "DM"
+     ],
+     "square_name": "$20 to add 20 mins of cupping or hot stones"
+    }
+   ],
+   "notes": "Decision Q3 (2 Nov 2026): on /menu and every massage page. Square items confirmed by exact name in the 2 Nov capture, both spas."
+  }
+ ]
+}

@@ -1,0 +1,51 @@
+---
+/**
+ * AddOnLine — the add-on line for a service group, from services.json `addons` (prices via the lockfile):
+ *   "Add hot stones or cupping to any massage: 10 min $10, 20 min $20. Both spas. Add it when you book."
+ * No Book link: the guest adds it in the Square booking flow next to their massage (multi-service booking).
+ * Renders nothing when the group has no live add-on. Used on /menu (per group) and on every massage page.
+ */
+import { liveAddOns, formatMinutes, formatPrice, SPAS, type Group, type Spa } from '../lib/catalog';
+import { spa as spaInfo } from '../lib/site';
+interface Props { group: Group; class?: string }
+const { group, class: cls } = Astro.props;
+
+const NOUN: Record<Group, string> = { massage: 'massage', facials: 'facial', body: 'body treatment' };
+const spasOf = (locs: Spa[]) => SPAS.filter((sp) => locs.includes(sp));
+const where = (spas: Spa[]) => (spas.length === SPAS.length ? 'Both spas' : `${spaInfo(spas[0]).name} only`);
+
+const lines = liveAddOns(group).map((a) => {
+  const common = SPAS.filter((sp) => a.options.every((o) => o.locations.includes(sp)));
+  const same = a.options.every((o) => spasOf(o.locations).length === common.length);
+  const lengths = a.options.map((o) => `${formatMinutes(o.minutes)} ${formatPrice(o.price)}${same ? '' : ` (${where(spasOf(o.locations))})`}`);
+  return { id: a.id, lead: `Add ${a.name} to any ${NOUN[group]}:`, rest: `${lengths.join(', ')}.${same ? ` ${where(common)}.` : ''} Add it when you book.` };
+});
+---
+{lines.map((l) => (
+  <p class:list={['addon', cls]} data-addon={l.id}>
+    <span class="addon__mark" aria-hidden="true"></span>
+    <span><strong>{l.lead}</strong> {l.rest}</span>
+  </p>
+))}
+<style>
+  .addon {
+    display: flex; align-items: flex-start; gap: 0.7rem;
+    max-width: 760px;
+    padding: 0.85rem 1.1rem;
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-card);
+    background: rgba(250, 246, 240, 0.6);
+    font-size: var(--fs-label); line-height: 1.55; color: var(--text);
+  }
+  .addon strong { font-weight: 600; }
+  /* A small drawn plus in a ring (decorative) */
+  .addon__mark {
+    position: relative; flex: none; width: 1.15rem; height: 1.15rem; margin-top: 0.2rem;
+    border: 1px solid var(--border-ui); border-radius: 50%;
+  }
+  .addon__mark::before, .addon__mark::after {
+    content: ''; position: absolute; left: 50%; top: 50%; background: var(--text);
+    width: 0.55rem; height: 1px; transform: translate(-50%, -50%);
+  }
+  .addon__mark::after { transform: translate(-50%, -50%) rotate(90deg); }
+</style>

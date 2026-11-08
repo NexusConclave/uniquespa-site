@@ -1,0 +1,16 @@
+---
+/** The intro photo on a guide (manifest asset via lib/images; never upscaled; text never sits on it). */
+import { Picture } from 'astro:assets';
+import { asset, widthsFor, objectPosition } from '../../lib/images';
+interface Props { asset: string; ratio?: string }
+const { asset: id, ratio = '4 / 5' } = Astro.props;
+const img = asset(id);
+---
+<figure class="b-media g-media" style={`--g-ratio: ${ratio}`}>
+  <Picture src={img.src} formats={img.formats} widths={widthsFor(img.src)} sizes="(min-width: 960px) 44vw, 100vw" quality={62}
+    alt={img.alt} loading="eager" fetchpriority="high" decoding="async" style={`object-position: ${objectPosition(img)}`} />
+</figure>
+<style>
+  .g-media { aspect-ratio: var(--g-ratio); max-height: 78svh; }
+  @media (max-width: 959px) { .g-media { aspect-ratio: 4 / 3; } }
+</style>

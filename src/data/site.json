@@ -1,0 +1,102 @@
+{
+  "note": "Spa facts for the site. Owner-confirmable items carry a [CONFIRM] note in _confirm. Prices never live here (see services.json + square-lock.json).",
+  "name": "Unique Spa House",
+  "launch": false,
+  "_launch": "THE launch switch (one line, in the launch PR). false = staging: canonical = the staging host (urls.staging, or env STAGING_URL for a private staging server), every page noindex, robots.txt disallows all, no sitemap.xml, X-Robots-Tag noindex. true = live: canonical https://uniquespahouse.com, pages indexable, production robots.txt + sitemap.xml; *.pages.dev previews stay noindex. Env LAUNCH=1/0 overrides for a test build; PREVIEW=1 always builds staging.",
+  "urls": {
+    "staging": "https://unique-spa-house.pages.dev",
+    "production": "https://uniquespahouse.com"
+  },
+  "description": "Massage, facials and body treatments in San Diego (Mission Valley) and Del Mar.",
+  "phone": {
+    "display": "(858) 293-8900",
+    "tel": "tel:+18582938900"
+  },
+  "sms": "sms:+18582938900",
+  "email": "ushouse2022@gmail.com",
+  "rating": {
+    "text": "4.7 on Google · 103 reviews · San Diego",
+    "rating_checked": "2026-10-23",
+    "max_age_days": 45,
+    "_confirm": "Dated screenshot on file (§13 trust sources). Hides automatically 45 days after rating_checked."
+  },
+  "timezone": "America/Los_Angeles",
+  "spas": {
+    "SD": {
+      "id": "SD",
+      "name": "San Diego",
+      "long_name": "San Diego (Mission Valley)",
+      "street_short": "Camino del Rio N",
+      "street": "2650 Camino del Rio N, Suite 108",
+      "city": "San Diego",
+      "region": "CA",
+      "postal": "92108",
+      "phone": {
+        "display": "(858) 293-8900",
+        "tel": "tel:+18582938900"
+      },
+      "hours_text": "Mon–Sun 9 AM–8 PM",
+      "hours": {
+        "days": [
+          "Mo",
+          "Tu",
+          "We",
+          "Th",
+          "Fr",
+          "Sa",
+          "Su"
+        ],
+        "opens": "09:00",
+        "closes": "20:00"
+      },
+      "page": "/locations/san-diego",
+      "directions_url": "https://www.google.com/maps/dir/?api=1&destination=2650%20Camino%20del%20Rio%20N%20Suite%20108%2C%20San%20Diego%2C%20CA%2092108",
+      "review_url": "https://www.google.com/maps/place/?q=place_id:ChIJFTpxpdpV2YARAcZpeyNDLQg",
+      "_confirm": "Hours as listed on the old site (O-B / B3). Google profile link points to the site's map link; confirm it is San Diego."
+    },
+    "DM": {
+      "id": "DM",
+      "name": "Del Mar",
+      "long_name": "Del Mar",
+      "street_short": "San Andres Dr",
+      "street": "15770 San Andres Drive",
+      "city": "Del Mar",
+      "region": "CA",
+      "postal": "92014",
+      "phone": {
+        "display": "(858) 293-8900",
+        "tel": "tel:+18582938900"
+      },
+      "hours_text": "Call for today's hours",
+      "hours": null,
+      "page": "/locations/del-mar",
+      "directions_url": "https://www.google.com/maps/dir/?api=1&destination=15770%20San%20Andres%20Drive%2C%20Del%20Mar%2C%20CA%2092014",
+      "review_url": null,
+      "_confirm": "Hours unknown (B3) → 'Call for today's hours', no openingHours schema, Call dials directly. Own phone (O-B1), suite and Google profile unknown."
+    }
+  },
+  "social": {
+    "instagram": "https://www.instagram.com/uniquespahouse",
+    "facebook": "https://facebook.com/people/Unique-Spa-House/100083103591975/"
+  },
+  "flags": {
+    "refer_live": false,
+    "rewards_live": false,
+    "first_visit_live": false,
+    "_note": "Refer, Rewards and First-visit prices render only once the owner says yes (P0 question 5) / Square Loyalty is on. google_booking_live: Reserve with Google is on (G-RwG) — only then do /policies and /locations/del-mar mention Google bookings.",
+    "google_booking_live": false,
+    "guides_live": false,
+    "_guides": "Service guides (/guides/, src/data/guides.json) go live only once Katy approves them (guides-notes/APPROVE.md). false = the pages are not built, nothing links to them, and they are in neither sitemap.xml nor llms.txt. true = built, linked from the footer, the related service pages and llms.txt, and listed in the sitemap on a launch build. Env GUIDES=1/0 overrides for a test build."
+  },
+  "gift_offer": {
+    "option": "A",
+    "starts": null,
+    "ends": null,
+    "c_send_days": null,
+    "c_promo_valid": null,
+    "c_limits": null,
+    "_note": "Katy's holiday gift card choice (gift kit decision 1, APPROVALS Q50). option: \"A\" = no offer (default; cards at menu prices, nothing shows). \"B\" = $25 off a $225 eGift card (pay $200). \"C\" = a $25 promo card for buyers who spend $200+. Setting B or C IS the approval: do it only after the Square set-up, one test purchase and the lawyer check. B and C need starts and ends (YYYY-MM-DD, Los Angeles dates, inclusive; a real end date, never extended after posting). C also needs c_send_days (a number, e.g. 7), c_promo_valid (the words after 'Promo card valid', e.g. \"January 4 to February 28, 2027\") and c_limits (one full sentence, e.g. \"One per buyer.\", or \"\" for none); the lawyer checks that line. A production build fails while a required field is missing; PREVIEW shows [brackets]. Env GIFT_OFFER / GIFT_STARTS / GIFT_ENDS override for test builds. The gift page, the home offers band, the policies gift card section and the $225 tile badge all follow this one field. Wording lives in offers.json \"holiday-egift-2026\".options."
+  },
+  "square_gift_name": "Unique Massage LLC",
+  "_square_gift_name": "Gift kit fix 6 / Q54. The business name Square's gift card page shows. While set, /gift-cards says 'Our secure gift card page is run by Square. It shows the name Unique Massage LLC.' under the hero button. Set to null once the business is renamed in Square."
+}

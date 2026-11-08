@@ -1,0 +1,48 @@
+---
+/**
+ * PageIntro — the top of a service or spa page (dev B): visible breadcrumb, optional eyebrow, the one H1,
+ * a lede, an actions slot, and an optional `aside` slot (summary box, arch image or spa door) beside it.
+ * The H1 is never animated. `title` may hold one <em> accent word (our own strings only).
+ */
+interface Crumb { name: string; href?: string }
+interface Props { crumbs: Crumb[]; title: string; eyebrow?: string; lede?: string; tone?: 'cream' | 'paper'; class?: string; asideWidth?: 'narrow' | 'wide' }
+const { crumbs, title, eyebrow, lede, tone = 'cream', class: cls, asideWidth = 'wide' } = Astro.props;
+const hasAside = Astro.slots.has('aside');
+---
+<header class:list={['intro', `tone-${tone}`, cls]}>
+  <div class:list={['container', 'intro__grid', hasAside && 'intro__grid--aside', hasAside && `intro__grid--${asideWidth}`]}>
+    <div class="intro__text">
+      <nav class="crumbs" aria-label="Breadcrumb">
+        <ol role="list">
+          {crumbs.map((c, i) => (
+            <li>{i === crumbs.length - 1 || !c.href ? <span aria-current={i === crumbs.length - 1 ? 'page' : undefined}>{c.name}</span> : <a href={c.href}>{c.name}</a>}</li>
+          ))}
+        </ol>
+      </nav>
+      {eyebrow && <p class="eyebrow intro__eyebrow">{eyebrow}</p>}
+      <h1 class="intro__h1" set:html={title} />
+      {lede && <p class="lede intro__lede">{lede}</p>}
+      <slot />
+    </div>
+    {hasAside && <div class="intro__aside"><slot name="aside" /></div>}
+  </div>
+</header>
+<style>
+  .intro { padding-block: clamp(1.25rem, 3vw, 2.5rem) clamp(3rem, 7vw, 6.5rem); }
+  .intro__grid { display: grid; gap: clamp(2rem, 5vw, 4.5rem); align-items: start; }
+  @media (min-width: 960px) {
+    .intro__grid--wide { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+    .intro__grid--narrow { grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.8fr); align-items: center; }
+  }
+  .intro__text { display: flex; flex-direction: column; gap: 1.1rem; }
+  .crumbs ol { display: flex; flex-wrap: wrap; align-items: center; gap: 0 0.5rem; margin: 0 0 clamp(1rem, 3vw, 2.5rem); padding: 0; font-size: var(--fs-meta); color: var(--text-muted); }
+  .crumbs li { display: inline-flex; align-items: center; gap: 0.5rem; max-width: none; }
+  .crumbs li + li::before { content: '/'; color: var(--border-ui); }
+  .crumbs a { display: inline-flex; align-items: center; justify-content: center; min-height: var(--tap); min-width: var(--tap); color: var(--text-muted); }
+  .crumbs a:hover { color: var(--text); }
+  .crumbs [aria-current] { color: var(--text); }
+  .intro__eyebrow { margin-bottom: -0.25rem; }
+  .intro__h1 { font-size: clamp(2.5rem, 1.55rem + 3.9vw, 5rem); line-height: 1; max-width: 16ch; }
+  .intro__lede { max-width: 46ch; }
+  @media (max-width: 959px) { .intro__aside { width: 100%; } }
+</style>

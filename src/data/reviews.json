@@ -1,0 +1,59 @@
+{
+  "note": "Client quotes from the copy files (research/copy/01-home.md, 02-about.md). First name + last initial only. Each needs the owner's approval AND the reviewer's OK (P0 question 4) before approved:true. Unapproved quotes render only in PREVIEW builds. Never pair a quote with an incentive or a review ask. Therapist names stay out of quotes.",
+  "reviews": [
+    {
+      "id": "anna-k",
+      "name": "Anna K.",
+      "text": "…presses some sort of reset button!",
+      "use": "pull-quote",
+      "about": "spa",
+      "approved": false,
+      "owner_confirm": "P0-4"
+    },
+    {
+      "id": "jessica-m",
+      "name": "Jessica M.",
+      "text": "She's incredibly knowledgeable and explains every step so you know exactly what to expect.",
+      "use": "katy",
+      "about": "katy",
+      "approved": false,
+      "owner_confirm": "P0-4 (and that the review is about Katy)"
+    },
+    {
+      "id": "irina-k",
+      "name": "Irina K.",
+      "text": "Beautiful, relaxing atmosphere with friendly staff. The massage and facial were incredible: professional, calming, and exactly what I needed.",
+      "use": "small",
+      "about": "spa",
+      "approved": false,
+      "owner_confirm": "P0-4"
+    },
+    {
+      "id": "terry-h",
+      "name": "Terry H.",
+      "text": "Best deep tissue massage I've had in ages! Def will come back.",
+      "use": "small",
+      "about": "spa",
+      "approved": false,
+      "owner_confirm": "P0-4"
+    },
+    {
+      "id": "bahar-z",
+      "name": "Bahar Z.",
+      "text": "The place is calm, clean, and relaxing. A perfect spot to take a break and recharge.",
+      "use": "small",
+      "about": "spa",
+      "approved": false,
+      "owner_confirm": "P0-4"
+    },
+    {
+      "id": "kristina-k",
+      "name": "Kristina K.",
+      "text": "This last Sunday I went in for a lymphatic massage … and it was probably one of the best massages I've ever had!",
+      "use": "lymphatic",
+      "about": "spa",
+      "approved": false,
+      "owner_confirm": "P0-4 (therapist name removed from the quote)"
+    }
+  ]
+}

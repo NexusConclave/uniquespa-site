@@ -1,0 +1,270 @@
+---
+/**
+ * /gift-cards (blueprint §4.6, §8.3; compliance G5: §17509 required-price line, Civ. Code §1749.5).
+ * - Holiday block: switched by site.json gift_offer.option (lib/giftOffer.ts; wording in offers.json
+ *   "holiday-egift-2026".options, from the gift kit). A = no block, no badge (default). B = "Holiday gift cards." /
+ *   "Buy a $225 eGift card for $200." + "$25 off each eGift card of $225 or more. {dates}." and the $225 tile badge
+ *   "$200 until {end}". C = "Give a gift. Get a $25 card for you." + promo-card lines, no tile badge.
+ *   Never "bonus", "free", "save" or "value". Renders while active; one starting within 30 days renders hidden and is
+ *   revealed client-side on its start date. In PREVIEW (staging) an upcoming offer shows now, with its start date.
+ * - Pending claims (confirm.json): where copy can't carry a draft note (meta description, tile labels, step text,
+ *   "What each amount covers") it uses the safe wording until the claim resolves ("pays toward", no "either spa").
+ * - Tiles: each amount is DERIVED from a live service's Square price (lib/catalog.ts) and names that service and spa.
+ *   Every tile opens the Square eGift order page (square-lock.json gift_card_url). Valid once G0 removes the 3% fee.
+ * - Square shows the merchant as "Unique Massage LLC": while site.json square_gift_name is set, a note under the hero
+ *   button says so (gift kit fix 6). "Never expire" waits on confirm.json "gift-never-expire" (Q51).
+ * - Gift cards on specials: the published rule is "not valid with gift cards" [CONFIRM O-P5].
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import Button from '../components/Button.astro';
+import GiftCardVisual from '../components/GiftCardVisual.astro';
+import Icon from '../components/Icon.astro';
+import { getService, getOption, giftUrl, formatPrice, spasFor, type Spa } from '../lib/catalog';
+import { giftOffer, giftTitleParts } from '../lib/giftOffer';
+import { site } from '../lib/site';
+import { shortDate, todayLA } from '../lib/dates';
+import Confirm from '../components/Confirm.astro';
+import ConfirmNote from '../components/ConfirmNote.astro';
+import { claimVisible, claimPending, giftCoversVerb, giftBothSpasConfirmed } from '../lib/confirm';
+// "No fees" / "covers a whole visit" wait on G0 (QA M8); "both spas" and "not on specials" on O-P5 (QA M7).
+const noFees = claimVisible('g0-gift-no-fees');
+const bothSpas = claimVisible('gift-both-spas');
+const notOnSpecials = claimVisible('gift-not-on-specials');
+const neverExpire = claimVisible('gift-never-expire');
+// Copy that can't carry a draft label (meta, running text, tile labels) states only CONFIRMED claims (QA follow-up Q3b).
+const bothSpasConfirmed = giftBothSpasConfirmed();
+const covers = giftCoversVerb();
+
+const today = todayLA();
+const GIFT = giftUrl();
+
+// ---- Holiday offer: site.json gift_offer (A = none). Active, or upcoming within 30 days. ----
+const view = giftOffer({ days: 30, today });
+const holiday = view?.offer ?? null;
+const holidayUpcoming = !!view?.upcoming;
+// Staging shows an upcoming offer now; a production build reveals it client-side on its start date.
+const previewEarly = !!view?.previewEarly;
+const hasDates = !!holiday && /^\d{4}-/.test(holiday.starts);
+
+// ---- Tiles (§4.6). The amount is DERIVED from the Square price of every service on the tile (they must match). ----
+type Pick = { id: string; minutes?: number; label?: string };
+const tileDefs: Array<{ key: string; picks: Pick[]; covers: string }> = [
+  { key: '100', picks: [{ id: 'foot', minutes: 30 }], covers: 'Foot massage, {len}' },
+  { key: '150', picks: [{ id: 'swedish', minutes: 60 }, { id: 'lymphatic', minutes: 60 }], covers: 'Swedish or lymphatic massage, {len}' },
+  { key: '200', picks: [{ id: 'swedish', minutes: 90 }, { id: 'relaxing', minutes: 90 }], covers: 'Swedish or relaxing massage, {len}' },
+  { key: '225', picks: [{ id: 'deep-tissue', minutes: 90 }, { id: 'therapeutic', minutes: 90 }, { id: 'katy', minutes: 90 }], covers: 'Deep tissue, therapeutic or Katy massage, {len}' },
+  { key: '250', picks: [{ id: 'swedish', minutes: 120 }, { id: 'lymphatic', minutes: 120 }], covers: 'Swedish or lymphatic massage, {len}' },
+  { key: 'couples', picks: [{ id: 'couples', label: '60 min, for two' }, { id: 'couples', label: '90 min, for two' }], covers: 'Couples massage for two, {len}' },
+];
+// Where the TREATMENT is offered (not where the card can be used: that's the pending "gift-both-spas" claim).
+const spaLabel = (spas: Spa[]) => (spas.length === 2 ? 'Offered at both spas' : `Offered in ${site.spas[spas[0]].name} only`);
+const tiles = tileDefs.map((t) => {
+  const rows = t.picks.map((p) => {
+    const o = getOption(getService(p.id), p.label ?? p.minutes);
+    if (o.price == null) throw new Error(`[gift-cards] ${p.id} has no fixed price`);
+    return { len: o.label.replace(/, for two$/, ''), price: o.price, spas: spasFor(o) };
+  });
+  const prices = [...new Set(rows.map((r) => r.price))].sort((a, b) => a - b);
+  const lens = [...new Set(rows.map((r) => r.len))];
+  // One price per tile, except Couples (one tile, two lengths for two people).
+  if (prices.length !== lens.length || (t.key !== 'couples' && prices.length !== 1)) throw new Error(`[gift-cards] tile ${t.key}: prices differ (${prices})`);
+  const spas = (['SD', 'DM'] as Spa[]).filter((sp) => rows.every((r) => r.spas.includes(sp)));
+  return {
+    key: t.key,
+    amount: prices.map((p) => formatPrice(p)).join(' or '),
+    covers: t.covers.replace('{len}', lens.join(' or ')),
+    where: spaLabel(spas),
+    oneSpa: spas.length === 1,
+    holiday: prices.length === 1 && prices[0] === 225,
+  };
+});
+
+// The $225 tile badge: option B only ("$200 until Dec 31"). Option C and A have none.
+const tileBadge = holiday?.tileBadge ?? null;
+
+// Holiday title with its last word as the one italic accent ("Holiday gift *cards*.").
+const titleParts = holiday ? giftTitleParts(holiday.title) : null;
+const squareName = (site as { square_gift_name?: string | null }).square_gift_name ?? null;
+---
+<BaseLayout
+  title="Spa Gift Cards | Unique Spa House"
+  description="Unique Spa House eGift cards, from $100 or your own amount. Send by text or email, today or on a date you choose."
+>
+  <Section class="gc-hero" pad="tight" reveal={false}>
+    <div class="gc-hero__grid">
+      <div class="gc-hero__text">
+        <p class="eyebrow">eGift cards</p>
+        <h1 class="gc-hero__h1">Gift cards</h1>
+        <p class="lede">Give the gift of calm. eGift cards from $100, or choose your own amount. Send by text or email, today or on a date you pick.</p>
+        <ul class="gc-hero__facts" role="list">
+          {neverExpire
+            ? <li><Icon name="check" /><span>Never expire<ConfirmNote id="gift-never-expire" /><Confirm id="g0-gift-no-fees">, no fees</Confirm></span></li>
+            : <li><Icon name="check" /><span>Send by text or email</span></li>}
+          {bothSpas && <li><Icon name="check" /><span>Good at both spas<ConfirmNote id="gift-both-spas" /></span></li>}
+          <li><Icon name="check" />Send to one person, several, or yourself</li>
+        </ul>
+        <div class="gc-hero__actions">
+          <Button href={GIFT} external variant="outline" icon="gift" track="gift_card_click" trackProps={{ placement: 'gift-hero' }}>Buy a gift card</Button>
+          <a class="link-arrow" href="#amounts">What each amount {covers}<Icon name="arrow-right" /></a>
+        </div>
+        {squareName && <p class="meta gc-hero__square">Our secure gift card page is run by Square. It shows the name {squareName}.</p>}
+      </div>
+      <GiftCardVisual amount="$150" class="gc-hero__card" />
+    </div>
+  </Section>
+
+  {holiday && (
+    <div
+      class="gc-holiday-wrap"
+      data-ends={hasDates ? holiday.ends : undefined}
+      data-starts={previewEarly || !hasDates ? undefined : holiday.starts}
+      data-offer-view={holiday.id}
+      data-gift-option={holiday.option}
+      hidden={holidayUpcoming && !previewEarly}
+      data-reveal-on-start={holidayUpcoming && !previewEarly ? '' : undefined}
+    >
+    <Section tone="brown" labelledby="gc-holiday-title" class="gc-holiday" reveal={false}>
+      <div class="gc-holiday__inner">
+        <p class="eyebrow">{holiday.eyebrow}</p>
+        <h2 id="gc-holiday-title" class="gc-holiday__title">{titleParts ? <>{titleParts[0]}<em>{titleParts[1]}</em>.</> : holiday.title}</h2>
+        <p class="gc-holiday__deal serif">{holiday.deal}</p>
+        <p class="gc-holiday__legal">{holiday.small}</p>
+        <div class="gc-holiday__actions">
+          <Button href={GIFT} external variant="outline" icon="gift" track="gift_card_click" trackProps={{ placement: 'gift-holiday' }}>{holiday.button}</Button>
+        </div>
+        {previewEarly && <p class="draft-note">Shows from {shortDate(holiday.starts)}</p>}
+      </div>
+    </Section>
+    </div>
+  )}
+
+  <Section id="amounts" labelledby="gc-amounts-title" class="gc-amounts">
+    <div class="gc-amounts__head">
+      <h2 id="gc-amounts-title">Choose an amount</h2>
+      <p class="lede">Each amount matches a treatment on our menu<Confirm id="g0-gift-no-fees">, so the card covers a whole visit</Confirm>. On the next page, pick an amount or type your own.</p>
+    </div>
+    <ul class="gc-tiles" role="list">
+      {tiles.map((t) => (
+        <li class="gc-tile">
+          <a class="gc-tile__link" href={GIFT} target="_blank" rel="noopener"
+             data-track="gift_card_click" data-track-props={JSON.stringify({ placement: 'gift-tile', amount: t.key })}>
+            <span class="gc-tile__amt">{t.amount}</span>
+            <span class="gc-tile__covers">{t.covers}</span>
+            <span class="gc-tile__where meta">{t.oneSpa && <Icon name="pin" />}{t.where}</span>
+            {t.holiday && holiday && tileBadge && (
+              <span class="gc-tile__deal" data-ends={hasDates ? holiday.ends : undefined} data-starts={previewEarly || !hasDates ? undefined : holiday.starts}
+                    hidden={holidayUpcoming && !previewEarly} data-reveal-on-start={holidayUpcoming && !previewEarly ? '' : undefined}>
+                {tileBadge}
+              </span>
+            )}
+            <span class="gc-tile__cta">Buy a gift card<span class="sr-only"> (opens in a new tab)</span><Icon name="arrow-up-right" /></span>
+          </a>
+        </li>
+      ))}
+      <li class="gc-tile gc-tile--own">
+        <a class="gc-tile__link" href={GIFT} target="_blank" rel="noopener"
+           data-track="gift_card_click" data-track-props={JSON.stringify({ placement: 'gift-tile', amount: 'custom' })}>
+          <span class="gc-tile__amt">Your amount</span>
+          <span class="gc-tile__covers">Any amount you like, for any treatment or toward one.</span>
+          <span class="gc-tile__where meta">{bothSpasConfirmed ? 'Good at both spas' : 'Use it at the spa named on the booking'}</span>
+          <span class="gc-tile__cta">Buy a gift card<span class="sr-only"> (opens in a new tab)</span><Icon name="arrow-up-right" /></span>
+        </a>
+      </li>
+    </ul>
+    <p class="meta gc-amounts__note">Prices as currently listed on our online booking menu. The booking page always shows the latest price.</p>
+  </Section>
+
+  <Section tone="paper" labelledby="gc-how-title" class="gc-how">
+    <h2 id="gc-how-title">How it works</h2>
+    <ol class="gc-steps" role="list">
+      <li class="gc-step">
+        <span class="gc-step__n" aria-hidden="true">1</span>
+        <h3><span class="sr-only">Step 1: </span>Buy online</h3>
+        <p>Pick an amount on our secure Square gift card page. Send it by text or email, now or on a date you choose.</p>
+      </li>
+      <li class="gc-step">
+        <span class="gc-step__n" aria-hidden="true">2</span>
+        <h3><span class="sr-only">Step 2: </span>They book</h3>
+        <p>Your friend books online{bothSpasConfirmed && ' at either spa'}, or calls us on {site.phone.display}.</p>
+      </li>
+      <li class="gc-step">
+        <span class="gc-step__n" aria-hidden="true">3</span>
+        <h3><span class="sr-only">Step 3: </span>Redeem</h3>
+        <p>Book online, then mention your gift card at checkout. Check a balance or reload a card on the same gift card page.</p>
+      </li>
+    </ol>
+  </Section>
+
+  <Section labelledby="gc-terms-title" class="gc-terms">
+    <h2 id="gc-terms-title">Gift card terms</h2>
+    <ul class="gc-terms__list">
+      <li><strong>{neverExpire && noFees ? 'eGift cards never expire and carry no fees. ' : neverExpire ? 'eGift cards never expire. ' : noFees ? 'eGift cards carry no fees. ' : ''}Balances under $15 can be cashed out.</strong>{neverExpire && <ConfirmNote id="gift-never-expire" />}{noFees && <ConfirmNote id="g0-gift-no-fees" />}</li>
+      {bothSpas && <li>Gift cards can be used at both spas, for any service on the menu.<ConfirmNote id="gift-both-spas" /></li>}
+      {notOnSpecials && <li>Gift cards can't be used to pay for specials.<ConfirmNote id="gift-not-on-specials" /></li>}
+      <li>Lost the email or text? Call us on <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"gift-terms"}'>{site.phone.display}</a> and we'll help.</li>
+    </ul>
+    <p class="gc-terms__more"><a class="link-arrow" href="/policies#gift-cards">All booking policies<Icon name="arrow-right" /></a></p>
+  </Section>
+</BaseLayout>
+
+<style>
+  .gc-hero__grid { display: grid; gap: clamp(2rem, 6vw, 5rem); align-items: center; }
+  @media (min-width: 900px) { .gc-hero__grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); } }
+  .gc-hero__text { display: flex; flex-direction: column; gap: 1.1rem; }
+  .gc-hero__h1 { font-size: clamp(3rem, 1.8rem + 5vw, 6rem); }
+  .gc-hero__facts { display: grid; gap: 0.35rem; margin: 0; padding: 0; }
+  .gc-hero__facts li { display: flex; align-items: flex-start; gap: 0.55rem; font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); }
+  .gc-hero__facts :global(svg) { width: 18px; height: 18px; flex: none; margin-top: 0.1em; }
+  .gc-hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; margin-top: 0.5rem; }
+  .gc-hero__square { max-width: 40ch; margin: -0.25rem 0 0; }
+  :global(.gc-hero__card) { justify-self: center; max-width: 380px !important; }
+  @media (max-width: 899px) { :global(.gc-hero__card) { max-width: 260px !important; justify-self: start; margin-left: 0.5rem; } }
+
+  .gc-holiday__inner { display: grid; gap: 1rem; max-width: 44rem; }
+  .gc-holiday__title { font-size: clamp(2.5rem, 1.6rem + 3.6vw, 4.75rem); line-height: 1; }
+  .gc-holiday__deal { font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.4rem); line-height: 1.15; }
+  .gc-holiday__legal { font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); }
+  .gc-holiday__fine { max-width: 52ch; }
+  .gc-holiday__actions { margin-top: 0.5rem; }
+
+  .gc-amounts__head { display: grid; gap: 0.75rem; margin-bottom: clamp(1.75rem, 3.5vw, 3rem); }
+  @media (min-width: 900px) { .gc-amounts__head { grid-template-columns: 1fr 1fr; align-items: end; } }
+  .gc-tiles { display: grid; gap: 1rem; margin: 0; padding: 0; }
+  @media (min-width: 600px) { .gc-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1024px) { .gc-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; } }
+  .gc-tile { display: flex; max-width: none; }
+  .gc-tile__link {
+    flex: 1; display: flex; flex-direction: column; gap: 0.5rem;
+    padding: clamp(1.25rem, 2.4vw, 1.75rem);
+    background: var(--paper); border: 1px solid var(--hairline); border-radius: var(--radius-card);
+    text-decoration: none; color: var(--text);
+    transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+  }
+  .gc-tile__link:hover { border-color: var(--text); }
+  .gc-tile__link:hover .gc-tile__cta { text-decoration: underline; text-decoration-thickness: 2px; }
+  .gc-tile__amt { font-family: var(--font-serif); font-size: clamp(2.5rem, 2rem + 1.6vw, 3.25rem); line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
+  .gc-tile--own { grid-column: 1 / -1; }
+  .gc-tile--own .gc-tile__amt { font-size: clamp(2rem, 1.7rem + 1vw, 2.5rem); }
+  @media (min-width: 600px) {
+    .gc-tile--own .gc-tile__link { flex-direction: row; flex-wrap: wrap; align-items: baseline; column-gap: 1.5rem; }
+    .gc-tile--own .gc-tile__cta { margin-top: 0; padding-top: 0; margin-left: auto; }
+  }
+  .gc-tile__covers { font-size: var(--fs-body); }
+  .gc-tile__where { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .gc-tile__where :global(svg) { width: 15px; height: 15px; }
+  .gc-tile__deal { align-self: flex-start; padding: 0.15rem 0.6rem; border: 1px solid var(--border-ui); border-radius: 6px; font-size: var(--fs-meta); font-weight: 500; font-stretch: var(--wdth-label); }
+  .gc-tile__cta { margin-top: auto; padding-top: 0.75rem; display: inline-flex; align-items: center; gap: 0.35rem; min-height: var(--tap); font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.22em; }
+  .gc-tile__cta :global(svg) { width: 1em; height: 1em; }
+  .gc-amounts__note { margin-top: 1.25rem; }
+
+  .gc-steps { display: grid; gap: 0; margin: clamp(1.5rem, 3vw, 2.5rem) 0 0; padding: 0; }
+  @media (min-width: 800px) { .gc-steps { grid-template-columns: repeat(3, 1fr); column-gap: 2.5rem; } }
+  .gc-step { display: grid; gap: 0.5rem; padding-block: 1.5rem; border-top: 1px solid var(--text); align-content: start; }
+  .gc-step__n { font-family: var(--font-serif); font-size: clamp(3rem, 2.4rem + 2vw, 4.5rem); line-height: 1; color: var(--text-soft-lg); }
+  .gc-step h3 { font-size: 1.6rem; }
+
+  .gc-terms__list { margin: 1.25rem 0 0; padding-left: 1.2rem; display: grid; gap: 0.6rem; max-width: 46rem; }
+  .gc-terms__list li::marker { color: var(--text-muted); }
+  .gc-terms__more { margin-top: 1.25rem; }
+</style>

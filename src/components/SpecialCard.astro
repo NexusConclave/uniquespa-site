@@ -1,0 +1,117 @@
+---
+/**
+ * SpecialCard — one dated offer: end-date pill, includes list (or body), offer price + minutes,
+ * location chips, Book per spa (the offer's OWN Square special-price item, no codes; `spa` limits it to one spa)
+ * and an optional gift link. Without its own Square item there is no Book button (PREVIEW shows a note).
+ * Never shows a former price, "valued at" or "free". Hides itself client-side after data-ends.
+ * In PREVIEW builds an unapproved offer carries "Draft offer — needs owner approval".
+ */
+import { offerBookUrl, offerSaving, needsSquareItem, type Offer } from '../lib/offers';
+import { formatPrice, formatMinutes, spokenMinutes, giftUrl, SPAS, type Spa } from '../lib/catalog';
+import { spa as spaInfo } from '../lib/site';
+import { shortDate, longDate } from '../lib/dates';
+import Icon from './Icon.astro';
+import OfferDraftNote from './OfferDraftNote.astro';
+interface Props {
+  offer: Offer; headingLevel?: 2 | 3 | 4; variant?: 'card' | 'compact'; showGift?: boolean; placement?: string; class?: string;
+  /** On a location page: show only this spa's Book button (the location chips still say where else it runs). */
+  spa?: Spa;
+}
+const { offer: o, headingLevel = 3, variant = 'card', showGift = false, placement = 'special', class: cls, spa: onlySpa } = Astro.props;
+const H = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
+const spas = SPAS.filter((sp) => o.spa.includes(sp));
+const bookSpas = onlySpa ? spas.filter((sp) => sp === onlySpa) : spas;
+// Only the offer's OWN Square item is ever linked (never the general booking page); PREVIEW shows a note instead.
+const noItem = needsSquareItem(o);
+const price = formatPrice(o.price, 'Ask us');
+const mins = o.minutes ? formatMinutes(o.minutes) : null;
+// Bundles only: null unless every part is a live menu item at every spa of the offer (lib/offers.ts).
+const saving = offerSaving(o);
+---
+<article
+  class:list={['special', `special--${variant}`, cls]}
+  data-ends={o.ends}
+  data-starts={o.starts}
+  data-offer-view={o.id}
+>
+  <p class="special__ends"><Icon name="calendar" />Ends {shortDate(o.ends)}<span class="sr-only"> ({longDate(o.ends)})</span></p>
+  <H class="special__title">{o.title}</H>
+  {variant === 'card' && o.includes?.length ? (
+    <ul class="special__includes">
+      {o.includes.map((i) => <li>{i}</li>)}
+    </ul>
+  ) : (
+    <p class="special__body">{o.body}</p>
+  )}
+  <p class="special__price">
+    <span aria-hidden="true">{mins && <>{mins} · </>}<b>{price}</b></span>
+    <span class="sr-only">{o.minutes ? `${spokenMinutes(o.minutes)}, ` : ''}{price}</span>
+  </p>
+  {saving && (
+    <p class="special__save">
+      Save {formatPrice(saving.amount)} vs booking separately
+      <span class="special__save-parts">({saving.parts.map((p) => `${p.name} ${p.length} ${formatPrice(p.price)}`).join(' + ')})</span>
+    </p>
+  )}
+  <ul class="special__where" role="list" aria-label="Where">
+    {spas.length === 1 ? (
+      <li><Icon name="pin" />{spaInfo(spas[0]).name} only</li>
+    ) : spas.map((sp) => <li>{spaInfo(sp).name}</li>)}
+  </ul>
+  <div class="special__actions">
+    {bookSpas.map((sp) => {
+      const href = offerBookUrl(o, sp);
+      return href && (
+        <a class="btn btn--outline btn--sm" href={href} target="_blank" rel="noopener"
+           data-track="book_click" data-track-props={JSON.stringify({ spa: sp, service: o.id, placement })}>
+          Book in {spaInfo(sp).name}<span class="sr-only">: {o.title} (opens in a new tab)</span>
+        </a>
+      );
+    })}
+    {showGift && (
+      <a class="special__gift" href={giftUrl()} target="_blank" rel="noopener" data-track="gift_card_click" data-track-props={JSON.stringify({ placement })}>
+        Give it as a gift<span class="sr-only"> (opens in a new tab)</span>
+      </a>
+    )}
+  </div>
+  <slot />
+  <OfferDraftNote offer={o} />
+  {noItem && <p class="draft-note">Needs its own Square item before it can be booked</p>}
+</article>
+<style>
+  .special {
+    display: flex; flex-direction: column; gap: 0.8rem;
+    padding: clamp(1.25rem, 2.6vw, 2rem);
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius-card);
+  }
+  .special--compact { padding: 1.1rem 1.25rem; gap: 0.55rem; }
+  .special__ends {
+    align-self: flex-start;
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    padding: 0.2rem 0.7rem;
+    border: 1px solid var(--border-ui);
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-meta); font-weight: 500; font-stretch: var(--wdth-label);
+    color: var(--text);
+  }
+  .special__ends :global(svg) { width: 15px; height: 15px; color: var(--text-muted); }
+  .special__title { font-size: var(--fs-h3); }
+  .special--compact .special__title { font-size: 1.5rem; }
+  .special__includes { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.25rem; }
+  .special__includes li::marker { color: var(--text-muted); }
+  .special__price { font-variant-numeric: tabular-nums; color: var(--text-muted); font-size: var(--fs-label); }
+  .special__price b { color: var(--text); font-family: var(--font-serif); font-weight: 400; font-size: 1.75rem; line-height: 1; }
+  .special__save { font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); }
+  .special__save-parts { display: block; font-weight: 400; font-size: var(--fs-meta); color: var(--text-muted); }
+  .special__where { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+  .special__where li {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.15rem 0.6rem; border: 1px solid var(--hairline); border-radius: 6px;
+    font-size: var(--fs-meta); color: var(--text-muted); font-weight: 500; font-stretch: var(--wdth-label);
+  }
+  .special__where :global(svg) { width: 15px; height: 15px; }
+  .special__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; margin-top: 0.2rem; }
+  .special__gift { font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); min-height: var(--tap); display: inline-flex; align-items: center; }
+</style>

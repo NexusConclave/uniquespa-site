@@ -1,0 +1,65 @@
+---
+/**
+ * BookChooser — a service-tied Book button for one option (e.g. "Book lymphatic", 60 min).
+ * One spa → a direct deep link "Book in San Diego". Both spas → a click/Enter disclosure
+ * (button aria-expanded) that reveals one deep link per spa. Never opens the Book sheet.
+ */
+import { getService, getOption, type Spa } from '../lib/catalog';
+import { viewService, spaName, spokenRow } from '../lib/serviceView';
+import { spa as spaInfo } from '../lib/site';
+import Icon from './Icon.astro';
+import { pageUid } from '../lib/uid';
+interface Props { service: string; minutes?: number; label: string; placement?: string; align?: 'start' | 'end'; class?: string }
+const { service, minutes, label, placement = 'card', align = 'start', class: cls } = Astro.props;
+const s = getService(service);
+const opt = getOption(s, minutes);
+const view = viewService({ ...s, options: [opt] });
+const o = view.options[0];
+const spas = Object.keys(o.links) as Spa[];
+const id = pageUid(Astro.locals, `bc-${s.id}`);
+---
+{spas.length === 1 ? (
+  <a class:list={['btn btn--outline', cls]} href={o.links[spas[0]]} target="_blank" rel="noopener"
+     data-track="book_click" data-track-props={JSON.stringify({ spa: spas[0], service: s.id, placement })}>
+    Book in {spaName(spas[0])}<span class="sr-only">: {spokenRow(s.name, o, spas[0])} (opens in a new tab)</span>
+  </a>
+) : (
+  <div class:list={['chooser', `chooser--${align}`, cls]} data-disclosure-root>
+    <button type="button" class="btn btn--outline" aria-expanded="false" aria-controls={id} data-disclosure>
+      {label}<Icon name="chevron-down" class="chooser__chev" />
+    </button>
+    <ul id={id} class="chooser__panel" role="list" hidden>
+      {spas.map((sp) => (
+        <li>
+          <a href={o.links[sp]} target="_blank" rel="noopener" data-track="book_click" data-track-props={JSON.stringify({ spa: sp, service: s.id, placement })}>
+            <span class="chooser__spa">{spaInfo(sp).long_name}</span>
+            <span class="chooser__meta" aria-hidden="true">{spaInfo(sp).street_short}</span>
+            <span class="sr-only">: {spokenRow(s.name, o, sp)} (opens in a new tab)</span>
+            <Icon name="arrow-up-right" class="chooser__ext" />
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+<style>
+  .chooser { position: relative; display: inline-block; }
+  .chooser :global(.chooser__chev) { transition: transform .2s var(--ease); }
+  .chooser [aria-expanded='true'] :global(.chooser__chev) { transform: rotate(180deg); }
+  .chooser__panel {
+    position: absolute; z-index: 20; top: calc(100% + 8px); left: 0;
+    min-width: 260px; margin: 0; padding: 0.35rem; list-style: none;
+    background: var(--paper); border: 1px solid var(--hairline); border-radius: 12px;
+    box-shadow: 0 18px 40px -18px rgba(52, 18, 4, 0.35);
+  }
+  .chooser--end .chooser__panel { left: auto; right: 0; }
+  .chooser__panel a {
+    display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 0 1rem;
+    min-height: 56px; padding: 0.55rem 0.85rem; border-radius: 8px; text-decoration: none;
+  }
+  .chooser__panel li + li a { border-top: 1px solid var(--hairline); border-radius: 0 0 8px 8px; }
+  .chooser__panel a:hover { background: rgba(52, 18, 4, 0.05); }
+  .chooser__spa { font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.2; }
+  .chooser__meta { grid-column: 1; font-size: var(--fs-meta); color: var(--text-muted); }
+  .chooser__panel :global(.chooser__ext) { grid-column: 2; grid-row: 1 / span 2; width: 18px; height: 18px; color: var(--text-muted); }
+</style>

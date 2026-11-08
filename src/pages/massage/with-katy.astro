@@ -1,0 +1,177 @@
+---
+/**
+ * /massage/with-katy — flagship (blueprint §4.3). Public name "Katy, owner". Massage only: no medical
+ * services are credited to her until her licences are confirmed, and no "20+ years" (unconfirmed).
+ * Hands-only image in a static arch until O-K1 (Katy as the face of the brand). Quotes about Katy only.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/Section.astro';
+import PageIntro from '../../components/PageIntro.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import PriceTable from '../../components/PriceTable.astro';
+import AddOnLine from '../../components/AddOnLine.astro';
+import SpaPanel from '../../components/SpaPanel.astro';
+import PullQuote from '../../components/PullQuote.astro';
+import ArchFrame from '../../components/ArchFrame.astro';
+import Faq from '../../components/Faq.astro';
+import AskUni from '../../components/AskUni.astro';
+import HealthNote from '../../components/HealthNote.astro';
+import LastReviewed from '../../components/LastReviewed.astro';
+import Icon from '../../components/Icon.astro';
+import { getService, formatPrice, spasFor } from '../../lib/catalog';
+import { review } from '../../lib/reviews';
+import { giftCoversVerb } from '../../lib/confirm';
+import { priceList, lengthsOf, listJoin, spaName } from '../../lib/pageHelpers';
+import { graph, orgNode, spaNode, serviceNode, breadcrumbNode, faqNode } from '../../lib/schema';
+import '../../styles/pages-b.css';
+
+const REVIEWED = '2026-10-24';
+const PATH = '/massage/with-katy';
+const katy = getService('katy');
+const spas = spasFor(katy);
+const where = spas.length === 2 ? 'at either spa' : `at our ${spaName(spas[0])} spa`;
+const quote = review('jessica-m');
+
+// Massage styles Katy takes (copy 03). Massage only, nothing medical.
+const STYLES = [
+  { name: 'Lymphatic', text: 'Very gentle and rhythmic, with gentle tummy work.', href: '/massage/lymphatic-drainage' },
+  { name: 'Deep tissue', text: 'Slow, firm pressure for deeper muscle layers and stubborn knots.' },
+  { name: 'Sports', text: 'Firmer, focused work for people who train.' },
+  { name: 'Therapeutic', text: 'Focused work on one main area, like your neck or lower back.' },
+  { name: 'Relaxing', text: 'Slow, soothing pressure, just for unwinding.' },
+  { name: 'Anti-cellulite', text: 'Brisk, firm massage for thighs, hips and buttocks.' },
+  { name: 'A mix', text: "Tell Katy what you need on the day, and she'll shape the session around you." },
+];
+
+const faqs = [
+  { q: 'Who is Katy?', a: `Katy is the owner of Unique Spa House. She takes massage bookings ${where}.` },
+  { q: 'What kind of massage can I book with Katy?', a: 'Lymphatic, deep tissue, sports, therapeutic, relaxing or anti-cellulite massage, or a mix. Tell her what you need at the start, and she shapes the session around you.' },
+  { q: 'How much is a massage with Katy?', a: `${priceList('katy')}${spas.length === 2 ? ', at both spas' : ''}.` },
+  { q: 'Can I book Katy in Del Mar?', a: spas.includes('DM') ? `Yes. You can book Katy for ${lengthsOf('katy', 'DM')} in Del Mar, and in San Diego.` : 'Massage with Katy is booked at our San Diego spa.' },
+  { q: 'Can I book lymphatic massage with Katy?', a: 'Yes. Book massage with Katy and tell her you would like lymphatic. It includes gentle tummy work, always with your OK first.' },
+  { q: 'Can I give a massage with Katy as a gift?', a: `Yes. An eGift card for ${listJoin(katy.options.map((o) => formatPrice(o.price))).replace(/ and /, ' or ')} ${giftCoversVerb()} a 60, 90 or 120 min massage with Katy.` },
+];
+
+const jsonLd = graph(
+  orgNode(), ...spas.map((sp) => spaNode(sp)),
+  serviceNode(katy, { path: PATH, description: 'Any massage with Katy, our owner: lymphatic, deep tissue, sports, therapeutic, relaxing or anti-cellulite, or a mix.' }),
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Massage', path: '/massage' }, { name: 'Massage with Katy', path: PATH }]),
+  faqNode(faqs),
+);
+---
+<BaseLayout
+  title="Massage with Katy, Owner | Unique Spa House"
+  description={`Book any massage with Katy, the owner of Unique Spa House, in San Diego or Del Mar. ${priceList('katy')}.`}
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Massage', href: '/massage' }, { name: 'Massage with Katy' }]}
+    eyebrow="Book with the owner"
+    title="Massage with <em>Katy</em>, owner"
+    lede="Book any massage with Katy, our owner. Choose lymphatic, deep tissue, anti-cellulite, relaxing, sports or therapeutic, or a mix."
+    asideWidth="narrow"
+  >
+    <div class="b-box">
+      <h2 class="b-box__label">Choose your length</h2>
+      <ServiceCard service="katy" variant="feature" showTitle={false} summary={null} defaultMinutes={60} placement="flagship" />
+    </div>
+    <Fragment slot="aside">
+      <ArchFrame asset="hands-4x5" ratio="4 / 5" sizes="(min-width: 960px) 30vw, 70vw" loading="eager" class="katy-arch" />
+    </Fragment>
+  </PageIntro>
+
+  <Section labelledby="styles-title" tone="paper">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="styles-title">What you can book</h2>
+        <p>One booking, any of these. Tell Katy what you need at the start of your session.</p>
+      </div>
+      <div class="b-split__body">
+        <dl class="styles">
+          {STYLES.map((s) => (
+            <div class="styles__item">
+              <dt class="serif">{s.href ? <a href={s.href}>{s.name}</a> : s.name}</dt>
+              <dd>{s.text}</dd>
+            </div>
+          ))}
+        </dl>
+        <HealthNote />
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="how-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="how-title">How it <em>works</em></h2>
+      </div>
+      <div class="b-split__body">
+        <ol class="b-steps" role="list">
+          <li><span class="b-steps__n" aria-hidden="true">1</span><h3 class="b-steps__t"><span class="sr-only">Step 1: </span>Choose a length and a spa</h3><p class="b-steps__d">{lengthsOf('katy')}, {where}.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">2</span><h3 class="b-steps__t"><span class="sr-only">Step 2: </span>A short chat first</h3><p class="b-steps__d">Tell Katy what you need, the pressure you like and any health conditions.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">3</span><h3 class="b-steps__t"><span class="sr-only">Step 3: </span>A session shaped around you</h3><p class="b-steps__d">One style, or a mix. Speak up any time and she'll adjust.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">4</span><h3 class="b-steps__t"><span class="sr-only">Step 4: </span>Time for questions</h3><p class="b-steps__d">Ask anything before you go, including what to book next time.</p></li>
+        </ol>
+        {quote && <PullQuote review={quote} size="small" class="katy-quote" />}
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="prices-title" tone="paper" id="prices">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="prices-title">Lengths and prices</h2>
+        <p>{spas.length === 2 ? 'The same price at both spas.' : `At our ${spaName(spas[0])} spa.`}</p>
+      </div>
+      <div class="b-split__body">
+        <PriceTable service="katy" caption="Massage with Katy: lengths, prices and booking links at each spa" placement="flagship-table" />
+        <AddOnLine group="massage" />
+        <p class="b-note">Prices as currently listed on our online booking menu. The booking page always shows the latest price. Booking opens in a new tab.</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="spas-title">
+    <div class="b-head"><h2 id="spas-title">Book Katy at {spas.length === 2 ? 'either spa' : 'our spa'}</h2></div>
+    <div class="b-duo">
+      {spas.map((sp) => <SpaPanel spa={sp} service="katy" minutes={60} bookLabel={`Book Katy in ${spaName(sp)}`} placement="flagship-spa" />)}
+    </div>
+  </Section>
+
+  <Section labelledby="faq-title" tone="paper">
+    <Faq items={faqs} title="Questions about booking Katy" />
+  </Section>
+
+  <Section labelledby="related-title">
+    <div class="b-head b-head--row">
+      <h2 id="related-title">Our other massages</h2>
+      <a class="link-arrow" href="/massage">All massages<Icon name="arrow-right" /></a>
+    </div>
+    <ul class="b-cards b-cards--3" role="list">
+      <li><ServiceCard service="lymphatic" class="b-card" placement="related" summary="Very gentle, rhythmic strokes. Our only massage with gentle tummy work."><a class="link-arrow" href="/massage/lymphatic-drainage">About lymphatic massage<Icon name="arrow-right" /></a></ServiceCard></li>
+      <li><ServiceCard service="deep-tissue" class="b-card" placement="related" summary="Slow, firm pressure for deeper muscle layers and stubborn knots." /></li>
+      <li><ServiceCard service="sports" class="b-card" placement="related" summary="Firmer, focused work for people who train." /></li>
+    </ul>
+  </Section>
+
+  <Section pad="tight" width="narrow">
+    <div class="b-tail">
+      <AskUni />
+      <LastReviewed date={REVIEWED} />
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .styles dt a { display: inline-flex; align-items: center; min-height: var(--tap); }   /* 44px target (QA M3) */
+  :global(.katy-arch) { width: min(100%, 420px); margin-inline: auto; }
+  @media (max-width: 959px) { :global(.katy-arch) { width: min(72%, 320px); } }
+  .styles { display: grid; margin: 0; }
+  .styles__item { display: grid; gap: 0.2rem 1.5rem; padding-block: 0.9rem; border-top: 1px solid var(--hairline); }
+  .styles__item:last-child { border-bottom: 1px solid var(--hairline); }
+  @media (min-width: 640px) { .styles__item { grid-template-columns: 10rem 1fr; align-items: baseline; } }
+  .styles dt { font-size: 1.5rem; line-height: 1.2; }
+  .styles dd { margin: 0; }
+  :global(.katy-quote) { margin-top: 1.5rem; }
+</style>

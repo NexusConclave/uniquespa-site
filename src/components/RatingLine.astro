@@ -1,0 +1,25 @@
+---
+/**
+ * The plain trust line: "4.7 on Google · 103 reviews · San Diego". No stars, no badge.
+ * Renders only while rating_checked is ≤ 45 days old; the client hides it after `data-hide-after`.
+ */
+import { site, ratingVisible, ratingExpires } from '../lib/site';
+interface Props { class?: string; tone?: 'light' | 'dark' }
+const { class: cls, tone = 'light' } = Astro.props;
+const show = ratingVisible();
+---
+{show && (
+  <p class:list={['rating-line', `rating-line--${tone}`, cls]} data-hide-after={ratingExpires()}>
+    {site.rating.text}
+  </p>
+)}
+<style>
+  .rating-line {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    line-height: 1.5;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .rating-line--dark { color: var(--on-dark-muted); }
+</style>

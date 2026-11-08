@@ -1,0 +1,70 @@
+---
+/**
+ * /accessibility — WCAG 2.2 AA statement with a feedback contact (compliance G9; Civ. Code §52). No overlay scripts.
+ * Keep "What we've done" true to the build: skip link, copper focus ring, click/Enter disclosures, dialogs with
+ * focus trap + Esc, 44px targets, Pause motion + reduced motion, text never on photos, sentence case.
+ */
+import DocPage from '../components/DocPage.astro';
+import { site } from '../lib/site';
+
+const toc = [
+  { id: 'commitment', label: 'Our commitment' },
+  { id: 'done', label: "What we've done" },
+  { id: 'limits', label: 'Known limitations' },
+  { id: 'feedback', label: 'Tell us about a problem' },
+  { id: 'how', label: 'How we check' },
+];
+---
+<DocPage
+  title="Accessibility | Unique Spa House"
+  description="Our accessibility statement: we aim for WCAG 2.2 level AA on this website. How to tell us about a problem, and other ways to book."
+  eyebrow="Accessibility"
+  h1="Accessibility"
+  lede="Everyone should be able to find a treatment, check a price and book a visit with us, whatever device or assistive technology they use."
+  dateLine="Statement prepared October 24, 2026"
+  toc={toc}
+>
+  <section id="commitment" aria-labelledby="commitment-h">
+    <h2 id="commitment-h">Our commitment</h2>
+    <p>We aim for this website to meet the Web Content Accessibility Guidelines (WCAG) 2.2 at level AA. We don't use accessibility overlay tools. Instead, we build accessibility into the pages themselves and test them.</p>
+  </section>
+
+  <section id="done" aria-labelledby="done-h">
+    <h2 id="done-h">What we've done</h2>
+    <ul>
+      <li>Every page works with a keyboard. A "Skip to content" link comes first, and a clear copper outline shows where you are.</li>
+      <li>Menus open on click or Enter, never on hover alone. Pop-up panels keep focus inside, close with Escape, and return you to where you were.</li>
+      <li>Text is left-aligned and in sentence case, with no long passages in italics or capitals, to help readers with dyslexia.</li>
+      <li>Colors meet AA contrast, and text is never placed over a photo.</li>
+      <li>Buttons and links are at least 44 by 44 pixels. Text can be zoomed to 200%, and pages reflow to fit small screens.</li>
+      <li>Motion is gentle and optional. The site follows your device's reduced-motion setting, and a Pause motion switch sits in the footer and the menu.</li>
+      <li>Prices are announced when you change a treatment length, and booking links say when they open in a new tab.</li>
+      <li>Uni, our AI assistant, works by text as well as voice. Its chat window can be used with a keyboard and screen reader.</li>
+    </ul>
+  </section>
+
+  <section id="limits" aria-labelledby="limits-h">
+    <h2 id="limits-h">Known limitations</h2>
+    <ul>
+      <li><strong>Booking and gift cards</strong> open on Square's pages, which Square runs. We can't change how they work. If you have trouble there, call or text us on <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"accessibility"}'>{site.phone.display}</a> and we'll book for you.</li>
+      <li><strong>Photos</strong> are interim images until our new photo shoot. Photos that carry meaning have a written description; decorative ones are skipped by screen readers.</li>
+      <li><strong>Voice calls with Uni</strong> rely on your browser's microphone support. If voice doesn't work for you, use text chat, or call us.</li>
+    </ul>
+  </section>
+
+  <section id="feedback" aria-labelledby="feedback-h">
+    <h2 id="feedback-h">Tell us about a problem</h2>
+    <p>If something on this site doesn't work for you, please tell us. Let us know the page, what you were trying to do, and the device or assistive technology you use, if you're happy to.</p>
+    <ul>
+      <li>Email: <a href={`mailto:${site.email}?subject=Website%20accessibility`}>{site.email}</a></li>
+      <li>Call: <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"accessibility"}'>{site.phone.display}</a></li>
+      <li>Text: <a href={site.sms} data-track="text_click" data-track-props='{"placement":"accessibility"}'>{site.phone.display}</a></li>
+    </ul>
+    <p>We'll help you book another way straight away, and work on a fix.</p>
+  </section>
+
+  <section id="how" aria-labelledby="how-h">
+    <h2 id="how-h">How we check</h2>
+    <p>We test every page with automated checks (axe) and by hand: keyboard only, screen readers, phone and desktop sizes, and zoom. We review this statement whenever the site changes in a big way, and at least once a year.</p>
+  </section>
+</DocPage>

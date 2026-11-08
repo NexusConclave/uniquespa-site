@@ -1,0 +1,211 @@
+---
+/**
+ * DoorStage — Home's one signature moment, "Come in" (blueprint §6.1). Home only.
+ *
+ * Layouts
+ *   - Landscape ≥768px: H1 block in the left column of the sticky frame, the arch in the right column.
+ *   - Phones and portrait screens (<768px, or any portrait viewport — QA M5): the H1 block sits above the stage
+ *     in normal flow (static); the arch is top-aligned under it.
+ *
+ * Animated mode (scroll-driven, `animation-timeline` on a named view timeline; no JS):
+ *   - a ~170svh stage with a sticky frame at top: var(--header-h), height calc(100svh - var(--header-h))
+ *   - landscape: the H1 block rises 24px and fades over 0–20%, then visibility: hidden (nothing invisible can take
+ *     focus); the arch widens over 15–55% (overlapping the fade, so the screen is never empty — QA m-5); holds to 100%.
+ *     Arch at rest: --w: min(42vw, 62svh), inset(9% 4% 9% calc(96% - --w) round --w/2 --w/2 0 0)
+ *     (height capped at 1.45 × --w).
+ *   - phones/portrait: the arch, top-aligned at inset(2% 6% 40% 6% round …), widens over 0–55%, then holds.
+ *   - both ends are inset(), so the clip-path interpolates smoothly; the photo never passes under text.
+ * Never upscaled (QA M4): the TEMP photo is shown at most at its native size. On landscape screens the opened
+ *   door is capped at the source width (--dw, 900px) and centred, instead of running full bleed; phones and
+ *   portrait screens cap the picture at the 4:5 crop's 720×900. Lift the caps when the shoot (#1/#6) delivers
+ *   2560px frames.
+ * Static mode (default CSS): prefers-reduced-motion, Pause motion on, viewport < 500px tall, or no
+ *   scroll-driven animation support → no sticky frame, no animation, no dead scroll; the H1 block stays visible.
+ *
+ * Image: <picture> with the landscape frame and a 4:5 crop, fetchpriority=high, never lazy, no fade-in.
+ * object-position comes from the asset manifest's focal point.
+ */
+import { getImage } from 'astro:assets';
+import { asset, objectPosition } from '../lib/images';
+interface Props { desktop?: string; mobile?: string; titleId?: string }
+const { desktop = 'hero-desktop', mobile = 'hero-4x5', titleId = 'hero-title' } = Astro.props;
+const d = asset(desktop);
+const m = asset(mobile);
+
+async function srcset(img: typeof d, widths: number[], format: 'avif' | 'webp' | 'jpg', quality: number) {
+  const ws = [...new Set(widths.map((w) => Math.min(w, img.src.width)))];
+  const out = await Promise.all(ws.map((w) => getImage({ src: img.src, width: w, format, quality })));
+  return out.map((o, i) => `${o.src} ${ws[i]}w`).join(', ');
+}
+// Native widths only: never ask for more pixels than the source has.
+const dW = [640, d.src.width], mW = [480, m.src.width];
+const [dAvif, dWebp, mAvif, mWebp] = await Promise.all([
+  srcset(d, dW, 'avif', 60), srcset(d, dW, 'webp', 74), srcset(m, mW, 'avif', 60), srcset(m, mW, 'webp', 74),
+]);
+const fallback = await getImage({ src: d.src, width: d.src.width, format: 'jpg', quality: 76 });
+const PORTRAIT = '(max-width: 767px), (orientation: portrait)';
+// On phones the 4:5 photo covers a taller box, so its rendered width follows the height: max(box width, box height × 0.8).
+const ratio = (m.src.width / m.src.height).toFixed(3);
+const mSizes = `max(min(100vw, ${m.src.width}px), min(${ratio} * 100vh, ${m.src.width}px))`;
+---
+<section class="door" aria-labelledby={titleId} style={`--pos-d: ${objectPosition(d)}; --pos-m: ${objectPosition(m)}; --dw: ${d.src.width}px; --mw: ${m.src.width}px; --mh: ${m.src.height}px`}>
+  <div class="door__intro">
+    <div class="door__intro-inner">
+      <slot />
+    </div>
+  </div>
+  <div class="door__stage">
+    <div class="door__frame">
+      <picture class="door__picture">
+        <source media={PORTRAIT} type="image/avif" srcset={mAvif} sizes={mSizes} />
+        <source media={PORTRAIT} type="image/webp" srcset={mWebp} sizes={mSizes} />
+        <source type="image/avif" srcset={dAvif} sizes={`min(100vw, ${d.src.width}px)`} />
+        <source type="image/webp" srcset={dWebp} sizes={`min(100vw, ${d.src.width}px)`} />
+        <img
+          class="door__img"
+          src={fallback.src}
+          width={fallback.attributes.width ?? d.src.width}
+          height={fallback.attributes.height ?? d.src.height}
+          alt={d.alt}
+          fetchpriority="high"
+          loading="eager"
+          decoding="sync"
+        />
+      </picture>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ============ Shared geometry ============ */
+  .door {
+    --w: min(42vw, 62svh);
+    --frame-h: calc(100svh - var(--header-h));
+    --pw: min(100vw, var(--mw));                     /* phone/portrait picture width: never wider than the 4:5 source */
+    --arch-h: min(82%, calc(var(--w) * 1.45));
+    --clip-rest-d: inset(calc((100% - var(--arch-h)) / 2) 4% calc((100% - var(--arch-h)) / 2) calc(96% - var(--w)) round calc(var(--w) / 2) calc(var(--w) / 2) 0 0);
+    --clip-open-d: inset(0 calc((100% - min(100%, var(--dw))) / 2) round 0);   /* opened door, capped at the source width */
+    --clip-rest-m: inset(2% 6% 40% 6% round calc(var(--pw) * 0.44) calc(var(--pw) * 0.44) 0 0);
+    --clip-open-m: inset(0 round 0);
+    /* At rest the photo (centred, ≤ --dw wide) slides under the arch in the right column; it slides back as the door opens */
+    --rest-shift: translateX(calc(46vw - var(--w) / 2));
+    position: relative;
+    timeline-scope: --door;
+  }
+  .door__frame { position: relative; overflow: hidden; }
+  .door__picture, .door__img { display: block; height: 100%; }
+  .door__img { object-fit: cover; background: var(--sand); }
+
+  .door__intro { position: relative; z-index: 1; }
+  .door__intro-inner {
+    width: min(100% - 2 * var(--gutter), var(--container));
+    margin-inline: auto;
+    padding-block: clamp(20px, 5vw, 40px) clamp(16px, 4vw, 28px);
+  }
+
+  /* ============ Phones and portrait screens: H1 block in flow, then the arch ============ */
+  @media (max-width: 767px), (orientation: portrait) {
+    .door__picture { width: var(--pw); margin-inline: auto; }
+    .door__img { width: 100%; object-position: var(--pos-m); }
+    /* static: the arch at rest, collapsed to its own height (no empty band below) */
+    .door__frame { height: min(118vw, 74svh, var(--mh)); }
+    .door__picture { clip-path: inset(0 6% 0 6% round calc(var(--pw) * 0.44) calc(var(--pw) * 0.44) 0 0); }
+  }
+
+  /* ============ Landscape ≥768: H1 block left, arch right, never overlapping ============ */
+  @media (min-width: 768px) and (orientation: landscape) {
+    .door { display: grid; grid-template: 1fr / 1fr; }
+    .door__intro, .door__stage { grid-area: 1 / 1; }
+    .door__intro { display: flex; align-items: center; pointer-events: none; }
+    .door__intro-inner {
+      pointer-events: auto;
+      width: auto;
+      margin: 0;
+      padding-left: max(var(--gutter), calc((100vw - var(--container-wide)) / 2));
+      /* reserve the arch column + a gutter so text can never reach the photo */
+      padding-right: calc(4% + var(--w) + clamp(32px, 5vw, 80px));
+    }
+    .door__stage { height: var(--frame-h); min-height: 520px; }
+    .door__frame { height: 100%; }
+    .door__picture { width: 100%; clip-path: var(--clip-rest-d); }
+    .door__img { width: min(100%, var(--dw)); margin-inline: auto; object-position: var(--pos-d); transform: var(--rest-shift); }
+  }
+
+  /* ============ Animated mode ============ */
+  @keyframes door-intro-out {
+    0% { opacity: 1; transform: none; visibility: visible; }
+    100% { opacity: 0; transform: translateY(-24px); visibility: hidden; }
+  }
+  @keyframes door-open-d { from { clip-path: var(--clip-rest-d); } to { clip-path: var(--clip-open-d); } }
+  @keyframes door-open-m { from { clip-path: var(--clip-rest-m); } to { clip-path: var(--clip-open-m); } }
+  @keyframes door-shift { from { transform: var(--rest-shift); } to { transform: none; } }
+  /* Load: the photo settles from 1.06 to 1 (scale only: it's the LCP image, so it paints at once). Needs JS on
+     (html[data-fx]), works without scroll-driven animation support. */
+  @keyframes door-settle { from { scale: 1.06; } to { scale: 1; } }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html[data-fx]:not([data-motion='paused'])) .door__img {
+      animation-name: door-settle; animation-duration: 0.9s; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+      animation-fill-mode: both; animation-delay: 0.05s;
+    }
+  }
+
+  @supports (animation-timeline: view()) and (timeline-scope: --door) {
+    @media (prefers-reduced-motion: no-preference) and (min-height: 500px) {
+      :global(html:not([data-motion='paused'])) .door__stage {
+        height: calc(var(--frame-h) + 70svh);   /* ≈170svh: contain range ≈ 70svh */
+        min-height: 0;
+        view-timeline: --door block;
+        view-timeline-inset: var(--header-h) 0px;
+      }
+      :global(html:not([data-motion='paused'])) .door__frame {
+        position: sticky;
+        top: var(--header-h);
+        height: var(--frame-h);
+      }
+
+      /* Phones and portrait: top-aligned arch widens 0–55%, then holds */
+      @media (max-width: 767px), (orientation: portrait) {
+        :global(html:not([data-motion='paused'])) .door__picture {
+          height: min(100%, var(--mh));
+          clip-path: var(--clip-rest-m);
+          animation-name: door-open-m; animation-timing-function: linear; animation-fill-mode: both; animation-duration: auto;
+          animation-timeline: --door;
+          animation-range: contain 0% contain 55%;
+        }
+      }
+
+      /* Landscape: H1 block fades 0–20% (then hidden); the arch widens 15–55%; holds 55–100% */
+      @media (min-width: 768px) and (orientation: landscape) {
+        :global(html:not([data-motion='paused'])) .door__intro {
+          position: sticky;
+          top: var(--header-h);
+          height: var(--frame-h);
+          align-self: start;
+          animation-name: door-intro-out; animation-timing-function: linear; animation-fill-mode: both; animation-duration: auto;
+          animation-timeline: --door;
+          animation-range: contain 0% contain 20%;
+        }
+        :global(html:not([data-motion='paused'])) .door__picture {
+          animation-name: door-open-d; animation-timing-function: linear; animation-fill-mode: both; animation-duration: auto;
+          animation-timeline: --door;
+          animation-range: contain 15% contain 55%;
+        }
+        :global(html:not([data-motion='paused'])) .door__img {
+          animation-name: door-shift; animation-timing-function: linear; animation-fill-mode: both; animation-duration: auto;
+          animation-timeline: --door;
+          animation-range: contain 15% contain 55%;
+        }
+        /* with JS on: the scroll-linked slide plus the one-off settle */
+        :global(html[data-fx]:not([data-motion='paused'])) .door__img {
+          animation-name: door-shift, door-settle;
+          animation-timing-function: linear, cubic-bezier(0.22, 1, 0.36, 1);
+          animation-fill-mode: both, both;
+          animation-duration: auto, 0.9s;
+          animation-delay: 0s, 0.05s;
+          animation-timeline: --door, auto;
+          animation-range: contain 15% contain 55%, normal;
+        }
+      }
+    }
+  }
+</style>

@@ -1,0 +1,155 @@
+---
+/**
+ * Header (§4.0).
+ * Desktop (≥1024px): logo · Treatments ▾ · Our spas · Offers ▾ · About | Gift cards · Ask Uni · Book (the one filled pill).
+ *   Sticky, solid --bg, no blur. Dropdowns are click/Enter disclosures (button aria-expanded), never hover-only.
+ * Mobile (<1024px): logo + Menu only, not sticky (--header-h = 0). The Menu opens MobileMenu (dialog).
+ */
+import { TREATMENTS, offerLinks, OUR_SPAS_HREF, isCurrent } from '../lib/nav';
+import LotusMark from './LotusMark.astro';
+import Icon from './Icon.astro';
+const path = Astro.url.pathname;
+const offers = offerLinks();
+const inTreatments = TREATMENTS.some((l) => isCurrent(path, l.href)) || path.startsWith('/massage') || path.startsWith('/facials') || path.startsWith('/body');
+const inOffers = offers.some((l) => isCurrent(path, l.href));
+---
+<header class="site-header">
+  <div class="site-header__inner container--wide">
+    <a class="brand" href="/" aria-label="Unique Spa House, home">
+      <LotusMark size={30} />
+      <span class="brand__word" aria-hidden="true">Unique Spa House</span>
+    </a>
+
+    <nav class="nav" aria-label="Main">
+      <ul class="nav__list" role="list">
+        <li class="nav__item" data-disclosure-root>
+          <button type="button" class="nav__link nav__btn" aria-expanded="false" aria-controls="nav-treatments" data-disclosure data-current={inTreatments ? 'true' : undefined}>
+            Treatments<Icon name="chevron-down" class="nav__chev" />
+          </button>
+          <ul id="nav-treatments" class="nav__panel" role="list" hidden>
+            {TREATMENTS.map((l) => <li><a href={l.href} aria-current={isCurrent(path, l.href) ? 'page' : undefined}>{l.label}</a></li>)}
+          </ul>
+        </li>
+        <li class="nav__item"><a class="nav__link" href={OUR_SPAS_HREF}>Our spas</a></li>
+        <li class="nav__item" data-disclosure-root>
+          <button type="button" class="nav__link nav__btn" aria-expanded="false" aria-controls="nav-offers" data-disclosure data-current={inOffers ? 'true' : undefined}>
+            Offers<Icon name="chevron-down" class="nav__chev" />
+          </button>
+          <ul id="nav-offers" class="nav__panel" role="list" hidden>
+            {offers.map((l) => <li><a href={l.href} aria-current={isCurrent(path, l.href) ? 'page' : undefined}>{l.label}</a></li>)}
+          </ul>
+        </li>
+        <li class="nav__item"><a class="nav__link" href="/about" aria-current={isCurrent(path, '/about') ? 'page' : undefined}>About</a></li>
+      </ul>
+    </nav>
+
+    <div class="actions">
+      <a class="actions__link" href="/gift-cards" aria-current={isCurrent(path, '/gift-cards') ? 'page' : undefined}>Gift cards</a>
+      <button type="button" class="actions__link" data-open="uni" aria-haspopup="dialog" data-track="chat_open" data-track-props='{"placement":"header"}'>Ask Uni</button>
+      <a class="btn btn--filled btn--sm actions__book" href="/menu" data-open="book" aria-haspopup="dialog" data-track="book_click" data-track-props='{"placement":"header"}'>Book</a>
+    </div>
+
+    <button type="button" class="menu-btn" data-open="menu" aria-haspopup="dialog" aria-controls="mobile-menu">
+      <span>Menu</span><Icon name="menu" />
+    </button>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: relative;
+    z-index: 50;
+    background-color: var(--bg);
+    background-image: var(--grain);
+  }
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-height: 64px;
+  }
+  .brand {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    min-height: var(--tap);
+    text-decoration: none;
+    color: var(--text);
+    margin-right: auto;
+  }
+  .brand :global(.lotus) { flex: none; }
+  .brand__word { font-family: var(--font-serif); font-size: 1.5rem; line-height: 1; letter-spacing: -0.005em; white-space: nowrap; }
+
+  .nav, .actions { display: none; }
+  .menu-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    min-height: var(--tap); min-width: var(--tap);
+    padding: 0 0.85rem;
+    border: 1px solid var(--border-ui); border-radius: var(--radius-pill);
+    background: transparent;
+    font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label);
+  }
+  .menu-btn :global(svg) { width: 18px; height: 18px; }
+
+  @media (min-width: 1024px) {
+    .site-header { position: sticky; top: 0; border-bottom: 1px solid var(--hairline); }
+    .site-header__inner { height: var(--header-h); min-height: 0; gap: 2rem; }
+    .brand { margin-right: 0; }
+    .menu-btn { display: none; }
+    .nav { display: block; margin-right: auto; }
+    .actions { display: flex; align-items: center; gap: 1.5rem; }
+  }
+  @media (min-width: 1024px) and (max-width: 1199px) {
+    .site-header__inner { gap: 1.25rem; }
+    .brand__word { font-size: 1.3rem; }
+    .actions { gap: 1rem; }
+  }
+
+  .nav__list { display: flex; align-items: center; gap: 0.25rem; margin: 0; padding: 0; }
+  .nav__item { position: relative; }
+  .nav__link {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    min-height: var(--tap);
+    padding: 0 0.75rem;
+    border: 0; background: none;
+    font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label);
+    color: var(--text);
+    text-decoration: none;
+    border-radius: 6px;
+  }
+  /* hover: the underline grows from the left (styles/motion.css) */
+  .nav__link[aria-current='page'], .nav__btn[data-current='true'] { text-decoration: underline; text-underline-offset: 0.3em; text-decoration-thickness: 1px; }
+  .nav__link :global(.nav__chev) { width: 14px; height: 14px; transition: transform 0.2s var(--ease); }
+  .nav__btn[aria-expanded='true'] :global(.nav__chev) { transform: rotate(180deg); }
+  .nav__panel {
+    position: absolute; top: calc(100% + 10px); left: 0;
+    min-width: 220px;
+    margin: 0; padding: 0.4rem;
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    box-shadow: 0 20px 44px -22px rgba(52, 18, 4, 0.4);
+  }
+  .nav__panel a {
+    display: flex; align-items: center;
+    min-height: var(--tap);
+    padding: 0.4rem 0.85rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+    line-height: 1.15;
+  }
+  .nav__panel a:hover { background: rgba(52, 18, 4, 0.05); }
+  .nav__panel a[aria-current='page'] { text-decoration: underline; text-underline-offset: 0.2em; }
+
+  .actions__link {
+    display: inline-flex; align-items: center; min-height: var(--tap);
+    padding: 0 0.15rem;
+    border: 0; background: none;
+    font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label);
+    color: var(--text);
+    text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 0.3em;
+    transition: text-decoration-color 0.2s var(--ease);
+  }
+  .actions__link[aria-current='page'] { text-decoration-color: currentColor; }
+  .actions__book { --btn-pad: 1.6rem; }
+</style>

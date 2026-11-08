@@ -1,0 +1,17 @@
+---
+/** "More guides": links to the other live guides (never the current one). Renders nothing while guides are off. */
+import { liveGuides } from '../../lib/guides';
+interface Props { current: string; headingId?: string }
+const { current, headingId = 'more-title' } = Astro.props;
+const others = liveGuides().filter((g) => g.slug !== current);
+---
+{others.length > 0 && (
+  <div class="b-split">
+    <div class="b-split__head"><h2 id={headingId}>More guides</h2></div>
+    <div class="b-split__body">
+      <ul class="g-more" role="list">
+        {others.map((g) => <li><a href={`/guides/${g.slug}`}>{g.label}</a><p>{g.summary}</p></li>)}
+      </ul>
+    </div>
+  </div>
+)}

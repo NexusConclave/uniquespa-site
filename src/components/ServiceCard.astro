@@ -1,0 +1,147 @@
+---
+/**
+ * ServiceCard — one live service with duration radio chips, a price announced via aria-live,
+ * location chips and one "Book in {city}" deep link per spa (never a Del Mar link to a San Diego-only item).
+ *
+ * variant="card"    compact card (hubs, related services)
+ * variant="feature" flagship summary box: Instrument Serif price at 40–56px (§4.3)
+ *
+ * Props: service (id) · defaultMinutes · onlySpa (Del Mar view) · heading level · summary override · placement (analytics)
+ * Without JS the default option's price and links are shown; site.ts swaps them when a chip changes.
+ */
+import { getService, type Spa } from '../lib/catalog';
+import { viewService, spaName } from '../lib/serviceView';
+import Icon from './Icon.astro';
+import { pageUid } from '../lib/uid';
+interface Props {
+  service: string;
+  variant?: 'card' | 'feature';
+  defaultMinutes?: number;
+  onlySpa?: Spa;
+  headingLevel?: 2 | 3 | 4;
+  title?: string;
+  summary?: string | null;
+  showTitle?: boolean;
+  placement?: string;
+  /** false hides the location chips (a spa's own page, where every item is at that spa). Default true. */
+  showWhere?: boolean;
+  class?: string;
+}
+const {
+  service, variant = 'card', defaultMinutes, onlySpa, headingLevel = 3, title, summary,
+  showTitle = true, placement = 'card', showWhere = true, class: cls,
+} = Astro.props;
+const s = getService(service);
+const v = viewService(s, onlySpa);
+const def = defaultMinutes != null ? Math.max(0, v.options.findIndex((o) => o.minutes === defaultMinutes)) : 0;
+const cur = v.options[def] ?? v.options[0];
+const H = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
+const uid = pageUid(Astro.locals, `svc-${v.id}`);
+const name = title ?? v.name;
+const text = summary === undefined ? v.summary : summary;
+const optData = v.options.map((o) => ({
+  price: o.priceText, num: o.priceNumber, suffix: o.suffix, min: o.minutesText, spoken: o.spokenMinutes,
+  links: o.links, locs: o.locations,
+}));
+---
+<article class:list={['svc', `svc--${variant}`, cls]} data-svc data-svc-name={name} data-svc-id={v.id} data-options={JSON.stringify(optData)}>
+  {showTitle && <H class="svc__title">{name}</H>}
+  {text && <p class="svc__summary">{text}</p>}
+
+  {v.options.length > 1 && (
+    <fieldset class="chips">
+      <legend class="sr-only">Length of {name.toLowerCase()}</legend>
+      <div class="chips__row">
+        {v.options.map((o, i) => (
+          <label class="chip">
+            <input type="radio" name={`len-${uid}`} value={i} checked={i === def} data-opt={i} />
+            <span>{o.chip}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  )}
+
+  <p class="svc__price" aria-live="polite" aria-atomic="true">
+    {variant === 'feature' ? (
+      <span aria-hidden="true" class="svc__price-visual">
+        <span class="price-display" data-svc-num>{cur.priceNumber}</span>
+        <span class="svc__price-meta meta"><span data-svc-suffix>{cur.suffix.trim()}</span>{cur.suffix && ' · '}<span data-svc-min>{cur.minutesText}</span></span>
+      </span>
+    ) : (
+      <span aria-hidden="true" class="meta"><span data-svc-min>{cur.minutesText}</span> · <b data-svc-price>{cur.priceText}</b></span>
+    )}
+    <span class="sr-only" data-svc-spoken>{cur.spokenMinutes}, {cur.priceText}</span>
+  </p>
+
+  <ul class="where" role="list" aria-label="Where" hidden={!showWhere}>
+    {v.single ? (
+      <li class="where__chip where__chip--single"><Icon name="pin" />{spaName(v.single)} only</li>
+    ) : (
+      v.spas.map((sp) => (
+        <li class="where__chip" data-where={sp} hidden={cur.locations.length === 1 || !cur.locations.includes(sp)}>{spaName(sp)}</li>
+      ))
+    )}
+    {!v.single && <li class="where__chip where__chip--single" data-where-only hidden={cur.locations.length !== 1}><Icon name="pin" /><span data-where-only-name>{cur.locations.length === 1 ? spaName(cur.locations[0]) : ''}</span> only</li>}
+  </ul>
+
+  <div class="svc__book">
+    {v.spas.map((sp) => (
+      <a
+        class="btn btn--outline btn--sm"
+        href={cur.links[sp] ?? v.options.find((o) => o.links[sp])?.links[sp]}
+        target="_blank"
+        rel="noopener"
+        data-book={sp}
+        hidden={!cur.links[sp]}
+        data-track="book_click"
+        data-track-props={JSON.stringify({ spa: sp, service: v.id, placement })}
+      >Book in {spaName(sp)}<span class="sr-only">: {name}, <span data-svc-sr-len>{cur.spokenMinutes}</span> (opens in a new tab)</span></a>
+    ))}
+  </div>
+  <slot />
+</article>
+
+<style>
+  .svc { display: flex; flex-direction: column; gap: 0.9rem; }
+  .svc__title { font-size: var(--fs-h3); }
+  .svc__summary { color: var(--text); }
+  /* In a grid of cards the one-liner takes the slack, so chips, price and Book line up across a row (QA m-4) */
+  .svc--card .svc__summary { flex: 1 0 auto; }
+  .svc--feature .svc__title { font-size: var(--fs-h2); }
+
+  .chips__row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chip { position: relative; display: inline-flex; }
+  .chip input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .chip span {
+    display: inline-flex; align-items: center; min-height: var(--tap);
+    padding: 0 1.05rem;
+    border: 1px solid var(--border-ui);
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label);
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    transition: background-color .2s var(--ease), color .2s var(--ease);
+  }
+  .chip input:checked + span { background: var(--text); border-color: var(--text); color: var(--on-dark); }
+  .chip input:hover + span { border-color: var(--text); }
+  .chip input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .svc__price { margin: 0; }
+  .svc__price-visual { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.35rem 0.85rem; }
+  .svc__price-meta { font-size: var(--fs-label); }
+
+  .where { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+  .where__chip {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    padding: 0.15rem 0.6rem;
+    border: 1px solid var(--hairline);
+    border-radius: 6px;
+    font-size: var(--fs-meta); line-height: 1.6; color: var(--text-muted);
+    font-stretch: var(--wdth-label); font-weight: 500;
+  }
+  .where__chip--single { border-color: var(--border-ui); }
+  .where__chip :global(svg) { width: 15px; height: 15px; color: var(--text-muted); }
+
+  .svc__book { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.25rem; }
+</style>

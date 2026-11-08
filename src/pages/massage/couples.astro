@@ -1,0 +1,207 @@
+---
+/**
+ * /massage/couples — flagship (blueprint §4.3). San Diego only (generated from the catalog: the only Book
+ * button is San Diego's, never a Del Mar link). "$336 / $436 for two", "All included". No discounts on Couples.
+ * No photo exists yet (shoot #8): the aside shows the San Diego spa door (where couples massage happens) rather
+ * than a placeholder tile (QA M6).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/Section.astro';
+import PageIntro from '../../components/PageIntro.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import PriceTable from '../../components/PriceTable.astro';
+import AddOnLine from '../../components/AddOnLine.astro';
+import SpaPanel from '../../components/SpaPanel.astro';
+import Faq from '../../components/Faq.astro';
+import GuideLink from '../../components/GuideLink.astro';
+import AskUni from '../../components/AskUni.astro';
+import HealthNote from '../../components/HealthNote.astro';
+import LastReviewed from '../../components/LastReviewed.astro';
+import GiftCardVisual from '../../components/GiftCardVisual.astro';
+import SpaDoor from '../../components/SpaDoor.astro';
+import Button from '../../components/Button.astro';
+import Icon from '../../components/Icon.astro';
+import { getService, formatMinutes, formatPrice, giftUrl, spasFor } from '../../lib/catalog';
+import { site } from '../../lib/site';
+import { giftCoversVerb } from '../../lib/confirm';
+import { priceOf, lengthOf, listJoin, spaName } from '../../lib/pageHelpers';
+import { graph, orgNode, spaNode, serviceNode, breadcrumbNode, faqNode } from '../../lib/schema';
+import '../../styles/pages-b.css';
+
+const REVIEWED = '2026-10-24';
+const PATH = '/massage/couples';
+const couples = getService('couples');
+const spas = spasFor(couples);                      // ['SD'] today
+const home = spas[0];
+const opts = couples.options;
+const pricesText = listJoin(opts.map((o) => `${priceOf('couples', o.minutes)} (${lengthOf(o)} massage, a ${formatMinutes(o.minutes, 'visit')} visit)`)).replace(/ and /, ' or ');
+const giftAmounts = listJoin(opts.map((o) => formatPrice(o.price))).replace(/ and /, ' or ');
+const elsewhere = spas.length === 1 ? (home === 'SD' ? 'DM' : 'SD') : null;
+
+const faqs = [
+  { q: 'Where can we book a couples massage?', a: spas.length === 1 ? `At our ${spaName(home)} spa, ${site.spas[home].street}. ${elsewhere ? `Our ${spaName(elsewhere)} spa doesn't offer couples massage.` : ''}` : 'At both of our spas.' },
+  { q: 'How much is a couples massage?', a: `${pricesText}. Everything is included.` },
+  { q: "What's included?", a: 'Your massages, side by side on two tables in a private room. Then 30 minutes together, with tea or coffee, fresh fruit and cheese.' },
+  { q: 'Can we each choose our own pressure?', a: "Yes. Tell your therapist what you like, and they'll adjust for each of you. Speak up any time." },
+  { q: 'Can we use a package discount?', a: "No. Couples massages aren't eligible for package discounts." },
+  { q: 'Can I give a couples massage as a gift?', a: `Yes. Buy an eGift card for ${giftAmounts}, and they can book online when it suits them.` },
+];
+
+const jsonLd = graph(
+  orgNode(), ...spas.map((sp) => spaNode(sp)),
+  serviceNode(couples, { path: PATH, description: 'Two tables in a private room, then 30 minutes together with tea or coffee, fresh fruit and cheese. All included.' }),
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Massage', path: '/massage' }, { name: 'Couples massage', path: PATH }]),
+  faqNode(faqs),
+);
+---
+<BaseLayout
+  title="Couples Massage in San Diego | Unique Spa House"
+  description={`Couples massage at our Mission Valley spa: two tables in a private room, then 30 minutes together with tea or coffee, fruit and cheese. ${priceOf('couples', opts[0].minutes)}. All included.`}
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Massage', href: '/massage' }, { name: 'Couples' }]}
+    eyebrow={spas.length === 1 ? `At our ${spaName(home)} spa` : undefined}
+    title="Couples massage in San Diego"
+    lede="Two tables in a private room. Then 30 minutes together, with tea or coffee, fresh fruit and cheese. All included."
+    asideWidth="narrow"
+  >
+    <div class="b-box">
+      <h2 class="b-box__label">Choose your length</h2>
+      <ServiceCard service="couples" variant="feature" showTitle={false} summary={null} placement="flagship" />
+      <p class="b-note">Price for two people. All included: the massage for both of you, then 30 minutes together.</p>
+    </div>
+    <Fragment slot="aside">
+      <SpaDoor spa={home} showLinks={false} headingLevel={2} class="cp-door" />
+    </Fragment>
+  </PageIntro>
+
+  <Section labelledby="visit-title" tone="paper">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="visit-title">How your visit <em>goes</em></h2>
+        <p>Plan on {listJoin(opts.map((o) => formatMinutes(o.minutes, 'visit'))).replace(/ and /, ' or ')} at the spa, depending on the length you book.</p>
+      </div>
+      <div class="b-split__body">
+        <ol class="b-steps" role="list">
+          <li><span class="b-steps__n" aria-hidden="true">1</span><h3 class="b-steps__t"><span class="sr-only">Step 1: </span>Arrive together</h3><p class="b-steps__d">Come a few minutes early. You'll each fill in a short form.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">2</span><h3 class="b-steps__t"><span class="sr-only">Step 2: </span>A private room for two</h3><p class="b-steps__d">Two tables, side by side. Soft lighting and quiet music.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">3</span><h3 class="b-steps__t"><span class="sr-only">Step 3: </span>Your massages</h3><p class="b-steps__d">{listJoin(opts.map((o) => lengthOf(o))).replace(/ and /, ' or ')}, with the pressure set for each of you.</p></li>
+          <li><span class="b-steps__n" aria-hidden="true">4</span><h3 class="b-steps__t"><span class="sr-only">Step 4: </span>30 minutes together</h3><p class="b-steps__d">Tea or coffee, fresh fruit and cheese. No rush.</p></li>
+        </ol>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="who-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="who-title">Who it's for</h2>
+      </div>
+      <div class="b-split__body">
+        <ul class="b-ticks">
+          <li>Couples who want time together</li>
+          <li>Friends or family celebrating something, or nothing at all</li>
+          <li>Anyone who'd rather not have a first massage alone</li>
+        </ul>
+        <HealthNote text="Food allergies? Let us know when you book." />
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="prices-title" tone="paper" id="prices">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="prices-title">Lengths and prices</h2>
+        <p>Prices are for two people, and everything is included. Couples massages aren't eligible for package discounts.</p>
+      </div>
+      <div class="b-split__body">
+        <PriceTable service="couples" caption="Couples massage: lengths, prices for two and booking links" placement="flagship-table" />
+        <dl class="visits">
+          {opts.map((o) => <div><dt>{lengthOf(o)} massage</dt><dd>About a {formatMinutes(o.minutes, 'visit')} visit, including 30 minutes together</dd></div>)}
+        </dl>
+        <AddOnLine group="massage" />
+        <p class="b-note">Prices as currently listed on our online booking menu. The booking page always shows the latest price. Booking opens in a new tab.</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="care-title">
+    <div class="b-head"><h2 id="care-title">Before and after</h2></div>
+    <div class="b-duo">
+      <div class="care">
+        <h3>Before</h3>
+        <ul class="b-ticks">
+          <li>Arrive a few minutes early to fill in a short form each.</li>
+          <li>Tell us about pregnancy, recent surgery, health conditions, or allergies to oils, scents or food.</li>
+        </ul>
+      </div>
+      <div class="care">
+        <h3>After</h3>
+        <ul class="b-ticks">
+          <li>Get up slowly. You may feel a little dazed.</li>
+          <li>Take your time over the tea, fruit and cheese. It's part of the visit.</li>
+        </ul>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="where-title" tone="paper">
+    <div class="b-duo where-gift">
+      <div class="b-tail">
+        <h2 id="where-title">Where</h2>
+        {spas.map((sp) => (
+          <SpaPanel spa={sp} service="couples" minutes={opts[0].minutes} bookLabel={`Book couples in ${spaName(sp)}`} placement="flagship-spa" headingLevel={3}>
+            {elsewhere && <p>Couples massage is booked at this spa only. Our {spaName(elsewhere)} spa doesn't offer it.</p>}
+          </SpaPanel>
+        ))}
+      </div>
+      <div class="b-tail">
+        <h2>Give it as a gift</h2>
+        <article class="gift">
+          <GiftCardVisual amount={formatPrice(opts[0].price)} />
+          <p>An eGift card for {giftAmounts} {giftCoversVerb()} a couples massage. Send it by text or email.</p>
+          <Button href={giftUrl()} external icon="gift" track="gift_card_click" trackProps={{ placement: 'couples' }}>Buy a gift card</Button>
+        </article>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="faq-title">
+    <Faq items={faqs} title="Couples massage questions"><GuideLink slot="head" slug="couples-massage-san-diego" label="Planning a visit? Read our couples guide" /></Faq>
+  </Section>
+
+  <Section labelledby="related-title" tone="paper">
+    <div class="b-head b-head--row">
+      <h2 id="related-title">On your own?</h2>
+      <a class="link-arrow" href="/massage">All massages<Icon name="arrow-right" /></a>
+    </div>
+    <ul class="b-cards b-cards--3" role="list">
+      <li><ServiceCard service="swedish" class="b-card" placement="related" summary="Long, flowing strokes with light to medium pressure. A great first massage." /></li>
+      <li><ServiceCard service="relaxing" class="b-card" placement="related" summary="A slow, soothing full session, just for unwinding." /></li>
+      <li><ServiceCard service="lymphatic" class="b-card" placement="related" summary="Very gentle, rhythmic strokes. Our only massage with gentle tummy work."><a class="link-arrow" href="/massage/lymphatic-drainage">About lymphatic massage<Icon name="arrow-right" /></a></ServiceCard></li>
+    </ul>
+  </Section>
+
+  <Section pad="tight" width="narrow">
+    <div class="b-tail">
+      <AskUni />
+      <LastReviewed date={REVIEWED} />
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  :global(.cp-door) { width: min(100%, 400px); margin-inline: auto; }
+  @media (max-width: 959px) { :global(.cp-door) { width: min(86%, 340px); } }
+  .visits { display: grid; gap: 0.5rem; margin: 0; }
+  .visits div { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; }
+  .visits dt { font-weight: 600; }
+  .visits dd { margin: 0; }
+  .care { display: flex; flex-direction: column; gap: 0.9rem; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--paper); }
+  .care h3 { font-size: 1.6rem; }
+  .where-gift { align-items: start; gap: clamp(2rem, 5vw, 3rem); }
+  .gift { display: flex; flex-direction: column; gap: 1rem; align-items: flex-start; padding: clamp(1.25rem, 3vw, 2rem); background: var(--bg); border: 1px solid var(--hairline); border-radius: var(--radius-card); }
+  .gift :global(.giftcard) { width: min(100%, 300px); }
+</style>

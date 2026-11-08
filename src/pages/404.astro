@@ -1,0 +1,56 @@
+---
+/**
+ * 404 (copy 11: "We can't find that page." / "It may have moved. Try one of these instead.").
+ * A static, empty doorway (CSS arch outline, decorative) is allowed here; no photo, no motion.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../lib/site';
+
+const links = [
+  { label: 'Home', href: '/' },
+  { label: 'Massage', href: '/massage' },
+  { label: 'Facials', href: '/facials' },
+  { label: 'Full menu and prices', href: '/menu' },
+  { label: "This month's specials", href: '/specials' },
+  { label: 'Gift cards', href: '/gift-cards' },
+  { label: 'Our spas', href: '/#spas' },
+  { label: 'Contact', href: '/contact' },
+];
+---
+<BaseLayout title="Page Not Found | Unique Spa House" description="We can't find that page.">
+  <Section class="nf" reveal={false}>
+    <div class="nf__grid">
+      <div class="nf__text">
+        <p class="eyebrow">Page not found</p>
+        <h1 class="nf__h1">We can't find that <em>page</em>.</h1>
+        <p class="lede nf__lede">It may have moved. Try one of these instead.</p>
+        <ul class="nf__links" role="list">
+          {links.map((l) => <li><a class="link-arrow" href={l.href}>{l.label}<Icon name="arrow-right" /></a></li>)}
+        </ul>
+        <div class="nf__actions">
+          <Button open="book" variant="outline" track="book_click" trackProps={{ placement: '404' }}>Book a visit</Button>
+          <Button open="uni" variant="outline">Ask Uni</Button>
+          <a class="link-quiet" href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"404"}'>or call {site.phone.display}</a>
+        </div>
+      </div>
+      <div class="nf__door" aria-hidden="true"><div class="nf__door-inner"></div></div>
+    </div>
+  </Section>
+</BaseLayout>
+<style>
+  .nf__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(2rem, 6vw, 6rem); align-items: center; }
+  @media (min-width: 900px) { .nf__grid { grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr); } }
+  .nf__h1 { font-size: clamp(2.75rem, 1.6rem + 4.4vw, 5.5rem); max-width: 13ch; }
+  .nf__lede { margin-top: 1rem; }
+  .nf__links { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr)); gap: 0 1.75rem; margin: 1.75rem 0 0; padding: 0; max-width: 40rem; }
+  .nf__links li { border-bottom: 1px solid var(--hairline); }
+  .nf__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-top: 2rem; }
+  /* An empty doorway: the arch outline only (radius = half the width) */
+  .nf__door { justify-self: center; width: min(100%, 320px); aspect-ratio: 5 / 7; border: 1px solid var(--text); border-bottom: 0; border-radius: 100vmax 100vmax 0 0; padding: 12px 12px 0; position: relative; }
+  .nf__door::after { content: ''; position: absolute; left: -14px; right: -14px; bottom: 0; border-top: 1px solid var(--text); }
+  .nf__door-inner { height: 100%; border: 1px solid var(--border-ui); border-bottom: 0; border-radius: 100vmax 100vmax 0 0; background: rgba(250, 246, 240, 0.55); }
+  @media (max-width: 899px) { .nf__door { display: none; } }
+</style>

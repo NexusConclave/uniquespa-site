@@ -1,0 +1,88 @@
+/* =========================================================================
+   Service and spa pages (dev B): /menu, /massage(+3 flagships), /facials, /body,
+   /locations/*, /consultations. Shared layout pieces, all prefixed `b-` so they
+   never collide with other pages. Tokens come from global.css.
+   ========================================================================= */
+
+/* Section heading row: H2 (+ lede) left, content right on wide screens */
+.b-split { display: grid; gap: clamp(1.25rem, 3vw, 2.5rem); }
+@media (min-width: 960px) {
+  .b-split { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); column-gap: clamp(2.5rem, 6vw, 6rem); align-items: start; }
+  .b-split > .b-split__head { position: sticky; top: calc(var(--header-h) + 2rem); }
+}
+.b-split__head { display: flex; flex-direction: column; gap: 0.9rem; }
+.b-split__head p { color: var(--text); }
+.on-dark .b-split__head p, .on-dark .b-group__head p { color: var(--on-dark); }
+.b-split__body { display: flex; flex-direction: column; gap: 1.25rem; min-width: 0; }
+
+.b-head { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: clamp(1.75rem, 3.5vw, 2.75rem); }
+.b-head--row { flex-direction: row; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem 2rem; }
+.b-head h2 { max-width: 20ch; }
+
+.b-prose { display: flex; flex-direction: column; gap: 1rem; }
+.b-prose h3 { margin-top: 0.75rem; }
+
+/* Lists with a quiet hairline dash */
+.b-ticks { display: grid; gap: 0.55rem; margin: 0; padding: 0; list-style: none; }
+.b-ticks li { position: relative; padding-left: 1.4rem; }
+.b-ticks li::before { content: ''; position: absolute; left: 0; top: 0.8em; width: 0.8rem; height: 1px; background: var(--text); }
+
+/* Numbered steps, stacked */
+.b-steps { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.b-steps li { display: grid; grid-template-columns: 3rem 1fr; gap: 0.25rem 1rem; padding-block: 1.1rem 1.25rem; border-top: 1px solid var(--hairline); }
+.b-steps li:last-child { border-bottom: 1px solid var(--hairline); }
+.b-steps__n { font-family: var(--font-serif); font-size: 2.25rem; line-height: 1; color: var(--text-soft-lg); font-variant-numeric: lining-nums; }
+.b-steps__t { font-family: var(--font-serif); font-size: 1.45rem; line-height: 1.2; }
+.b-steps__d { grid-column: 2; }
+.on-dark .b-steps li { border-color: var(--on-dark-border); }
+.on-dark .b-steps__n { color: var(--on-dark-muted); }
+
+/* Paper summary box around a ServiceCard variant="feature" */
+.b-box { display: flex; flex-direction: column; gap: 1rem; padding: clamp(1.25rem, 3vw, 2.25rem); background: var(--paper); border: 1px solid var(--hairline); border-radius: var(--radius-card); }
+.b-box__label { font-family: var(--font-sans); font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); letter-spacing: 0; color: var(--text-muted); }
+
+/* Grids of ServiceCards */
+.b-cards { display: grid; gap: 1.25rem; margin: 0; padding: 0; list-style: none; }
+@media (min-width: 700px) { .b-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1100px) { .b-cards--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.b-cards > li { display: flex; max-width: none; }
+.b-card { flex: 1; padding: clamp(1.25rem, 2.6vw, 1.75rem); background: var(--paper); border: 1px solid var(--hairline); border-radius: var(--radius-card); }
+.b-card > :last-child { margin-bottom: 0; }
+.b-cards > li > .special { flex: 1; }
+
+/* Group of menu rows */
+.b-group + .b-group { margin-top: clamp(3rem, 7vw, 5.5rem); }
+.b-group__head { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 0.75rem; }
+.b-group__head p { color: var(--text); }
+.b-rows { border-bottom: 1px solid var(--hairline); }
+
+/* Two equal columns (before/after, spa blocks) */
+.b-duo { display: grid; gap: 1.25rem; }
+@media (min-width: 760px) { .b-duo { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Feature (image or arch + text) */
+.b-feature { display: grid; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+@media (min-width: 900px) { .b-feature { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); } .b-feature--flip > :first-child { order: 2; } }
+.b-media { margin: 0; border-radius: var(--radius-card); overflow: hidden; background: var(--sand); }
+.b-media img, .b-media picture { width: 100%; height: 100%; object-fit: cover; }
+
+.b-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; }
+.b-note { font-size: var(--fs-meta); color: var(--text-muted); }
+
+/* Jump links (in-page) */
+.b-jump { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+.b-jump a {
+  display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 1.1rem;
+  border: 1px solid var(--border-ui); border-radius: var(--radius-pill); text-decoration: none;
+  font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label);
+}
+.b-jump a:hover { border-color: var(--text); background: rgba(52, 18, 4, 0.05); }
+
+/* Closing call to action */
+/* Left-aligned like all body text (brief rule 5; QA m-12) */
+.b-end { display: grid; justify-items: start; gap: 0.85rem; text-align: left; }
+.b-end p { max-width: 52ch; }
+.b-end .b-actions { justify-content: flex-start; margin-top: 0.5rem; }
+.b-end__title { font-size: var(--fs-h2); }
+
+.b-tail { display: flex; flex-direction: column; gap: 1.25rem; }

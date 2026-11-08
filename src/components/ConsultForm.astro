@@ -1,0 +1,180 @@
+---
+/**
+ * ConsultForm — the T0 consultation form (§4.10): name, phone and spa ONLY, plus a hidden honeypot
+ * named `website`. Sends JSON to /api/lead with source "consultation form". No treatment names, no
+ * free-text box, no booking link and no auto-reply. Thank-you: "Thanks, {first name}. We'll call or
+ * text you to arrange a consultation." The form is revealed by script (so it never falls back to a
+ * GET that would put a phone number in the URL); the call/text route beside it always works.
+ */
+import { site } from '../lib/site';
+import Icon from './Icon.astro';
+interface Props { headingLevel?: 2 | 3; title?: string; class?: string }
+const { headingLevel = 2, title = 'Or leave your number', class: cls } = Astro.props;
+const H = `h${headingLevel}` as 'h2' | 'h3';
+---
+<div class:list={['cf', cls]} data-consult data-phone={site.phone.display}>
+  <form class="cf__form" data-consult-form data-astro-reload method="post" action="/api/lead" novalidate aria-labelledby="cf-title" hidden>
+    <H id="cf-title" class="cf__title">{title}</H>
+    <p class="cf__intro">We'll call or text you to arrange a consultation. Please don't share health details here; we'll ask at your visit.</p>
+
+    <div class="field" data-field="name">
+      <label for="cf-name">Your name</label>
+      <input id="cf-name" name="name" type="text" autocomplete="name" required maxlength="80" />
+      <p class="field__err" id="cf-name-err" hidden><Icon name="close" /><span>Please add your name.</span></p>
+    </div>
+
+    <div class="field" data-field="phone">
+      <label for="cf-phone">Phone</label>
+      <input id="cf-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required maxlength="24" aria-describedby="cf-phone-help" />
+      <p class="field__help" id="cf-phone-help">We'll call or text this number.</p>
+      <p class="field__err" id="cf-phone-err" hidden><Icon name="close" /><span>Please check your phone number.</span></p>
+    </div>
+
+    <fieldset class="field" data-field="spa">
+      <legend>Which spa?</legend>
+      <div class="cf__spas">
+        <label class="cf__spa"><input type="radio" name="spa" value="SD" required /><span>{site.spas.SD.long_name}</span></label>
+        <label class="cf__spa"><input type="radio" name="spa" value="DM" /><span>{site.spas.DM.long_name}</span></label>
+      </div>
+      <p class="field__err" id="cf-spa-err" hidden><Icon name="close" /><span>Please choose a spa.</span></p>
+    </fieldset>
+
+    <!-- Honeypot: people never see or fill this; bots often do. -->
+    <div class="cf__hp" aria-hidden="true">
+      <label for="cf-website">Website</label>
+      <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <button type="submit" class="btn btn--outline cf__send" data-consult-send>Send</button>
+    <p class="cf__status" role="status" aria-live="polite" data-consult-status></p>
+    <p class="cf__fine meta">We use your name and number only to arrange your consultation. See our <a href="/privacy">privacy policy</a>.</p>
+  </form>
+
+  <div class="cf__done" data-consult-done hidden tabindex="-1">
+    <Icon name="check" class="cf__check" />
+    <p class="cf__thanks serif">Thanks, <span data-first-name></span>. We'll call or text you to arrange a consultation.</p>
+    <p class="meta">Need us sooner? Call <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"consult-thanks"}'>{site.phone.display}</a> or <a href={site.sms} data-track="text_click" data-track-props='{"placement":"consult-thanks"}'>text us</a>.</p>
+  </div>
+</div>
+
+<script>
+  const SPA_NAMES: Record<string, string> = { SD: 'San Diego', DM: 'Del Mar' };
+
+  function showForms() {
+    document.querySelectorAll<HTMLFormElement>('form[data-consult-form]').forEach((f) => { f.hidden = false; });
+  }
+  document.addEventListener('astro:page-load', showForms);
+  showForms();   // in case this module first runs after a client-side navigation
+
+  function setError(form: HTMLFormElement, field: string, on: boolean) {
+    const wrap = form.querySelector<HTMLElement>(`[data-field="${field}"]`);
+    const err = form.querySelector<HTMLElement>(`#cf-${field}-err`);
+    if (!wrap || !err) return;
+    err.hidden = !on;
+    const targets = field === 'spa' ? [...wrap.querySelectorAll<HTMLInputElement>('input')] : [wrap.querySelector<HTMLInputElement>('input')!];
+    targets.forEach((el) => {
+      const ids = (el.getAttribute('aria-describedby') || '').split(/\s+/).filter((x) => x && x !== err.id);
+      if (on) { ids.push(err.id); el.setAttribute('aria-invalid', 'true'); } else el.removeAttribute('aria-invalid');
+      if (ids.length) el.setAttribute('aria-describedby', ids.join(' ')); else el.removeAttribute('aria-describedby');
+    });
+  }
+
+  function validate(form: HTMLFormElement) {
+    const name = (form.elements.namedItem('name') as HTMLInputElement).value.trim();
+    const phone = (form.elements.namedItem('phone') as HTMLInputElement).value.trim();
+    const spa = (form.querySelector('input[name="spa"]:checked') as HTMLInputElement | null)?.value || '';
+    const digits = phone.replace(/\D/g, '');
+    const bad = { name: !name, phone: digits.length < 10 || digits.length > 15, spa: !spa };
+    (Object.keys(bad) as Array<keyof typeof bad>).forEach((k) => setError(form, k, bad[k]));
+    const first = (Object.keys(bad) as Array<keyof typeof bad>).find((k) => bad[k]);
+    return { ok: !first, first, name, phone, spa };
+  }
+
+  // Capture phase + preventDefault, and data-astro-reload on the form: neither the browser nor ClientRouter
+  // may ever turn this into a navigation (which would put a name and phone number into a URL).
+  document.addEventListener('submit', async (e) => {
+    const form = (e.target as HTMLElement).closest<HTMLFormElement>('form[data-consult-form]');
+    if (!form) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const status = form.querySelector<HTMLElement>('[data-consult-status]')!;
+    const send = form.querySelector<HTMLButtonElement>('[data-consult-send]')!;
+    const v = validate(form);
+    if (!v.ok) {
+      status.textContent = '';
+      const el = v.first === 'spa' ? form.querySelector<HTMLInputElement>('input[name="spa"]') : form.querySelector<HTMLInputElement>(`[data-field="${v.first}"] input`);
+      el?.focus();
+      return;
+    }
+    const root = form.closest<HTMLElement>('[data-consult]')!;
+    const done = root.querySelector<HTMLElement>('[data-consult-done]')!;
+    const firstName = v.name.split(/\s+/)[0];
+    const finish = () => {
+      root.querySelectorAll<HTMLElement>('[data-first-name]').forEach((n) => { n.textContent = firstName; });
+      form.hidden = true; done.hidden = false; done.focus();
+    };
+    const honeypot = (form.elements.namedItem('website') as HTMLInputElement).value;
+    if (honeypot) { finish(); return; }   // a bot: look done, send nothing
+    send.disabled = true; send.setAttribute('aria-busy', 'true');
+    status.textContent = 'Sending…';
+    try {
+      const res = await fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: v.name, contact: v.phone, location: SPA_NAMES[v.spa] || v.spa, interest: 'Consultation', source: 'consultation form', website: honeypot }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      window.track?.('lead_submitted', { source: 'consultation form', spa: v.spa });
+      status.textContent = '';
+      finish();
+    } catch {
+      status.textContent = `That didn't send. Please try again, or call us on ${root.dataset.phone}.`;
+    } finally {
+      send.disabled = false; send.removeAttribute('aria-busy');
+    }
+  }, true);
+
+  // Clear a field's error as soon as it is fixed
+  document.addEventListener('input', (e) => {
+    const t = e.target as HTMLInputElement;
+    const form = t.closest<HTMLFormElement>('form[data-consult-form]');
+    if (!form || t.getAttribute('aria-invalid') !== 'true') return;
+    const field = t.closest<HTMLElement>('[data-field]')?.dataset.field;
+    if (field) setError(form, field, false);
+  });
+</script>
+
+<style>
+  .cf__form { display: flex; flex-direction: column; gap: 1.25rem; }
+  .cf__title { font-size: var(--fs-h3); }
+  .cf__intro { font-size: var(--fs-label); }
+  .field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .field label, .field legend { font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); }
+  .field legend { margin-bottom: 0.4rem; }
+  .field input[type='text'], .field input[type='tel'] {
+    min-height: 48px; padding: 0.6rem 0.9rem;
+    background: var(--paper); border: 1px solid var(--border-ui); border-radius: 8px;
+  }
+  .field input[aria-invalid='true'] { border-color: var(--error); border-width: 2px; }
+  .field__help { font-size: var(--fs-meta); color: var(--text-muted); }
+  .field__err { display: flex; align-items: center; gap: 0.4rem; font-size: var(--fs-meta); font-weight: 600; color: var(--error); }
+  .field__err :global(svg) { width: 15px; height: 15px; flex: none; }
+  .cf__spas { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .cf__spa { position: relative; display: inline-flex; }
+  .cf__spa input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .cf__spa span {
+    display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 1.1rem;
+    border: 1px solid var(--border-ui); border-radius: var(--radius-pill);
+    font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label);
+  }
+  .cf__spa input:checked + span { background: var(--text); border-color: var(--text); color: var(--on-dark); }
+  .cf__spa input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .cf__spa input[aria-invalid='true'] + span { border-color: var(--error); }
+  .cf__hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .cf__send { align-self: flex-start; min-width: 9rem; }
+  .cf__status:empty { display: none; }
+  .cf__status { font-size: var(--fs-label); }
+  .cf__done { display: flex; flex-direction: column; gap: 0.9rem; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--paper); }
+  .cf__done :global(.cf__check) { width: 28px; height: 28px; color: var(--text-muted); }
+  .cf__thanks { font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.25rem); line-height: 1.15; max-width: 24ch; }
+</style>

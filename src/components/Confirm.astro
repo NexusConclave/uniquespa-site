@@ -1,0 +1,13 @@
+---
+/**
+ * <Confirm id="gift-both-spas">claim<Fragment slot="fallback">safe wording</Fragment></Confirm>
+ * Renders the claim when it's confirmed; in PREVIEW, the claim plus a draft note; in production while pending,
+ * the fallback slot (or nothing). See lib/confirm.ts and src/data/confirm.json.
+ */
+import { claimVisible, claimPending, claimNote } from '../lib/confirm';
+interface Props { id: string; note?: boolean }
+const { id, note = true } = Astro.props;
+const show = claimVisible(id);
+const pending = claimPending(id);
+---
+{show ? <><slot />{pending && note && <span class="draft-note draft-note--inline">{claimNote(id)}</span>}</> : <slot name="fallback" />}

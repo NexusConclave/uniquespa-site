@@ -1,0 +1,13 @@
+---
+/**
+ * GuideLink — a quiet "Read the guide" link from a service page to its /guides/ page. Renders NOTHING while
+ * site.json flags.guides_live is off (lib/guides.ts), so a guide is never linked before Katy approves it.
+ */
+import Icon from './Icon.astro';
+import { guideHref, guideBySlug } from '../lib/guides';
+interface Props { slug: string; label?: string; class?: string }
+const { slug, label, class: cls } = Astro.props;
+const href = guideHref(slug);
+const text = label ?? `Guide: ${guideBySlug(slug).label}`;
+---
+{href && <p class:list={['guide-link', cls]}><a class="link-arrow" href={href} data-guide-link={slug}>{text}<Icon name="arrow-right" /></a></p>}

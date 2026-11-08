@@ -1,0 +1,11 @@
+# Changes to the release pipeline, editor config, Builder rules and price data need
+# Katy's (or Ian's) review. Owners: Katy (uniquespahouse) and Ian (NexusConclave).
+# setup-day.sh phase 7 does it and stops if the placeholder is still here.
+/.github/                  @uniquespahouse @NexusConclave
+/.pages.yml                @uniquespahouse @NexusConclave
+/CLAUDE.md                 @uniquespahouse @NexusConclave
+/ROLLBACK.md               @uniquespahouse @NexusConclave
+/src/data/services.json    @uniquespahouse @NexusConclave
+/src/data/square-lock.json @uniquespahouse @NexusConclave
+/src/data/offers.json      @uniquespahouse @NexusConclave
+/facts/                    @uniquespahouse @NexusConclave

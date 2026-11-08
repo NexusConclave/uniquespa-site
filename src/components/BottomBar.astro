@@ -1,0 +1,99 @@
+---
+/**
+ * BottomBar — the only sticky element on mobile (<1024px). Solid, visible from first paint (no JS needed).
+ * Book (filled: the screen's one filled Book) · Call · Ask Uni.
+ * - Gift replaces Call during offers.json bar_gift_windows (the one seasonal change); build-time + client check.
+ * - Call dials the chosen spa. While a spa's hours are unknown (Del Mar) it always dials directly.
+ *   After hours at a spa with known hours, Call opens: Call and leave a message · Text us · Ask Uni · Book online.
+ * - Un-sticks below 500px tall; html has scroll-padding-bottom = bar height (WCAG 2.4.11).
+ */
+import { site } from '../lib/site';
+import { giftUrl } from '../lib/catalog';
+import { giftBarActive, giftBarWindows } from '../lib/offers';
+import Icon from './Icon.astro';
+import LotusMark from './LotusMark.astro';
+const gift = giftBarActive();
+const hours = Object.fromEntries(Object.entries(site.spas).map(([k, v]) => [k, v.hours]));
+---
+<nav class="bottom-bar" aria-label="Quick actions" data-disclosure-root data-bar data-gift-windows={JSON.stringify(giftBarWindows())} data-hours={JSON.stringify(hours)} data-tz={site.timezone}>
+  <ul role="list" class="bottom-bar__list">
+    <li class="bottom-bar__item bottom-bar__item--book">
+      <a class="bottom-bar__book" href="/menu" data-open="book" aria-haspopup="dialog" data-track="book_click" data-track-props='{"placement":"bar"}'>Book</a>
+    </li>
+    <li class="bottom-bar__item">
+      <a class="bottom-bar__act" href={site.phone.tel} data-bar-call hidden={gift} data-track="call_click" data-track-props='{"placement":"bar"}'>
+        <Icon name="phone" /><span>Call</span>
+      </a>
+      <button type="button" class="bottom-bar__act" data-bar-afterhours data-disclosure aria-expanded="false" aria-controls="after-hours" hidden>
+        <Icon name="phone" /><span>Call</span>
+      </button>
+      <a class="bottom-bar__act" href={giftUrl()} target="_blank" rel="noopener" data-bar-gift hidden={!gift} data-track="gift_card_click" data-track-props='{"placement":"bar"}'>
+        <Icon name="gift" /><span>Gift<span class="sr-only"> cards (opens in a new tab)</span></span>
+      </a>
+    </li>
+    <li class="bottom-bar__item">
+      <button type="button" class="bottom-bar__act" data-open="uni" aria-haspopup="dialog" data-track="chat_open" data-track-props='{"placement":"bar"}'>
+        <LotusMark size={20} /><span>Ask Uni</span>
+      </button>
+    </li>
+  </ul>
+  <div id="after-hours" class="after-hours" hidden>
+    <p class="after-hours__title">We're closed right now</p>
+    <ul role="list">
+      <li><a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"after-hours"}'><Icon name="phone" />Call and leave a message</a></li>
+      <li><a href={site.sms} data-track="text_click" data-track-props='{"placement":"after-hours"}'><Icon name="message" />Text us</a></li>
+      <li><button type="button" data-open="uni" aria-haspopup="dialog"><LotusMark size={18} />Ask Uni</button></li>
+      <li><a href="/menu" data-open="book" aria-haspopup="dialog"><Icon name="calendar" />Book online</a></li>
+    </ul>
+  </div>
+</nav>
+
+<style>
+  .bottom-bar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 60;
+    background-color: var(--paper);
+    border-top: 1px solid var(--hairline);
+    padding: 8px max(12px, env(safe-area-inset-left, 0px)) calc(8px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-right, 0px));
+  }
+  @media (min-width: 1024px) { .bottom-bar { display: none; } }
+  /* Under 500px tall the bar un-sticks and sits at the end of the page */
+  @media (max-height: 499px) { .bottom-bar { position: static; } }
+
+  .bottom-bar__list { display: grid; grid-template-columns: 1.35fr 1fr 1fr; gap: 6px; margin: 0; padding: 0; height: 48px; }
+  .bottom-bar__item { display: flex; }
+  .bottom-bar__book, .bottom-bar__act {
+    flex: 1;
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem;
+    min-height: 48px;
+    border-radius: var(--radius-pill);
+    font-size: var(--fs-label); font-weight: 600; font-stretch: var(--wdth-label);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .bottom-bar__book { border: 1px solid var(--btn); background: var(--btn); color: var(--on-dark); }
+  .bottom-bar__book:active { background: var(--btn-active); }
+  .bottom-bar__act { border: 1px solid transparent; background: transparent; color: var(--text); }
+  .bottom-bar__act:active { background: rgba(52, 18, 4, 0.06); }
+  .bottom-bar__act :global(svg) { width: 20px; height: 20px; flex: none; }
+
+  .after-hours {
+    position: absolute;
+    left: 12px; right: 12px; bottom: calc(100% + 8px);
+    padding: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    box-shadow: 0 -10px 40px -16px rgba(52, 18, 4, 0.4);
+  }
+  .after-hours__title { font-family: var(--font-serif); font-size: 1.4rem; margin-bottom: 0.4rem; }
+  .after-hours ul { margin: 0; padding: 0; list-style: none; }
+  .after-hours a, .after-hours button {
+    display: flex; align-items: center; gap: 0.6rem; width: 100%;
+    min-height: 48px; padding: 0 0.25rem;
+    border: 0; border-top: 1px solid var(--hairline); background: none;
+    font-size: var(--fs-body); text-align: left; text-decoration: none; color: var(--text);
+  }
+  .after-hours :global(svg) { width: 20px; height: 20px; color: var(--text-muted); }
+</style>

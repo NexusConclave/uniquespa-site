@@ -1,0 +1,36 @@
+---
+/**
+ * QuickAnswers — answer-first block (GEO). Short questions people ask an AI assistant, each answered in its first
+ * sentence, with facts from lib/catalog.ts and lib/entity.ts only (no prices typed in, no result or medical claims,
+ * no gated treatment names). Every answer is visible, so pages add the same items to their FAQPage node
+ * (lib/schema.ts faqNode). scripts/check-geo.mjs reads [data-geo="answers"] to check the wording.
+ */
+interface Props { items: Array<{ q: string; a: string }>; title?: string; id?: string; lede?: string }
+const { items, title = 'Quick answers', id = 'answers-title', lede } = Astro.props;
+---
+<div class="qa" data-geo="answers">
+  <div class="qa__head">
+    <h2 id={id} class="qa__title">{title}</h2>
+    {lede && <p class="qa__lede">{lede}</p>}
+  </div>
+  <div class="qa__list">
+    {items.map((f) => (
+      <div class="qa__item">
+        <h3 class="qa__q">{f.q}</h3>
+        <p class="qa__a" set:html={f.a} />
+      </div>
+    ))}
+  </div>
+</div>
+<style>
+  .qa { display: grid; gap: clamp(1.25rem, 3vw, 2rem); }
+  .qa__head { display: grid; gap: 0.5rem; }
+  .qa__title { font-size: var(--fs-h2); }
+  .qa__lede { color: var(--text); max-width: 52ch; }
+  .qa__list { display: grid; gap: 0; }
+  @media (min-width: 900px) { .qa__list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2.5rem; } }
+  .qa__item { display: grid; gap: 0.4rem; align-content: start; padding-block: 1.1rem 1.3rem; border-top: 1px solid var(--hairline); }
+  .qa__q { font-size: clamp(1.2rem, 1.1rem + 0.35vw, 1.45rem); line-height: 1.2; }
+  .qa__a { max-width: 60ch; }
+  .qa__a :global(a) { font-weight: 500; }
+</style>

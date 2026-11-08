@@ -1,0 +1,591 @@
+---
+/**
+ * /contact (blueprint §4.10, copy 10 + 11, compliance G7).
+ * - Both spas: address, phone, Text us, hours (San Diego as listed; Del Mar "Call for today's hours"), Book/See/Directions.
+ * - General form: name, phone or email, spa, interest, preferred day/time (optional), message (optional),
+ *   "Please don't include health details.", hidden honeypot `website`. POSTs JSON to /api/lead:
+ *   { name, contact, interest, location, preferred_datetime, notes, source: "website form", website }.
+ * - The interest list is GENERATED from live services (lib/catalog.ts) + "Gift cards" + "A consultation" +
+ *   "Something else". Brazilian butt and the post-lipo massage are menu rows only (leak gate), so they're left out.
+ * - "A consultation" swaps in the 3-field consultation form (name, phone, spa) → source "consultation form",
+ *   interest "Consultation", no message, no booking link on the thank-you. [CONFIRM O-8: counsel on whether T0 lead
+ *   capture is advertising; §15.0 says the /consultations form waits for it. Built here as the lead asked.]
+ * - Thank-you (§4.10): open hours / after hours / consultation. No time promise. Offers the deep link for the
+ *   chosen service at the chosen spa (never a Del Mar link for a San Diego-only item: catalog.bookUrl returns null).
+ * - Forms are revealed by script, so a no-JS visitor never sends a GET with their details in the URL; the call/text
+ *   route beside them always works. The submit handler runs in the capture phase (before ClientRouter's) and the
+ *   forms carry data-astro-reload, so the router never turns a submit into a GET navigation. Tests mock /api/lead (never post to a real server).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
+import { liveServices, bookUrl, spaBookingUrl, giftUrl, SPAS, type Service, type Spa, type Group } from '../lib/catalog';
+import { site, SITE_URL, addressLine } from '../lib/site';
+import { orgNode, spaNode } from '../lib/schema';
+
+// ---- Interest list, generated from status ----
+const MENU_ROW_ONLY = new Set(['brazilian-butt', 'liposuction-massage']);
+function linksFor(s: Service): Partial<Record<Spa, string>> {
+  const out: Partial<Record<Spa, string>> = {};
+  for (const sp of SPAS) {
+    const here = s.options.filter((o) => o.locations.includes(sp));
+    const o = here.find((x) => x.minutes === 60) ?? here[0];
+    const url = o ? bookUrl(o.square_id, sp) : null;
+    if (url) out[sp] = url;
+  }
+  return out;
+}
+const groups = ([['massage', 'Massage'], ['facials', 'Facials'], ['body', 'Body']] as Array<[Group, string]>).map(([g, label]) => ({
+  label,
+  items: liveServices(g).filter((s) => !MENU_ROW_ONLY.has(s.id)).map((s) => ({ id: s.id, name: s.name, links: linksFor(s) })),
+}));
+
+// Client data for the thank-you screen (deep links, spa phones and hours). Live items only.
+const leadData = {
+  services: Object.fromEntries(groups.flatMap((g) => g.items).map((i) => [i.id, { name: i.name, links: i.links }])),
+  gift: giftUrl(),
+  spaBooking: { SD: spaBookingUrl('SD'), DM: spaBookingUrl('DM') },
+  spas: Object.fromEntries(SPAS.map((sp) => [sp, { name: site.spas[sp].name, phone: site.spas[sp].phone.display, tel: site.spas[sp].phone.tel, hours: site.spas[sp].hours }])),
+};
+
+const faqs = [
+  { q: 'Which spa should I book?', a: 'Both spas offer massage and several of our facials. San Diego has the full facial menu and couples massage. Our Wrap Me Up body wrap is in Del Mar. Each service page shows where it\'s offered.' },
+  { q: 'Can I book by phone?', a: `Yes. Call ${site.phone.display}, or text us on the same number.` },
+  { q: 'Do I need a card to book?', a: 'Yes. Online booking asks for a card on file.' },
+  { q: "What's your cancellation policy?", a: 'Please cancel or reschedule at least 24 hours before your appointment. After that, a $50 fee may apply.' },
+  { q: 'Are you open on weekends?', a: `San Diego is open every day, ${site.spas.SD.hours_text.replace(/^Mon–Sun /, '')}. For Del Mar, please call for today's hours.` },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    { '@type': 'ContactPage', '@id': `${SITE_URL}/contact#page`, url: `${SITE_URL}/contact`, name: 'Contact Unique Spa House', about: { '@id': `${SITE_URL}/#organization` } },
+    { '@type': 'FAQPage', '@id': `${SITE_URL}/contact#faq`, mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
+    // GEO: the page people (and assistants) open for contact details carries the full entity, same NAP as everywhere
+    orgNode(), spaNode('SD'), spaNode('DM'),
+  ],
+};
+const spaBlurb: Record<Spa, string> = {
+  SD: 'Our full menu, including couples massage.',
+  DM: 'Massage, facials and our Wrap Me Up body wrap.',
+};
+---
+<BaseLayout
+  title="Contact Us | Unique Spa House, San Diego & Del Mar"
+  description="Call or text (858) 293-8900, email us or send a message. Two spas: Mission Valley, San Diego and Del Mar. Book online."
+  jsonLd={jsonLd}
+>
+  <Section class="ct-hero" pad="tight" reveal={false}>
+    <p class="eyebrow">Contact</p>
+    <h1 class="ct-hero__h1">Contact Unique Spa House</h1>
+    <p class="lede ct-hero__lede">Two spas. One phone number. Book online, call or text us, or send a message.</p>
+    <ul class="ct-quick" role="list">
+      <li><a class="btn btn--outline" href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"contact"}'><Icon name="phone" />Call {site.phone.display}</a></li>
+      <li><a class="btn btn--outline" href={site.sms} data-track="text_click" data-track-props='{"placement":"contact"}'><Icon name="message" />Text us</a></li>
+      <li><a class="btn btn--outline" href={`mailto:${site.email}`}><Icon name="mail" />Email us</a></li>
+      <li><button type="button" class="btn btn--outline" data-open="uni" aria-haspopup="dialog">Ask Uni</button></li>
+    </ul>
+  </Section>
+
+  <Section labelledby="ct-spas-title" class="ct-spas" pad="tight">
+    <h2 id="ct-spas-title" class="sr-only">Our spas</h2>
+    <ul class="ct-spas__list" role="list">
+      {SPAS.map((sp) => {
+        const s = site.spas[sp];
+        return (
+          <li class="ct-spa">
+            <h3 class="ct-spa__name">{s.long_name}</h3>
+            <p class="ct-spa__blurb">{spaBlurb[sp]}</p>
+            <dl class="ct-spa__facts">
+              <div><dt><Icon name="pin" /><span class="sr-only">Address</span></dt><dd><address>{addressLine(s)}</address></dd></div>
+              <div><dt><Icon name="clock" /><span class="sr-only">Hours</span></dt><dd>{s.hours_text}</dd></div>
+              <div><dt><Icon name="phone" /><span class="sr-only">Phone</span></dt><dd>
+                <a href={s.phone.tel} data-track="call_click" data-track-props={JSON.stringify({ spa: sp, placement: 'contact-spa' })}>{s.phone.display}</a>
+                <span aria-hidden="true"> · </span>
+                <a href={site.sms} data-track="text_click" data-track-props={JSON.stringify({ spa: sp, placement: 'contact-spa' })}>Text us</a>
+              </dd></div>
+            </dl>
+            <div class="ct-spa__actions">
+              <a class="btn btn--outline btn--sm" href={spaBookingUrl(sp)} target="_blank" rel="noopener"
+                 data-track="book_click" data-track-props={JSON.stringify({ spa: sp, placement: 'contact' })}>Book in {s.name}<span class="sr-only"> (opens in a new tab)</span></a>
+              <a class="link-arrow" href={s.page}>See the spa<span class="sr-only">: {s.long_name}</span><Icon name="arrow-right" /></a>
+              <a class="link-arrow" href={s.directions_url} target="_blank" rel="noopener">Directions<span class="sr-only"> to {addressLine(s)} (opens in a new tab)</span><Icon name="arrow-up-right" /></a>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  </Section>
+
+  <Section tone="paper" labelledby="ct-form-title" class="ct-form" id="message">
+    <div class="ct-form__grid" data-lead>
+      <div class="ct-form__intro">
+        <h2 id="ct-form-title">Send us a <em>message</em></h2>
+        <p>Questions about a treatment, a price or a gift? Write to us and we'll get back to you.</p>
+        <div class="ct-talk">
+          <p class="ct-talk__title">Prefer to talk?</p>
+          <p>Call <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"contact-form"}'>{site.phone.display}</a>, <a href={site.sms} data-track="text_click" data-track-props='{"placement":"contact-form"}'>text us</a>, or <button type="button" class="link-quiet ct-talk__uni" data-open="uni" aria-haspopup="dialog">ask Uni</button>.</p>
+        </div>
+      </div>
+
+      <div class="ct-form__panel">
+        <!-- General form -->
+        <form class="lf" data-lead-form="general" method="post" action="/api/lead" data-astro-reload novalidate aria-labelledby="ct-form-title" hidden>
+          <div class="lf-field" data-field="name">
+            <label for="lf-name">Your name</label>
+            <input id="lf-name" name="name" type="text" autocomplete="name" required maxlength="80" />
+            <p class="lf-err" id="lf-name-err" hidden><Icon name="alert" /><span>Please add your name.</span></p>
+          </div>
+
+          <div class="lf-field" data-field="contact">
+            <label for="lf-contact">Phone or email</label>
+            <input id="lf-contact" name="contact" type="text" required maxlength="120" aria-describedby="lf-contact-help" />
+            <p class="lf-help" id="lf-contact-help">So we can reply. We'll only use it for this.</p>
+            <p class="lf-err" id="lf-contact-err" hidden><Icon name="alert" /><span data-err-text>Please add a phone number or email.</span></p>
+          </div>
+
+          <fieldset class="lf-field" data-field="spa">
+            <legend>Which spa?</legend>
+            <div class="lf-chips">
+              <label class="lf-chip"><input type="radio" name="spa" value="SD" /><span>{site.spas.SD.long_name}</span></label>
+              <label class="lf-chip"><input type="radio" name="spa" value="DM" /><span>{site.spas.DM.long_name}</span></label>
+              <label class="lf-chip"><input type="radio" name="spa" value="" checked /><span>Not sure</span></label>
+            </div>
+          </fieldset>
+
+          <div class="lf-field" data-field="interest">
+            <label for="lf-interest">What can we help with?</label>
+            <select id="lf-interest" name="interest" required aria-describedby="lf-interest-help">
+              <option value="">Choose one</option>
+              {groups.map((g) => (
+                <optgroup label={g.label}>
+                  {g.items.map((i) => <option value={i.id}>{i.name}</option>)}
+                </optgroup>
+              ))}
+              <optgroup label="Something else">
+                <option value="gift">Gift cards</option>
+                <option value="consultation">A consultation</option>
+                <option value="other">Something else</option>
+              </optgroup>
+            </select>
+            <p class="lf-help" id="lf-interest-help">Choose "A consultation" for treatments that start with one.</p>
+            <p class="lf-err" id="lf-interest-err" hidden><Icon name="alert" /><span>Please choose what we can help with.</span></p>
+          </div>
+
+          <div class="lf-field" data-field="when">
+            <label for="lf-when">Preferred day and time <span class="lf-opt">(optional)</span></label>
+            <input id="lf-when" name="preferred_datetime" type="text" maxlength="120" placeholder="For example, Saturday morning" />
+          </div>
+
+          <div class="lf-field" data-field="notes">
+            <label for="lf-notes">Your message <span class="lf-opt">(optional)</span></label>
+            <textarea id="lf-notes" name="notes" rows="4" maxlength="300" aria-describedby="lf-notes-help"></textarea>
+            <p class="lf-help" id="lf-notes-help">Please don't include health details. Up to 300 characters.</p>
+          </div>
+
+          <!-- Honeypot: people never see or fill this; bots often do. -->
+          <div class="lf-hp" aria-hidden="true">
+            <label for="lf-website">Website</label>
+            <input id="lf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <button type="submit" class="btn btn--outline lf-send" data-lead-send>Send message</button>
+          <p class="lf-status" role="status" aria-live="polite" data-lead-status></p>
+          <p class="meta lf-fine">We use your details only to reply to you. See our <a href="/privacy">privacy policy</a>.</p>
+        </form>
+
+        <!-- Consultation form: name, phone and spa only -->
+        <form class="lf" data-lead-form="consult" method="post" action="/api/lead" data-astro-reload novalidate aria-labelledby="lf-c-title" hidden>
+          <h3 id="lf-c-title" class="lf-c__title" tabindex="-1">Request a consultation</h3>
+          <p class="lf-c__intro">Some treatments start with a consultation. Leave your name and number, and we'll call or text you to arrange it. Please don't share health details here; we'll ask at your visit.</p>
+
+          <div class="lf-field" data-field="name">
+            <label for="lf-c-name">Your name</label>
+            <input id="lf-c-name" name="name" type="text" autocomplete="name" required maxlength="80" />
+            <p class="lf-err" id="lf-c-name-err" hidden><Icon name="alert" /><span>Please add your name.</span></p>
+          </div>
+
+          <div class="lf-field" data-field="phone">
+            <label for="lf-c-phone">Phone</label>
+            <input id="lf-c-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required maxlength="24" aria-describedby="lf-c-phone-help" />
+            <p class="lf-help" id="lf-c-phone-help">We'll call or text this number.</p>
+            <p class="lf-err" id="lf-c-phone-err" hidden><Icon name="alert" /><span>Please check your phone number.</span></p>
+          </div>
+
+          <fieldset class="lf-field" data-field="spa">
+            <legend>Which spa?</legend>
+            <div class="lf-chips">
+              <label class="lf-chip"><input type="radio" name="spa" value="SD" /><span>{site.spas.SD.long_name}</span></label>
+              <label class="lf-chip"><input type="radio" name="spa" value="DM" /><span>{site.spas.DM.long_name}</span></label>
+            </div>
+            <p class="lf-err" id="lf-c-spa-err" hidden><Icon name="alert" /><span>Please choose a spa.</span></p>
+          </fieldset>
+
+          <div class="lf-hp" aria-hidden="true">
+            <label for="lf-c-website">Website</label>
+            <input id="lf-c-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="lf-c__actions">
+            <button type="submit" class="btn btn--outline lf-send" data-lead-send>Request a call</button>
+            <button type="button" class="link-quiet" data-lead-back>Back to the general form</button>
+          </div>
+          <p class="lf-status" role="status" aria-live="polite" data-lead-status></p>
+          <p class="meta lf-fine">We use your name and number only to arrange your consultation. See our <a href="/privacy">privacy policy</a>.</p>
+        </form>
+
+        <!-- Thank-you (no time promise; no message echo) -->
+        <div class="lf-done" data-lead-done hidden tabindex="-1">
+          <Icon name="check" class="lf-done__icon" />
+          <p class="lf-done__title serif">Thanks, <span data-first-name></span>.</p>
+          <p data-done-line></p>
+          <div class="lf-done__book" data-done-book hidden>
+            <p>Prefer to book now? <a data-done-link href="#" target="_blank" rel="noopener" data-track="book_click"><span data-done-link-text></span><Icon name="arrow-up-right" /><span class="sr-only"> (opens in a new tab)</span></a></p>
+            <p data-done-call hidden>Or call <a data-done-tel href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"lead-thanks"}'>{site.phone.display}</a>, or <a href={site.sms} data-track="text_click" data-track-props='{"placement":"lead-thanks"}'>text us</a>.</p>
+          </div>
+          <button type="button" class="link-quiet" data-lead-again>Send another message</button>
+        </div>
+
+        <noscript>
+          <p class="lf-noscript">Our message form needs JavaScript. Please call or text <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"contact-noscript"}'>{site.phone.display}</a>, or email <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+        </noscript>
+      </div>
+    </div>
+    <script is:inline type="application/json" id="lead-data" set:html={JSON.stringify(leadData)} />
+  </Section>
+
+  <Section labelledby="ct-faq-title" class="ct-faq">
+    <div class="ct-faq__grid">
+      <div>
+        <h2 id="ct-faq-title">Good to know</h2>
+        <p class="ct-faq__more"><a class="link-arrow" href="/policies">All booking policies<Icon name="arrow-right" /></a></p>
+        <p class="ct-faq__more"><a class="link-arrow" href="/gift-cards">Gift cards<Icon name="arrow-right" /></a></p>
+      </div>
+      <dl class="ct-faq__list">
+        {faqs.map((f) => (
+          <div class="ct-faq__item">
+            <dt>{f.q}</dt>
+            <dd>{f.a}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </Section>
+</BaseLayout>
+
+<script>
+  type Hours = { days: string[]; opens: string; closes: string } | null;
+  interface LeadData {
+    services: Record<string, { name: string; links: Partial<Record<'SD' | 'DM', string>> }>;
+    gift: string;
+    spaBooking: Record<'SD' | 'DM', string>;
+    spas: Record<'SD' | 'DM', { name: string; phone: string; tel: string; hours: Hours }>;
+  }
+  type SpaId = 'SD' | 'DM';
+  const SPA_NAMES: Record<string, string> = { SD: 'San Diego', DM: 'Del Mar' };
+  const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function data(): LeadData | null {
+    try { return JSON.parse(document.getElementById('lead-data')?.textContent || 'null'); } catch { return null; }
+  }
+  function storedSpa(): string | null { try { return localStorage.getItem('ush-spa'); } catch { return null; } }
+
+  function minutesNowLA(): { day: string; min: number } {
+    const p = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date());
+    const g = (t: string) => p.find((x) => x.type === t)?.value ?? '';
+    return { day: g('weekday').slice(0, 2), min: Number(g('hour')) * 60 + Number(g('minute')) };
+  }
+  /** Open now? Uses the spa's hours; a spa with unknown hours (Del Mar) falls back to the listed San Diego hours. */
+  function openNow(d: LeadData, spa: SpaId): boolean {
+    const h = d.spas[spa].hours ?? d.spas.SD.hours;
+    if (!h) return true;
+    const now = minutesNowLA();
+    const [oh, om] = h.opens.split(':').map(Number), [ch, cm] = h.closes.split(':').map(Number);
+    return h.days.includes(now.day) && now.min >= oh * 60 + om && now.min < ch * 60 + cm;
+  }
+
+  function setError(form: HTMLFormElement, field: string, msg: string | null) {
+    const wrap = form.querySelector<HTMLElement>(`[data-field="${field}"]`);
+    const err = wrap?.querySelector<HTMLElement>('.lf-err');
+    if (!wrap || !err) return;
+    err.hidden = !msg;
+    if (msg) err.querySelector('span')!.textContent = msg;
+    wrap.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input:not([name="website"]), select, textarea').forEach((el) => {
+      const ids = (el.getAttribute('aria-describedby') || '').split(/\s+/).filter((x) => x && x !== err.id);
+      if (msg) { ids.push(err.id); el.setAttribute('aria-invalid', 'true'); } else el.removeAttribute('aria-invalid');
+      if (ids.length) el.setAttribute('aria-describedby', ids.join(' ')); else el.removeAttribute('aria-describedby');
+    });
+  }
+  const val = (form: HTMLFormElement, name: string) => ((form.elements.namedItem(name) as HTMLInputElement | null)?.value ?? '').trim();
+  const radio = (form: HTMLFormElement, name: string) => (form.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)?.value ?? '');
+
+  function validateGeneral(form: HTMLFormElement): string | null {
+    const name = val(form, 'name'), contact = val(form, 'contact'), interest = val(form, 'interest');
+    const digits = contact.replace(/\D/g, '');
+    const contactErr = !contact ? 'Please add a phone number or email.'
+      : contact.includes('@') ? (EMAIL.test(contact) ? null : 'Please check your email. It should look like name@example.com.')
+      : (digits.length >= 10 && digits.length <= 15 ? null : 'Please check your phone number, or use an email.');
+    const errs: Array<[string, string | null]> = [
+      ['name', name ? null : 'Please add your name.'],
+      ['contact', contactErr],
+      ['interest', interest ? null : 'Please choose what we can help with.'],
+    ];
+    errs.forEach(([f, m]) => setError(form, f, m));
+    return errs.find(([, m]) => m)?.[0] ?? null;
+  }
+  function validateConsult(form: HTMLFormElement): string | null {
+    const digits = val(form, 'phone').replace(/\D/g, '');
+    const errs: Array<[string, string | null]> = [
+      ['name', val(form, 'name') ? null : 'Please add your name.'],
+      ['phone', digits.length >= 10 && digits.length <= 15 ? null : 'Please check your phone number.'],
+      ['spa', radio(form, 'spa') ? null : 'Please choose a spa.'],
+    ];
+    errs.forEach(([f, m]) => setError(form, f, m));
+    return errs.find(([, m]) => m)?.[0] ?? null;
+  }
+
+  function showThanks(root: HTMLElement, opts: { first: string; consult: boolean; interest: string; spa: string }) {
+    const d = data();
+    const done = root.querySelector<HTMLElement>('[data-lead-done]')!;
+    const line = done.querySelector<HTMLElement>('[data-done-line]')!;
+    const book = done.querySelector<HTMLElement>('[data-done-book]')!;
+    done.querySelector<HTMLElement>('[data-first-name]')!.textContent = opts.first;
+    book.hidden = true;
+    if (opts.consult || !d) {
+      line.textContent = "We'll call or text you to arrange a consultation.";
+    } else {
+      const chosen = (opts.spa === 'SD' || opts.spa === 'DM') ? opts.spa as SpaId : null;
+      let href = '', text = '', linkSpa: SpaId = chosen ?? 'SD';
+      const svc = d.services[opts.interest];
+      if (svc) {
+        const order: SpaId[] = chosen ? [chosen, chosen === 'SD' ? 'DM' : 'SD'] : ['SD', 'DM'];
+        const sp = order.find((s) => svc.links[s]);
+        if (sp) { linkSpa = sp; href = svc.links[sp]!; text = `${svc.name} at ${d.spas[sp].name}`; }
+      } else if (opts.interest === 'gift') {
+        href = d.gift; text = 'Buy a gift card';
+      } else {
+        href = d.spaBooking[linkSpa]; text = `Book online at ${d.spas[linkSpa].name}`;
+      }
+      const open = openNow(d, linkSpa);
+      line.textContent = open ? "We'll call or text you back between appointments." : "We'll call or text you back when we open.";
+      if (href) {
+        const a = book.querySelector<HTMLAnchorElement>('[data-done-link]')!;
+        a.href = href;
+        a.dataset.track = opts.interest === 'gift' ? 'gift_card_click' : 'book_click';
+        a.dataset.trackProps = JSON.stringify({ spa: linkSpa, service: svc ? opts.interest : undefined, placement: 'lead-thanks' });
+        book.querySelector<HTMLElement>('[data-done-link-text]')!.textContent = text;
+        const call = book.querySelector<HTMLElement>('[data-done-call]')!;
+        call.hidden = !open;
+        const tel = call.querySelector<HTMLAnchorElement>('[data-done-tel]')!;
+        tel.href = d.spas[linkSpa].tel; tel.textContent = d.spas[linkSpa].phone;
+        book.hidden = false;
+      }
+    }
+    root.querySelectorAll<HTMLFormElement>('form[data-lead-form]').forEach((f) => { f.hidden = true; });
+    done.hidden = false;
+    done.focus();
+  }
+
+  function showForm(root: HTMLElement, which: 'general' | 'consult', focus?: HTMLElement | null) {
+    root.querySelectorAll<HTMLFormElement>('form[data-lead-form]').forEach((f) => { f.hidden = f.dataset.leadForm !== which; });
+    root.querySelector<HTMLElement>('[data-lead-done]')!.hidden = true;
+    focus?.focus();
+  }
+
+  function init() {
+    const root = document.querySelector<HTMLElement>('[data-lead]');
+    if (!root || root.dataset.ready) return;
+    root.dataset.ready = '1';
+    const general = root.querySelector<HTMLFormElement>('form[data-lead-form="general"]')!;
+    general.hidden = false;
+    const sp = storedSpa();
+    if (sp === 'SD' || sp === 'DM') general.querySelector<HTMLInputElement>(`input[name="spa"][value="${sp}"]`)!.checked = true;
+  }
+  document.addEventListener('astro:page-load', init);
+
+  // "A consultation" swaps in the 3-field form (carrying over the name and spa).
+  document.addEventListener('change', (e) => {
+    const t = e.target as HTMLSelectElement;
+    if (!t.matches('[data-lead] select[name="interest"]')) return;
+    const root = t.closest<HTMLElement>('[data-lead]')!;
+    const general = root.querySelector<HTMLFormElement>('form[data-lead-form="general"]')!;
+    if (t.value) setError(general, 'interest', null);
+    if (t.value !== 'consultation') return;
+    const consult = root.querySelector<HTMLFormElement>('form[data-lead-form="consult"]')!;
+    (consult.elements.namedItem('name') as HTMLInputElement).value = val(general, 'name');
+    const sp = radio(general, 'spa');
+    consult.querySelectorAll<HTMLInputElement>('input[name="spa"]').forEach((r) => { r.checked = !!sp && r.value === sp; });
+    const digits = val(general, 'contact').replace(/\D/g, '');
+    if (!val(general, 'contact').includes('@') && digits.length >= 10) (consult.elements.namedItem('phone') as HTMLInputElement).value = val(general, 'contact');
+    showForm(root, 'consult', consult.querySelector<HTMLElement>('#lf-c-title'));
+  });
+
+  document.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    const back = t.closest<HTMLElement>('[data-lead-back]');
+    const again = t.closest<HTMLElement>('[data-lead-again]');
+    if (!back && !again) return;
+    const root = t.closest<HTMLElement>('[data-lead]')!;
+    const general = root.querySelector<HTMLFormElement>('form[data-lead-form="general"]')!;
+    if (again) root.querySelectorAll<HTMLFormElement>('form[data-lead-form]').forEach((f) => f.reset());
+    const sel = general.querySelector<HTMLSelectElement>('select[name="interest"]')!;
+    if (back) sel.value = '';
+    showForm(root, 'general', again ? general.querySelector<HTMLElement>('#lf-name') : sel);
+  });
+
+  // Capture phase: runs before ClientRouter's own submit listener, which would otherwise turn the form into a
+  // GET navigation (name and phone in the URL). data-astro-reload on the forms also tells the router to stay out.
+  document.addEventListener('submit', async (e) => {
+    const form = (e.target as HTMLElement).closest<HTMLFormElement>('[data-lead] form[data-lead-form]');
+    if (!form) return;
+    e.preventDefault();
+    const root = form.closest<HTMLElement>('[data-lead]')!;
+    const consult = form.dataset.leadForm === 'consult';
+    const status = form.querySelector<HTMLElement>('[data-lead-status]')!;
+    const send = form.querySelector<HTMLButtonElement>('[data-lead-send]')!;
+    const bad = consult ? validateConsult(form) : validateGeneral(form);
+    if (bad) {
+      status.textContent = '';
+      form.querySelector<HTMLElement>(`[data-field="${bad}"] input:not([name="website"]), [data-field="${bad}"] select`)?.focus();
+      return;
+    }
+    const name = val(form, 'name');
+    const spa = radio(form, 'spa');
+    const interestId = consult ? 'consultation' : val(form, 'interest');
+    const d = data();
+    const interestLabel = consult ? 'Consultation'
+      : interestId === 'gift' ? 'Gift cards' : interestId === 'other' ? 'Something else'
+      : d?.services[interestId]?.name ?? interestId;
+    const payload = consult
+      ? { name, contact: val(form, 'phone'), location: SPA_NAMES[spa] || spa, interest: 'Consultation', source: 'consultation form', website: val(form, 'website') }
+      : { name, contact: val(form, 'contact'), interest: interestLabel, location: SPA_NAMES[spa] || 'Not sure',
+          preferred_datetime: val(form, 'preferred_datetime'), notes: val(form, 'notes'), source: 'website form', website: val(form, 'website') };
+    const thanks = () => showThanks(root, { first: name.split(/\s+/)[0], consult, interest: interestId, spa });
+    if (payload.website) { thanks(); return; }   // a bot: look done, send nothing
+    const label = send.textContent;
+    send.disabled = true; send.setAttribute('aria-busy', 'true'); send.textContent = 'Sending…';
+    status.textContent = 'Sending…';
+    try {
+      // Optional Cloudflare Turnstile (public/chat/turnstile.js): '' when PUBLIC_TURNSTILE_SITE_KEY is unset.
+      const ts = (window as unknown as { ushTurnstileToken?: () => Promise<string> }).ushTurnstileToken;
+      const token = ts ? await ts() : '';
+      const body: Record<string, string> = { ...payload };
+      if (token) body['cf-turnstile-response'] = token;
+      const res = await fetch('/api/lead', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!res.ok) throw new Error(String(res.status));
+      window.track?.('lead_submitted', { source: payload.source, spa: spa || 'unsure', interest: consult ? 'consultation' : interestId });
+      status.textContent = '';
+      send.textContent = label;
+      thanks();
+    } catch {
+      status.textContent = `That didn't send. Please try again, or call us on ${d?.spas.SD.phone ?? '(858) 293-8900'}.`;
+      send.textContent = 'Try again';
+    } finally {
+      send.disabled = false; send.removeAttribute('aria-busy');
+    }
+  }, true);
+
+  // Clear a field's error as soon as it's fixed
+  document.addEventListener('input', (e) => {
+    const t = e.target as HTMLInputElement;
+    const form = t.closest<HTMLFormElement>('[data-lead] form');
+    if (!form || t.getAttribute('aria-invalid') !== 'true') return;
+    const field = t.closest<HTMLElement>('[data-field]')?.dataset.field;
+    if (field) setError(form, field, null);
+  });
+  document.addEventListener('change', (e) => {
+    const t = e.target as HTMLInputElement;
+    if (t.matches('[data-lead] input[type="radio"][aria-invalid="true"]')) setError(t.form!, 'spa', null);
+  });
+</script>
+
+<style>
+  .ct-hero__h1 { font-size: clamp(2.5rem, 1.6rem + 3.6vw, 5rem); max-width: 14ch; }
+  .ct-hero__lede { margin-top: 1.25rem; }
+  .ct-quick { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 1.75rem 0 0; padding: 0; }
+  .ct-quick li { max-width: none; }
+  .ct-hero__email { margin-top: 0.9rem; }
+  .ct-hero__email a { color: var(--text); }
+
+  .ct-spas__list { display: grid; gap: 1.25rem; margin: 0; padding: 0; }
+  @media (min-width: 860px) { .ct-spas__list { grid-template-columns: 1fr 1fr; gap: 1.5rem; } }
+  .ct-spa { display: flex; flex-direction: column; gap: 0.9rem; padding: clamp(1.25rem, 3vw, 2.25rem); border: 1px solid var(--text); border-radius: var(--radius-card); max-width: none; }
+  .ct-spa__name { font-size: clamp(2rem, 1.6rem + 1.6vw, 3rem); }
+  .ct-spa__blurb { color: var(--text-muted); }
+  .ct-spa__facts { margin: 0; display: grid; gap: 0.5rem; }
+  .ct-spa__facts > div { display: grid; grid-template-columns: 1.5rem 1fr; gap: 0.5rem; align-items: start; }
+  .ct-spa__facts dt { padding-top: 0.2rem; color: var(--text-muted); }
+  .ct-spa__facts dt :global(svg) { width: 18px; height: 18px; }
+  .ct-spa__facts dd { margin: 0; }
+  .ct-spa__facts address { font-style: normal; }
+  .ct-spa__facts a { display: inline-flex; align-items: center; min-height: var(--tap); }
+  .ct-spa__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.5rem; margin-top: auto; padding-top: 0.5rem; }
+
+  .ct-form__grid { display: grid; gap: clamp(2rem, 5vw, 5rem); }
+  @media (min-width: 960px) { .ct-form__grid { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); } }
+  .ct-form__intro { display: flex; flex-direction: column; gap: 1rem; }
+  .ct-talk { margin-top: 0.75rem; padding-top: 1.25rem; border-top: 1px solid var(--hairline); }
+  .ct-talk__title { font-family: var(--font-serif); font-size: 1.6rem; line-height: 1.2; margin-bottom: 0.25rem; }
+  .ct-talk__uni { padding: 0; min-height: 0; font-size: inherit; font-weight: inherit; font-stretch: inherit; vertical-align: baseline; }
+  .ct-form__panel { max-width: 38rem; }
+
+  /* Form */
+  .lf { display: flex; flex-direction: column; gap: 1.35rem; }
+  .lf-field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .lf-field label, .lf-field legend { font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); }
+  .lf-field legend { margin-bottom: 0.45rem; }
+  .lf-opt { font-weight: 400; color: var(--text-muted); }
+  .lf input[type='text'], .lf input[type='tel'], .lf select, .lf textarea {
+    width: 100%; min-height: 48px; padding: 0.65rem 0.9rem;
+    background: var(--paper); border: 1px solid var(--border-ui); border-radius: 8px;
+    font-size: var(--fs-body); line-height: 1.4;
+  }
+  .lf textarea { resize: vertical; min-height: 7.5rem; }
+  .lf select {
+    appearance: none; -webkit-appearance: none; padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23341204' stroke-width='1.5'%3E%3Cpath d='M6 9.5l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 0.8rem center; background-size: 18px;
+  }
+  .lf input::placeholder, .lf textarea::placeholder { color: var(--text-muted); opacity: 1; }
+  .lf [aria-invalid='true'] { border-color: var(--error) !important; border-width: 2px !important; }
+  .lf-help { font-size: var(--fs-meta); color: var(--text-muted); }
+  .lf-err { display: flex; align-items: center; gap: 0.4rem; font-size: var(--fs-meta); font-weight: 600; color: var(--error); }
+  .lf-err :global(svg) { width: 16px; height: 16px; flex: none; }
+  .lf-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .lf-chip { position: relative; display: inline-flex; }
+  .lf-chip input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+  .lf-chip span {
+    display: inline-flex; align-items: center; min-height: var(--tap); padding: 0 1.1rem;
+    border: 1px solid var(--border-ui); border-radius: var(--radius-pill);
+    font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label);
+  }
+  .lf-chip input:checked + span { background: var(--text); border-color: var(--text); color: var(--on-dark); }
+  .lf-chip input:focus-visible + span { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .lf-chip input[aria-invalid='true'] + span { border-color: var(--error); }
+  .lf-hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .lf-send { align-self: flex-start; min-width: 10rem; }
+  .lf-status:empty { display: none; }
+  .lf-status { font-size: var(--fs-label); font-weight: 500; }
+  .lf-fine a { color: var(--text); }
+  .lf-c__title { font-size: var(--fs-h3); }
+  .lf-c__intro { font-size: var(--fs-label); }
+  .lf-c__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.25rem; }
+  .lf-c__actions .lf-send { align-self: auto; }
+
+  .lf-done { display: flex; flex-direction: column; align-items: flex-start; gap: 0.9rem; padding: clamp(1.5rem, 3vw, 2.25rem); border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--bg); }
+  .lf-done :global(.lf-done__icon) { width: 28px; height: 28px; color: var(--text-muted); }
+  .lf-done__title { font-size: clamp(2rem, 1.6rem + 1.6vw, 3rem); line-height: 1.05; }
+  .lf-done__book { display: grid; gap: 0.15rem; }
+  .lf-done__book a { display: inline-flex; align-items: center; gap: 0.3rem; font-weight: 600; min-height: var(--tap); }
+  .lf-done__book a :global(svg) { width: 1em; height: 1em; }
+  .lf-noscript { padding: 1.25rem; border: 1px solid var(--hairline); border-radius: var(--radius-card); }
+
+  .ct-faq__grid { display: grid; gap: clamp(1.5rem, 4vw, 4rem); }
+  @media (min-width: 960px) { .ct-faq__grid { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); } }
+  .ct-faq__more { margin-top: 0.5rem; }
+  .ct-faq__list { margin: 0; display: grid; }
+  .ct-faq__item { padding-block: 1.1rem 1.25rem; border-top: 1px solid var(--text); }
+  .ct-faq__item dt { font-family: var(--font-serif); font-size: 1.5rem; line-height: 1.2; margin-bottom: 0.35rem; }
+  .ct-faq__item dd { margin: 0; max-width: var(--measure); }
+</style>

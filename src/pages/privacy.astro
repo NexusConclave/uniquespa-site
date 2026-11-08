@@ -1,0 +1,188 @@
+---
+/**
+ * /privacy — DRAFT privacy policy (compliance G7, CalOPPA B&P §22575–22579; Uni notices: B&P §17941 bot disclosure,
+ * Penal Code §632 recording notice). [CONFIRM O-9: counsel reviews this policy and the AI/recording notices before
+ * P1 exits.] [CONFIRM O-7: Anthropic's retention settings.] [CONFIRM: legal entity name.]
+ * Processors (coordinator, 24 Oct): Square, ElevenLabs, Anthropic, DigitalOcean, Telegram (+ the spa's Gmail inbox).
+ * No email service provider. Analytics: the visit-statistics text follows the build switches (src/lib/analytics.ts):
+ * off → "none at the moment"; on → Cloudflare's cookieless counts, Do Not Track / GPC honoured.
+ * PREVIEW builds show "Draft — pending legal review". check-leaks.mjs fails the build output on "to be named".
+ * Facts come from blueprint §4.10 (lead routing), §4.11 (Uni privacy), §7.3 (baseline job, cookieless analytics).
+ *
+ * Review #5 (4 Nov 2026): two versions behind the launch switch (src/lib/launch.mjs → LAUNCH in lib/site.ts).
+ *   staging / PREVIEW (today's setup): DigitalOcean server, leads by Telegram + the spa's Gmail inbox, deletion by hand.
+ *   launch (after the move to Katy's accounts, uni-migrate/RUNBOOK.md): Cloudflare Pages + Workers + D1 lead log,
+ *     LEAD_RETENTION_DAYS=90 cron purge (every 6 h), Telegram alert = structured lead fields only (worker lib.js
+ *     telegramText: name, contact, interest, spa, preferred day/time, party size, "notes: yes/no"; never the note
+ *     text), no Gmail, ElevenLabs recordings/transcripts kept 30 days, Anthropic for text chat.
+ *   [LAWYER] Both versions need counsel review (O-9). [CONFIRM] Telegram group auto-delete is set to 1 month on
+ *   Katy's group; Anthropic retention (O-7); launch effective date; whether today's 90-day deletion is really done;
+ *   that the Worker keeps no chat transcripts (index.js stores leads only; rate-limit counters in a Durable Object).
+ */
+import DocPage from '../components/DocPage.astro';
+import { site, addressLine } from '../lib/site';
+import { ANALYTICS_ON } from '../lib/analytics';
+import { LAUNCH } from '../lib/site';
+
+/** Launch = the post-migration setup on Katy's Cloudflare, Anthropic and ElevenLabs accounts (review #5). */
+const NEW_STACK = LAUNCH;
+
+const EFFECTIVE = 'October 24, 2026';
+const toc = [
+  { id: 'who', label: 'Who we are' },
+  { id: 'collect', label: 'What we collect' },
+  { id: 'uni-assistant', label: 'Uni, our AI assistant' },
+  { id: 'use', label: 'How we use it' },
+  { id: 'share', label: 'Who we share it with' },
+  { id: 'keep', label: 'How long we keep it' },
+  { id: 'cookies', label: 'Cookies and Do Not Track' },
+  { id: 'choices', label: 'Your choices' },
+  { id: 'children', label: 'Children' },
+  { id: 'security', label: 'Security' },
+  { id: 'changes', label: 'Changes to this policy' },
+  { id: 'contact', label: 'Contact us' },
+];
+---
+<DocPage
+  title="Privacy Policy | Unique Spa House"
+  description="How Unique Spa House collects, uses and protects your information, including our AI assistant Uni, call recording notices and how long we keep data."
+  eyebrow="Privacy"
+  h1="Privacy policy"
+  lede="We collect as little as we can, use it to look after you, and delete it on a schedule. Here's exactly how."
+  dateLine={`Effective date: ${EFFECTIVE}`}
+  draftNote="Draft — pending legal review"
+  toc={toc}
+>
+  <section id="who" aria-labelledby="who-h">
+    <h2 id="who-h">Who we are</h2>
+    <p>Unique Spa House runs two spas: {addressLine(site.spas.SD)}, and {addressLine(site.spas.DM)}. In this policy, "we" and "us" mean Unique Spa House. It covers this website, our message forms, and Uni, our AI assistant.</p>
+  </section>
+
+  <section id="collect" aria-labelledby="collect-h">
+    <h2 id="collect-h">What we collect</h2>
+    <h3>What you give us</h3>
+    <ul>
+      <li><strong>Message form:</strong> your name, phone number or email, which spa, what you're interested in, a preferred day and time, and your message.</li>
+      <li><strong>Consultation form:</strong> your name, phone number and spa. Nothing else.</li>
+      <li><strong>Uni chat and voice calls:</strong> what you type or say, and a transcript of voice calls. If you ask Uni to have us call you back, Uni passes on your name, contact details and what you'd like.</li>
+      <li><strong>Bookings, payments and gift cards</strong> happen on Square's pages, not ours. Square collects what it needs, such as your name, contact details and card, under its own privacy notice. We see your booking and visit history in Square to run the spa.</li>
+    </ul>
+    <p>Please don't send health details or card numbers through the website, our forms or Uni. We'll ask about your health at your visit.</p>
+    <h3>What's collected automatically</h3>
+    <ul>
+      <li><strong>Server data:</strong> your IP address and browser details reach {NEW_STACK ? 'our hosting provider, Cloudflare,' : 'our server'} with every request. We use the IP address briefly to stop abuse, such as too many messages from one place. A lead record keeps only a short one-way code made from it, not the address itself.</li>
+      {ANALYTICS_ON ? (
+        <li><strong>Visit statistics:</strong> we count visits and booking clicks without cookies, advertising trackers or any id that follows you. Cloudflare Web Analytics counts page views and which site or campaign sent the visit. Our own counter records only the type of click (for example "Book in Del Mar", a gift card link, a phone tap, opening Uni, or that a form or Uni request was sent), the spa, the service, the page, the referring website's name and any campaign tag in the link. It never records your name, phone number, email, what you type or say, your IP address or your device. If your browser sends a Do Not Track or Global Privacy Control signal, we don't count your visit at all.</li>
+      ) : (
+        <li><strong>Visit statistics:</strong> none at the moment. We don't use an analytics provider. If we add one, it will count visits without cookies or advertising trackers, and we'll list it here first.</li>
+      )}
+      <li><strong>On your device only:</strong> the site remembers the spa you chose and your Pause motion setting in your browser's local storage. These never leave your device.{ANALYTICS_ON && ' While a tab is open, it also remembers which website or campaign brought you, so a booking click can be counted against it; this is cleared when you close the tab.'}</li>
+    </ul>
+  </section>
+
+  <section id="uni-assistant" aria-labelledby="uni-h">
+    <h2 id="uni-h">Uni, our AI assistant</h2>
+    <ul>
+      <li><strong>Uni is an AI assistant, not a person.</strong> It answers questions about our treatments, prices and booking.</li>
+      <li><strong>Chats may be recorded and transcribed.</strong> Before you send your first message, Uni shows a notice saying so, with a link to this policy.</li>
+      <li><strong>Voice calls are recorded and transcribed.</strong> Uni tells you this and asks before your microphone turns on. You can end the call at any time, or use text chat instead.</li>
+      <li>Text chat replies come from Anthropic's AI model. Voice calls run on ElevenLabs.</li>
+      <li>Uni never takes card details and never texts or emails other people for you.</li>
+    </ul>
+  </section>
+
+  <section id="use" aria-labelledby="use-h">
+    <h2 id="use-h">How we use it</h2>
+    <ul>
+      <li>To reply to you, help you book, and run your appointments.</li>
+      <li>To keep the website and Uni working, secure and safe from abuse.</li>
+      <li>To understand how people book. Each week we count our bookings from Square by source (online, Google or by phone), spa, type of service and week. Names, notes and other personal details are dropped as soon as the data arrives and are never stored. We keep only the totals.</li>
+    </ul>
+    <p>We don't sell your personal information, and we don't share it for advertising.</p>
+  </section>
+
+  <section id="share" aria-labelledby="share-h">
+    <h2 id="share-h">Who we share it with</h2>
+    <p>These service providers handle information for us, only to do their job:</p>
+    <ul>
+      <li><strong>Square:</strong> booking, payments, gift cards and client records.</li>
+      <li><strong>ElevenLabs:</strong> Uni's voice calls (speech, voice and transcripts){NEW_STACK && '. It keeps call recordings and transcripts for 30 days, then deletes them'}.</li>
+      <li><strong>Anthropic:</strong> the AI model behind Uni's text chat replies{NEW_STACK && '. It receives your chat messages to write each reply'}.</li>
+      {NEW_STACK ? (
+        <>
+          <li><strong>Telegram:</strong> a short alert about each new message or callback request to the spa's private staff group. It holds your name, phone or email, what you're interested in, which spa, your preferred day and time and party size if you gave them, and whether you left a note. It never includes the note itself, and it deletes itself after 1 month.</li>
+          <li><strong>Cloudflare:</strong> hosting for this website and Uni, and the secure database that holds messages and callback requests (your full message stays there, not in Telegram or email).</li>
+        </>
+      ) : (
+        <>
+          <li><strong>Telegram:</strong> a short alert about each new message to the spa's private staff group. It holds your name, phone or email, spa and interest only, never your message, and deletes itself after 1 month.</li>
+          <li><strong>Google (Gmail):</strong> the spa's email inbox, where your full message arrives.</li>
+          <li><strong>DigitalOcean:</strong> hosting for this website and Uni's server.</li>
+        </>
+      )}
+      {ANALYTICS_ON && <li><strong>Cloudflare{NEW_STACK ? ' (visit statistics)' : ''}:</strong> cookieless visit statistics and our booking-click counter. It receives the counts described above, never your name or contact details.</li>}
+    </ul>
+    {ANALYTICS_ON ? (
+      <p>We don't use an email service provider at the moment. If we add one, we'll list it here first.</p>
+    ) : (
+      <p>We don't use an email service provider or an analytics provider at the moment. If we add one, we'll list it here first.</p>
+    )}
+    <p>We may also share information if the law requires it, or to protect our clients, staff or spas. Links to other sites, such as Square, Google Maps, Instagram and Facebook, are covered by those sites' own policies.</p>
+  </section>
+
+  <section id="keep" aria-labelledby="keep-h">
+    <h2 id="keep-h">How long we keep it</h2>
+    <ul>
+      {NEW_STACK ? (
+        <>
+          <li><strong>Messages and callback requests are deleted automatically after 90 days.</strong> Our database checks every few hours and removes anything older.</li>
+          <li><strong>We don't keep our own copy of Uni text chats.</strong> If you ask Uni for a callback, only that request is saved, as above.</li>
+          <li>Uni voice call recordings and transcripts are deleted by ElevenLabs after 30 days.</li>
+        </>
+      ) : (
+        <li><strong>We delete our copies of messages, leads, Uni chats and call transcripts within 90 days.</strong> For now this is done by hand; it becomes automatic when we move to our new hosting.</li>
+      )}
+      <li>Telegram alerts delete themselves after 1 month.</li>
+      {ANALYTICS_ON && <li>Booking-click counts hold no personal information and are deleted after about 13 months.</li>}
+      <li>We set our providers to keep data for 90 days or less where they allow it. Some keep data for a minimum period of their own.</li>
+      <li>Square keeps booking and payment records as part of our business records, under Square's own policy.</li>
+    </ul>
+  </section>
+
+  <section id="cookies" aria-labelledby="cookies-h">
+    <h2 id="cookies-h">Cookies and Do Not Track</h2>
+    <p>We don't use advertising cookies or tracking pixels, and we don't let other companies collect information about your activity on our site to follow you across other websites over time.</p>
+    {ANALYTICS_ON ? (
+      <p><strong>Do Not Track and Global Privacy Control:</strong> if your browser sends either signal, the site doesn't load Cloudflare's visit statistics and doesn't send any booking-click counts for your visit.</p>
+    ) : (
+      <p><strong>Do Not Track:</strong> because we don't track you across other sites, we treat every visit the same way, whether or not your browser sends a Do Not Track signal.</p>
+    )}
+    <p>Square's pages, and Uni's voice service when you start a call, may set their own cookies under their own policies.</p>
+  </section>
+
+  <section id="choices" aria-labelledby="choices-h">
+    <h2 id="choices-h">Your choices</h2>
+    <p>You can ask us to show you, correct or delete the personal information we hold about you. Email <a href={`mailto:${site.email}`}>{site.email}</a> or call <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"privacy"}'>{site.phone.display}</a>. We'll confirm who you are before we act, and we'll tell you what we did.</p>
+    <p>California residents: we don't share personal information with other businesses for their own direct marketing.</p>
+  </section>
+
+  <section id="children" aria-labelledby="children-h">
+    <h2 id="children-h">Children</h2>
+    <p>This website isn't meant for children under 13, and we don't knowingly collect their personal information online. If you think a child has sent us information, please contact us and we'll delete it.</p>
+  </section>
+
+  <section id="security" aria-labelledby="security-h">
+    <h2 id="security-h">Security</h2>
+    <p>We use encrypted connections, limit who can see your information, and delete it on the schedule above. No system is perfectly secure, so please don't send anything sensitive through the website.</p>
+  </section>
+
+  <section id="changes" aria-labelledby="changes-h">
+    <h2 id="changes-h">Changes to this policy</h2>
+    <p>If we change this policy, we'll post the new version here with a new effective date. If a change is significant, we'll also point it out on our home page.</p>
+  </section>
+
+  <section id="contact" aria-labelledby="contact-h">
+    <h2 id="contact-h">Contact us</h2>
+    <p>Questions about privacy? Email <a href={`mailto:${site.email}`}>{site.email}</a>, call or text <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"privacy"}'>{site.phone.display}</a>, or write to us at Unique Spa House, {addressLine(site.spas.SD)}.</p>
+  </section>
+</DocPage>

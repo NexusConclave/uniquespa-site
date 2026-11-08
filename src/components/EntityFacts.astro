@@ -1,0 +1,44 @@
+---
+/**
+ * EntityFacts — "Unique Spa House at a glance" (GEO entity block, About page). The business's name, both addresses,
+ * the one phone number, email, hours, booking links and profiles, exactly as site.json has them, so every page,
+ * the JSON-LD, /llms.txt and the off-site listings (geo-notes/ACTIONS-OFFSITE.md) can say the same thing.
+ * Unknowns (Del Mar hours, suite, parking) are not stated.
+ */
+import { spaBookingUrl } from '../lib/catalog';
+import { site } from '../lib/site';
+import { NAME, PHONE_DISPLAY, EMAIL, OPENED, OWNER, SKINCARE_BRAND, SPA_FACTS, WHAT } from '../lib/entity';
+interface Props { id?: string }
+const { id = 'entity-title' } = Astro.props;
+---
+<div class="entity" data-geo="entity">
+  <h2 id={id} class="entity__title">{NAME} at a glance</h2>
+  <dl class="entity__list">
+    <div><dt>Name</dt><dd>{NAME}</dd></div>
+    <div><dt>What we offer</dt><dd>{WHAT.charAt(0).toUpperCase() + WHAT.slice(1)}</dd></div>
+    {SPA_FACTS.map((s) => (
+      <div>
+        <dt>{s.label}</dt>
+        <dd><address>{s.address}</address><span class="entity__sub">{s.hours}</span> · <a href={s.page}>{s.label.split(' (')[0]} spa page</a></dd>
+      </div>
+    ))}
+    <div><dt>Phone (both spas)</dt><dd><a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"about-facts"}'>{PHONE_DISPLAY}</a></dd></div>
+    <div><dt>Email</dt><dd><a href={`mailto:${EMAIL}`}>{EMAIL}</a></dd></div>
+    <div><dt>Book online</dt><dd>{SPA_FACTS.map((s, i) => <>{i > 0 && ' · '}<a href={spaBookingUrl(s.id)} target="_blank" rel="noopener" data-track="book_click" data-track-props={JSON.stringify({ spa: s.id, placement: 'about-facts' })}>{s.label.split(' (')[0]}<span class="sr-only"> (opens in a new tab)</span></a></>)}</dd></div>
+    <div><dt>Opened</dt><dd>{OPENED}</dd></div>
+    <div><dt>Owner</dt><dd>{OWNER}</dd></div>
+    <div><dt>Skincare</dt><dd>{SKINCARE_BRAND} professional skincare in our facials</dd></div>
+    <div><dt>Find us on</dt><dd><a href={site.social.instagram} target="_blank" rel="noopener">Instagram<span class="sr-only"> (opens in a new tab)</span></a> · <a href={site.social.facebook} target="_blank" rel="noopener">Facebook<span class="sr-only"> (opens in a new tab)</span></a></dd></div>
+  </dl>
+</div>
+<style>
+  .entity { display: grid; gap: clamp(1rem, 3vw, 1.75rem); }
+  .entity__title { font-size: var(--fs-h2); }
+  .entity__list { display: grid; gap: 0; margin: 0; }
+  @media (min-width: 800px) { .entity__list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2.5rem; } }
+  .entity__list > div { display: grid; gap: 0.2rem; padding-block: 0.9rem 1rem; border-top: 1px solid var(--hairline); }
+  .entity__list dt { font-size: var(--fs-label); font-weight: 500; color: var(--text-muted); }
+  .entity__list dd { margin: 0; }
+  .entity__list address { font-style: normal; }
+  .entity__sub { color: var(--text-muted); }
+</style>

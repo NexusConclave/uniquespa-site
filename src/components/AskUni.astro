@@ -1,0 +1,20 @@
+---
+/** AskUni — the inline "Not sure? Ask Uni" prompt (§4.3). Opens Uni on tap (never auto-opens); offers the phone too. */
+import { site } from '../lib/site';
+import LotusMark from './LotusMark.astro';
+interface Props { text?: string; class?: string }
+const { text = 'Tell Uni what you need and it will suggest a treatment and a length. Or call us on', class: cls } = Astro.props;
+---
+<aside class:list={['ask', cls]} aria-label="Ask Uni">
+  <LotusMark size={30} class="ask__mark" />
+  <p class="ask__text"><span class="ask__lead serif">Not sure?</span> {text} <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"ask-uni"}'>{site.phone.display}</a>.</p>
+  <button type="button" class="btn btn--outline btn--sm" data-open="uni" aria-haspopup="dialog">Ask Uni</button>
+</aside>
+<style>
+  .ask { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 0.75rem 1rem; padding: 1.1rem 1.25rem; border: 1px solid var(--hairline); border-radius: var(--radius-card); background: rgba(250, 246, 240, 0.7); }
+  .ask :global(.ask__mark) { color: var(--text-muted); }
+  .ask__text { margin: 0; font-size: var(--fs-label); line-height: 1.5; }
+  .ask__lead { font-size: 1.35rem; margin-right: 0.15rem; }
+  .ask .btn { grid-column: 2; justify-self: start; }
+  @media (min-width: 720px) { .ask { grid-template-columns: auto 1fr auto; } .ask .btn { grid-column: 3; } }
+</style>

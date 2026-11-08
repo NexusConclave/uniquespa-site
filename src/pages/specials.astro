@@ -1,0 +1,228 @@
+---
+/**
+ * /specials (blueprint §4.5, copy 09, compliance G5).
+ * - Cards come from offers.json via activeOffers({ kind: 'special' }): (approved || PREVIEW) && starts <= today <= ends.
+ *   Specials starting within 10 days are rendered hidden and revealed client-side on their start date
+ *   (data-starts + data-reveal-on-start); every card also hides client-side after data-ends.
+ * - Each card: "Ends {date}" + includes (or "Save $X vs booking separately" — only when every part is a live
+ *   menu item at that spa, computed in lib/offers.ts), location pills, Book per spa = the Square special-price
+ *   item by deep link (no codes). Terms under each card. Never "reg.", "valued at" or "free".
+ * - No "Give it as a gift" on these cards: the published terms say specials can't be paid with gift cards
+ *   [CONFIRM: gift cards on specials (O-P5)].
+ * - With nothing live (or once every card has expired client-side), the empty state shows, plus gift cards and
+ *   Refer / Rewards (only once their site.json flags are on — /refer is never linked before that).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import Button from '../components/Button.astro';
+import SpecialCard from '../components/SpecialCard.astro';
+import GiftCardVisual from '../components/GiftCardVisual.astro';
+import Icon from '../components/Icon.astro';
+import Confirm from '../components/Confirm.astro';
+import { activeOffers, upcomingOffers, type Offer } from '../lib/offers';
+import { giftUrl } from '../lib/catalog';
+import { site, SITE_URL } from '../lib/site';
+import { todayLA, longDate } from '../lib/dates';
+
+const today = todayLA();
+const month = new Intl.DateTimeFormat('en-US', { month: 'long', timeZone: 'UTC' }).format(new Date(today + 'T12:00:00Z'));
+
+// Name-only offers (e.g. a month's anti-cellulite price) never get a card (decisions log #2).
+const live = activeOffers({ kind: 'special', today }).filter((o) => !o.name_only);
+const soon = upcomingOffers({ kind: 'special', days: 10, today }).filter((o) => !o.name_only);
+const ends = [...new Set(live.map((o) => o.ends))];
+// Hero lines that talk about the cards hide client-side with the last card (a stale build never says "choose a card").
+const lastEnd = ends.length ? ends.reduce((a, b) => (a > b ? a : b)) : undefined;
+const lastCardEnd = [...live, ...soon].map((o) => o.ends).reduce((a: string | undefined, b) => (a && a > b ? a : b), undefined);
+const endLine = ends.length === 1 ? `These offers end ${longDate(ends[0]).replace(/, \d{4}$/, '')}.` : 'Each one shows its end date.';
+
+const description = live.length
+  ? `${month} specials on ${live.map((o) => o.title).join(' and ')} in San Diego and Del Mar. ${endLine} Book online.`
+  : 'Monthly specials on massage, facials and body treatments in San Diego and Del Mar, plus eGift cards. Book online.';
+
+const referLive = site.flags.refer_live;
+const rewardsLive = site.flags.rewards_live;
+
+// JSON-LD: one Offer per live special, with its validity window (§11). No AggregateRating.
+const org = `${SITE_URL}/#organization`;
+// Drafts shown on PREVIEW builds never go into structured data.
+const ldOffers = live.filter((o: Offer) => o.approved === true);
+const jsonLd = ldOffers.length
+  ? {
+      '@context': 'https://schema.org',
+      '@graph': [{
+        '@type': 'OfferCatalog',
+        '@id': `${SITE_URL}/specials#catalog`,
+        name: `${month} specials`,
+        itemListElement: ldOffers.map((o: Offer) => ({
+          '@type': 'Offer',
+          name: o.title,
+          description: o.body,
+          price: o.price,
+          priceCurrency: 'USD',
+          validFrom: o.starts,
+          validThrough: o.ends,
+          offeredBy: { '@id': org },
+          url: `${SITE_URL}/specials`,
+        })),
+      }],
+    }
+  : undefined;
+---
+<BaseLayout
+  title={`${month} Specials, San Diego & Del Mar | Unique Spa House`}
+  description={description}
+  jsonLd={jsonLd}
+>
+  <Section class="sp-hero" pad="tight" reveal={false}>
+    {/* data-month: a stale build (before the nightly rebuild) relabels itself with the current month (QA m-1) */}
+    <p class="eyebrow">Offers · <span data-month>{month}</span></p>
+    <h1 class="sp-hero__h1"><span data-month>{month}</span> specials in San Diego and Del Mar</h1>
+    <p class="lede sp-hero__lede">
+      New specials every month, on some of our most-loved treatments.
+      {live.length > 0 && <span data-ends={lastEnd}> {endLine}</span>}
+    </p>
+    {live.length > 0 && (
+      <p class="sp-hero__how" data-ends={lastCardEnd}>
+        <Icon name="check" />
+        To book, choose a spa on the card. Its booking page opens with the special price already set, so there's no code to remember.
+      </p>
+    )}
+  </Section>
+
+  <Section class="sp" pad="none" reveal={false} label="This month's specials">
+    <ul class="sp__list" role="list">
+      {live.map((o) => (
+        <li class="sp__item" data-starts={o.starts} data-ends={o.ends}>
+          <SpecialCard offer={o} headingLevel={2} showGift={false} placement="special">
+            <p class="sp__terms">
+              Ends {longDate(o.ends)}. One offer per visit. Can't be combined with other discounts or gift cards.
+              If you reschedule, pick a new date before the offer ends. <a href="/policies#specials">Terms</a>
+            </p>
+          </SpecialCard>
+        </li>
+      ))}
+      {soon.map((o) => (
+        <li class="sp__item" data-starts={o.starts} data-ends={o.ends} data-reveal-on-start hidden>
+          <SpecialCard offer={o} headingLevel={2} showGift={false} placement="special">
+            <p class="sp__terms">
+              Ends {longDate(o.ends)}. One offer per visit. Can't be combined with other discounts or gift cards.
+              If you reschedule, pick a new date before the offer ends. <a href="/policies#specials">Terms</a>
+            </p>
+          </SpecialCard>
+        </li>
+      ))}
+    </ul>
+
+    <!-- Empty state: visible when no card is live (CSS :has hides it while any card shows). -->
+    <div class="sp__empty" id="no-specials">
+      <h2 class="sp__empty-title">New specials are on the <em>way</em>.</h2>
+      <p>We post fresh specials at the start of each month. In the meantime, browse the full menu, or give someone a gift card.</p>
+      <div class="sp__empty-actions">
+        <Button href="/menu" variant="outline" iconEnd="arrow-right">See the full menu</Button>
+        <a class="link-arrow" href={site.social.instagram} target="_blank" rel="noopener">Follow on Instagram<span class="sr-only"> (opens in a new tab)</span><Icon name="arrow-up-right" /></a>
+      </div>
+    </div>
+  </Section>
+
+  <Section tone="paper" labelledby="sp-gift-title" class="sp-more">
+    <div class:list={['sp-more__grid', (referLive || rewardsLive) && 'sp-more__grid--3']}>
+      <article class="sp-gift">
+        <GiftCardVisual />
+        <div class="sp-gift__text">
+          <h2 id="sp-gift-title" class="sp-more__title">Give the gift of <em>calm</em></h2>
+          <p>eGift cards from $100, or choose your own amount. Send by text or email, today or on a date you pick.<Confirm id="gift-never-expire"> They never expire.</Confirm></p>
+          <div class="sp-gift__actions">
+            <Button href={giftUrl()} external variant="outline" icon="gift" track="gift_card_click" trackProps={{ placement: 'specials' }}>Buy a gift card</Button>
+            <a class="link-arrow" href="/gift-cards">How gift cards work<Icon name="arrow-right" /></a>
+          </div>
+        </div>
+      </article>
+      {referLive && (
+        <article class="sp-side">
+          <h3 class="sp-side__title">Refer a friend</h3>
+          <p>Share the spa with a friend. After their first paid visit, you get $25 off a spa service of $150 or more.</p>
+          <a class="link-arrow" href="/refer">How referrals work<Icon name="arrow-right" /></a>
+        </article>
+      )}
+      {rewardsLive && (
+        <article class="sp-side">
+          <h3 class="sp-side__title">Unique Rewards</h3>
+          <p>Earn points on your spa visits and take them as dollars off in the spa.</p>
+          <a class="link-arrow" href="/rewards">About Unique Rewards<Icon name="arrow-right" /></a>
+        </article>
+      )}
+    </div>
+  </Section>
+
+  <Section labelledby="sp-how-title" class="sp-how">
+    <div class="sp-how__grid">
+      <div>
+        <h2 id="sp-how-title">How specials work</h2>
+        <p class="lede sp-how__lede">Each card shows what's included, the offer price, where it runs and when it ends.</p>
+      </div>
+      <ul class="sp-how__list" role="list">
+        <li>
+          <h3>Online</h3>
+          <p>Choose Book on the card for the spa you want. The special has its own booking page, so the offer price is already set. No code needed.</p>
+        </li>
+        <li>
+          <h3>By phone or text</h3>
+          <p>Call <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"specials"}'>{site.phone.display}</a> or <a href={site.sms} data-track="text_click" data-track-props='{"placement":"specials"}'>text us</a> and mention the special by name.</p>
+        </li>
+        <li>
+          <h3>The small print</h3>
+          <p>Specials may change without notice. One offer per visit, and they can't be combined with other discounts or gift cards. No cash value. Our 24-hour cancellation policy applies. <a href="/policies#specials">All terms</a></p>
+        </li>
+      </ul>
+    </div>
+    <p class="sp-how__social">
+      We post new specials at the start of every month.
+      <a href={site.social.instagram} target="_blank" rel="noopener">Instagram<span class="sr-only"> (opens in a new tab)</span></a>
+      <span aria-hidden="true">·</span>
+      <a href={site.social.facebook} target="_blank" rel="noopener">Facebook<span class="sr-only"> (opens in a new tab)</span></a>
+    </p>
+  </Section>
+</BaseLayout>
+
+<style>
+  .sp-hero__h1 { font-size: clamp(2.5rem, 1.5rem + 4vw, 5rem); max-width: 20ch; }
+  .sp-hero__lede { margin-top: 1.25rem; }
+  .sp-hero__how { display: flex; gap: 0.6rem; align-items: flex-start; margin-top: 1rem; color: var(--text-muted); font-size: var(--fs-label); }
+  .sp-hero__how :global(svg) { width: 18px; height: 18px; flex: none; margin-top: 0.2rem; color: var(--text); }
+
+  .sp__list { display: grid; gap: 1.25rem; margin: 0; padding: 0; }
+  .sp__list:empty { display: none; }
+  @media (min-width: 860px) { .sp__list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem; } }
+  .sp__item { display: grid; max-width: none; }
+  .sp__terms { font-size: var(--fs-meta); line-height: 1.5; color: var(--text-muted); padding-top: 0.75rem; border-top: 1px solid var(--hairline); }
+  .sp__terms a { color: var(--text); }
+
+  /* Empty state: hidden while any card is showing (cards hide themselves after data-ends). */
+  .sp__empty { display: grid; gap: 1rem; padding: clamp(1.5rem, 4vw, 3rem) 0; max-width: 40rem; }
+  :global(.sp:has(.sp__item:not([hidden]))) .sp__empty { display: none; }
+  .sp__empty-title { font-size: var(--fs-h2); }
+  .sp__empty-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; margin-top: 0.5rem; }
+
+  :global(.sp-more) { margin-top: clamp(3rem, 7vw, 6rem); }
+  .sp-more__grid { display: grid; gap: 1.25rem; }
+  @media (min-width: 1024px) { .sp-more__grid--3 { grid-template-columns: 1.6fr 1fr 1fr; } }
+  .sp-more__title { font-size: var(--fs-h2); }
+  .sp-gift { display: grid; gap: clamp(1.5rem, 5vw, 4rem); align-items: center; }
+  @media (min-width: 760px) { .sp-gift { grid-template-columns: minmax(0, 340px) minmax(0, 1fr); } }
+  .sp-more__grid--3 .sp-gift { grid-template-columns: 1fr; }
+  .sp-gift :global(.giftcard) { max-width: 320px; margin-inline: auto; }
+  .sp-gift__text { display: flex; flex-direction: column; gap: 0.9rem; }
+  .sp-gift__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; margin-top: 0.25rem; }
+  .sp-side { display: flex; flex-direction: column; gap: 0.75rem; padding: clamp(1.25rem, 2.6vw, 2rem); border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--bg); }
+  .sp-side__title { font-size: var(--fs-h3); }
+
+  .sp-how__grid { display: grid; gap: clamp(1.5rem, 4vw, 4rem); }
+  @media (min-width: 960px) { .sp-how__grid { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); } }
+  .sp-how__lede { margin-top: 0.75rem; }
+  .sp-how__list { display: grid; gap: 0; margin: 0; padding: 0; }
+  .sp-how__list li { padding-block: 1.25rem; border-top: 1px solid var(--text); max-width: none; }
+  .sp-how__list h3 { font-size: 1.5rem; margin-bottom: 0.4rem; }
+  .sp-how__social { margin-top: clamp(2rem, 4vw, 3rem); color: var(--text-muted); display: flex; flex-wrap: wrap; gap: 0.25rem 0.6rem; align-items: center; }
+  .sp-how__social a { color: var(--text); min-height: var(--tap); display: inline-flex; align-items: center; }
+</style>
