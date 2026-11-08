@@ -13,7 +13,7 @@
         "x": 50,
         "y": 62
       },
-      "alt": "A massage therapist's hands resting on a client's shoulders as she relaxes on the table."
+      "alt": "A massage therapist's hands resting on a client's shoulders as she relaxes on the table. (drill)"
     },
     {
       "id": "hero-4x5",
@@ -74,7 +74,9 @@
     {
       "id": "facial-1x1",
       "file": "src/assets/temp/TEMP-facial-room-1x1.jpg",
-      "formats": ["webp"],
+      "formats": [
+        "webp"
+      ],
       "source_row": 18,
       "source_file": "Untitled-design---2026-01-09T224452-703-1920w-c8333bd7e8.png",
       "use": "Home beat 3, Facials card and /facials header. Treatment-room placeholder (rolled towels on a made bed, candles cropped out): no face. Replaced the Unsplash clay-mask crop, which showed a client's face (review #3).",
