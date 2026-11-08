@@ -14,7 +14,7 @@
   // Self-hosted AudioWorklets (public/chat/worklets): the CSP allows scripts from 'self' only, no blob: or CDN.
   var VOICE_WORKLETS = { rawAudioProcessor: '/chat/worklets/rawAudioProcessor.js', audioConcatProcessor: '/chat/worklets/audioConcatProcessor.js' };
   var VOICE_RESAMPLER = '/chat/worklets/libsamplerate.worklet.js';
-  var AGENT_ID = 'agent_5001m5p0gcjhfqn9tdgn8ysdgwe3';
+  var AGENT_ID = 'agent_9401m6wnk56heqnv0j95xcbx15td';
   var KEY = 'usc-chat-v2';
   var CONSENT_KEY = 'usc-ai-notice-v1';
   var WELCOME = "Hi, I'm Uni, the spa's AI assistant. Ask me about treatments, prices, specials or booking. Or tap the mic to talk to me.";
