@@ -26,7 +26,7 @@ const check = (name, ok, detail = '') => { if (ok) pass++; else { fail++; consol
 // ---------------------------------------------------------------- review #3: no temp image slots in a launch build
 if (MODE.launch) {
   const temp = tempAssets(JSON.parse(readFileSync(join(root, 'src/data/asset-manifest.json'), 'utf8')));
-  check('launch: no asset-manifest.json slot is temp:true', temp.length === 0, temp.map((a) => a.id).join(', '));
+  check('launch: no asset-manifest.json slot is temp:true, photo-less or alt_todo', temp.length === 0, temp.map((a) => a.id).join(', '));
 }
 const walk = (d) => readdirSync(d).flatMap((f) => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
 const files = walk(dist);

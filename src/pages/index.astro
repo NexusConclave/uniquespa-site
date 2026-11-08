@@ -24,7 +24,7 @@ import { getService, getOption, formatMinutes, formatPrice, optionPriceText, pri
 import { activeOffers } from '../lib/offers';
 import { giftOffer as giftOfferView } from '../lib/giftOffer';
 import { review } from '../lib/reviews';
-import { asset, widthsFor, objectPosition } from '../lib/images';
+import { asset, photoOrNull, widthsFor, objectPosition } from '../lib/images';
 import { site } from '../lib/site';
 import { shortDate } from '../lib/dates';
 import { graph, orgNode, websiteNode, spaNode as spaSchema, faqNode } from '../lib/schema';
@@ -50,7 +50,7 @@ const couples = cardMeta('couples', 120);
 const cards = [
   { href: '/massage', title: 'Massage', text: 'Swedish, deep tissue, lymphatic, sports, prenatal and more. Your therapist shapes the session around you.', meta: massage, img: asset('massage-1x1'), morph: 'svc-massage', quality: 60 },
   { href: '/facials', title: 'Facials', text: 'BABOR facials and sculpting face massage, chosen for your skin after a short check.', meta: facial, img: asset('facial-1x1'), morph: 'svc-facials', quality: 60 },
-  { href: '/massage/couples', title: 'Couples', text: 'Two tables in a private room. Then 30 minutes together, with tea or coffee, fresh fruit and cheese.', meta: couples, img: null, morph: undefined, quality: 60 },
+  { href: '/massage/couples', title: 'Couples', text: 'Two tables in a private room. Then 30 minutes together, with tea or coffee, fresh fruit and cheese.', meta: couples, img: photoOrNull('couples-placeholder'), morph: undefined, quality: 60 }, // typographic tile until shoot #8 is in the manifest,
 ];
 
 // ---- Beat 5: offers band (special → gifts → refer/rewards). It never hides. ----

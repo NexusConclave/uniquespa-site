@@ -2,20 +2,43 @@
 /**
  * SpaDoor — one of the two spa "doors": a static CSS arch outline (no photo until shoot #9/#10)
  * holding the spa's name and street, with "See the spa" and Directions below the threshold.
+ * Photo slot: once asset-manifest.json `spa-doors.variants.<SD|DM>.file` is set, the entrance photo fills the
+ * inner arch and the name, address and hours move under the threshold (text never sits on a photo, CLAUDE.md 16).
  * Use the pair inside a two-column grid; the pair counts as ONE arch moment. Stacks on mobile.
  */
 import { spa as spaInfo } from '../lib/site';
 import type { Spa } from '../lib/catalog';
 import Icon from './Icon.astro';
+import { Picture } from 'astro:assets';
+import { photoOrNull, widthsFor, objectPosition } from '../lib/images';
 interface Props { spa: Spa; headingLevel?: 2 | 3 | 4; showLinks?: boolean; class?: string }
 const { spa, headingLevel = 3, showLinks = true, class: cls } = Astro.props;
 const s = spaInfo(spa);
 const H = `h${headingLevel}` as 'h2' | 'h3' | 'h4';
 const district = spa === 'SD' ? 'Mission Valley' : null;
+const photo = photoOrNull('spa-doors', spa);
 ---
 <article class:list={['door-card', cls]}>
   <div class="door-card__arch">
-    <div class="door-card__inner">
+    {photo ? (
+      <div class="door-card__inner door-card__inner--photo">
+        <Picture src={photo.src} formats={photo.formats} widths={widthsFor(photo.src, [480, 800, 1600])} sizes="(min-width: 960px) 34vw, 86vw" quality={62}
+          alt={photo.alt} loading="lazy" decoding="async" style={`object-position: ${objectPosition(photo)}`} />
+      </div>
+    ) : (
+      <div class="door-card__inner">
+        <H class="door-card__name">{s.name}{district
+          ? <> <span class="door-card__district">({district})</span></>
+          : <span class="door-card__district door-card__district--blank" aria-hidden="true">&nbsp;</span>}</H>
+        <address class="door-card__addr">
+          {s.street}<br />{s.city}, {s.region} {s.postal}
+        </address>
+        <p class="door-card__hours meta"><Icon name="clock" />{s.hours_text}</p>
+      </div>
+    )}
+  </div>
+  {photo && (
+    <div class="door-card__below">
       <H class="door-card__name">{s.name}{district
         ? <> <span class="door-card__district">({district})</span></>
         : <span class="door-card__district door-card__district--blank" aria-hidden="true">&nbsp;</span>}</H>
@@ -24,7 +47,7 @@ const district = spa === 'SD' ? 'Mission Valley' : null;
       </address>
       <p class="door-card__hours meta"><Icon name="clock" />{s.hours_text}</p>
     </div>
-  </div>
+  )}
   {showLinks && <div class="door-card__links">
     <a class="link-arrow" href={s.page}>See the spa<span class="sr-only">: {s.long_name}</span><Icon name="arrow-right" /></a>
     <a class="link-arrow" href={s.directions_url} target="_blank" rel="noopener">Directions<span class="sr-only"> to {s.long_name} (opens in a new tab)</span><Icon name="arrow-up-right" /></a>
@@ -56,6 +79,12 @@ const district = spa === 'SD' ? 'Mission Valley' : null;
     padding: 44% 1.25rem clamp(1.25rem, 3vw, 2.5rem);
     background: rgba(250, 246, 240, 0.55);
   }
+  /* Photo variant (shoot #9/#10): the photo fills the inner arch; the text sits below the threshold. */
+  .door-card__inner--photo { padding: 0; overflow: hidden; background: var(--sand); }
+  .door-card__inner--photo :global(picture), .door-card__inner--photo :global(img) { display: block; width: 100%; height: 100%; }
+  .door-card__inner--photo :global(img) { object-fit: cover; border-radius: inherit; }
+  .door-card__below { text-align: center; margin-top: 0.25rem; }
+  .door-card__below .door-card__name { font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.75rem); }
   .door-card__district { display: block; margin-top: 0.35rem; font-family: var(--font-sans); font-size: var(--fs-label); font-weight: 500; font-stretch: var(--wdth-label); letter-spacing: 0; color: var(--text-muted); }
   .door-card__name { font-size: clamp(2rem, 1.4rem + 2.6vw, 4.25rem); line-height: 1; }   /* never larger than a page H1 (QA m-3) */
   .door-card__district--blank { visibility: hidden; }   /* keeps the pair's names and addresses on the same lines (QA m-2) */
