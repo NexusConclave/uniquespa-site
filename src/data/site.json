@@ -1,7 +1,7 @@
 {
   "note": "Spa facts for the site. Owner-confirmable items carry a [CONFIRM] note in _confirm. Prices never live here (see services.json + square-lock.json).",
   "name": "Unique Spa House",
-  "launch": false,
+  "launch": true,
   "_launch": "THE launch switch (one line, in the launch PR). false = staging: canonical = the staging host (urls.staging, or env STAGING_URL for a private staging server), every page noindex, robots.txt disallows all, no sitemap.xml, X-Robots-Tag noindex. true = live: canonical https://uniquespahouse.com, pages indexable, production robots.txt + sitemap.xml; *.pages.dev previews stay noindex. Env LAUNCH=1/0 overrides for a test build; PREVIEW=1 always builds staging.",
   "urls": {
     "staging": "https://unique-spa-house.pages.dev",
