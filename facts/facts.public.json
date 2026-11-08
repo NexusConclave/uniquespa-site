@@ -534,26 +534,6 @@
       ]
     },
     {
-      "id": "liposuction-massage",
-      "group": "massage",
-      "name": "Liposuction Massage",
-      "desc": "about 3 hours on one area only",
-      "desc_style": "colon",
-      "aliases": [
-        "Liposuction"
-      ],
-      "tag": "Top Massage Therapist",
-      "options": [
-        {
-          "minutes": 180,
-          "price": 436,
-          "locations": [
-            "DM"
-          ]
-        }
-      ]
-    },
-    {
       "id": "katy-any-massage",
       "group": "massage",
       "name": "Any {min} min Massage with Katy (owner)",
