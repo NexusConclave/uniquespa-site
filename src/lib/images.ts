@@ -25,9 +25,16 @@ export function widthsFor(src: ImageMetadata, list: number[] = WIDTHS): number[]
   return [...w, Math.min(src.width, list[list.length - 1])];
 }
 
-export function asset(id: string): Asset {
+function entryFor(id: string, variant?: string): Record<string, any> | undefined {
   const entry = (manifest.assets as Array<Record<string, any>>).find((a) => a.id === id);
-  if (!entry || !entry.file) throw new Error(`[images] no image file for asset "${id}"`);
+  if (!entry || !variant) return entry;
+  // A slot with one photo per spa (spa-doors): `variants.SD` / `variants.DM` override file, alt and focal.
+  const v = entry.variants?.[variant];
+  if (!v) throw new Error(`[images] asset "${id}" has no variant "${variant}" in asset-manifest.json`);
+  return { ...entry, ...v };
+}
+
+function toAsset(id: string, entry: Record<string, any>): Asset {
   const key = '../' + String(entry.file).replace(/^src\//, '');
   const mod = files[key];
   if (!mod) throw new Error(`[images] ${entry.file} is listed in asset-manifest.json but missing on disk`);
@@ -40,6 +47,23 @@ export function asset(id: string): Asset {
     replace_with: entry.replace_with,
     formats: entry.formats ?? ['avif', 'webp'],
   };
+}
+
+export function asset(id: string, variant?: string): Asset {
+  const entry = entryFor(id, variant);
+  if (!entry || !entry.file) throw new Error(`[images] no image file for asset "${id}"${variant ? ` (${variant})` : ''}`);
+  return toAsset(id, entry);
+}
+
+/**
+ * For slots that have no photo yet (couples-placeholder, spa-doors, gift-card): the photo once its manifest entry has
+ * a `file`, else null, so the component keeps its CSS/typographic placeholder. Dropping the photo in
+ * src/assets/photos/ and setting `file` (and `alt`, `focal`, `"temp": false`) is the whole change.
+ */
+export function photoOrNull(id: string, variant?: string): Asset | null {
+  const entry = entryFor(id, variant);
+  if (!entry) throw new Error(`[images] no asset "${id}" in asset-manifest.json`);
+  return entry.file ? toAsset(id, entry) : null;
 }
 
 /** CSS object-position from the manifest's focal point. */
