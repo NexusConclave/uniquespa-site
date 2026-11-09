@@ -102,7 +102,7 @@ const COPY: Record<string, string> = {
   lymphatic: "Very gentle, rhythmic strokes, designed to encourage the flow of fluid. Most clients find it deeply calming. It's our only massage with gentle tummy work.",
   'anti-cellulite': 'Brisk, firm massage for thighs, hips and buttocks, at an energetic pace.',
   'brazilian-butt': "A firm sculpting massage with Brazilian wooden tools: brisk, rhythmic and warming.",
-  'liposuction-massage': "A long, focused session of about 3 hours on one area of the body. Having this after surgery? Your surgeon must clear you first, including on timing.",
+  'liposuction-massage': "About 3 hours on one area only.",
   prenatal: 'Designed for pregnancy. Positioning, pressure and technique are adjusted for each stage. Please check with your doctor or midwife first.',
   postnatal: "An hour that's all about you, after your baby arrives. Positioning and pressure are adjusted for comfort.",
   couples: 'Two tables in a private room. Then 30 minutes together, with tea or coffee, fresh fruit and cheese. All included.',

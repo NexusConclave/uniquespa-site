@@ -26,6 +26,8 @@ const gatedIds = services.filter((s) => s.status !== 'live').flatMap((s) => s.op
 
 // Terms (case-insensitive unless marked). Brazilian Butt is allowed only as a menu row on these pages.
 const BB_ALLOWED = ['/menu/', '/massage/', '/body/'];
+// Liposuction Massage: back on the menu 8 Nov 2026 (Ian). Allowed only as a menu row on these pages, as before the 4 Nov hold.
+const ALLOW_IN = { 'Liposuction (menu row only)': ['/menu/', '/massage/', '/locations/del-mar/'] };
 const terms = [
   [/t-?shape/i, 'T-Shape'], [/t-?sculpt/i, 'T-Sculpt'], [/\bEMS\b/, 'EMS'], [/\bRF\b/, 'RF'], [/radio ?frequency/i, 'radiofrequency'],
   [/micro-?needl/i, 'microneedling'], [/\blaser/i, 'laser'], [/\bIV\b/, 'IV'], [/iv therapy|iv drip/i, 'IV therapy'],
@@ -33,7 +35,7 @@ const terms = [
   [/\bdose|dosage/i, 'dose'], [/med ?spa/i, 'med spa'], [/mesosphere/i, 'Mesosphere'], [/exosome/i, 'exosome'], [/\bPDRN\b|salmon dna/i, 'PDRN'],
   [/\bTCA\b/, 'TCA'], [/nordlys|candela/i, 'Nordlys/Candela'], [/endosph/i, 'Endosphere'], [/\bsauna/i, 'sauna'], [/botox|filler/i, 'injectables'],
   [/glac[eē]|hydro ?facial|hydrafacial/i, 'Hydro facial (hold)'], [/buccal/i, 'Buccal (hold)'], [/\bLPG\b|endermolog/i, 'LPG (hold)'],
-  [/bamboo/i, 'Bamboo (hidden)'], [/liposuction|\blipo\b/i, 'Liposuction (hold until Q13)'],
+  [/bamboo/i, 'Bamboo (hidden)'], [/liposuction|\blipo\b/i, 'Liposuction (menu row only)'],
   [/\breg\.|regular price|valued at|\bwas \$/i, 'former price'], [/buy \d+ get \d+/i, 'buy-get'], [/\bfree\b/i, '"free"'],
   [/[★☆⭐]/, 'star glyph'],
   [/to be named|\bTBD\b/, 'placeholder (privacy processors)'],
@@ -103,6 +105,7 @@ for (const f of files) {
   for (const [re, name] of terms) {
     const m = text.match(re);
     if (!m) continue;
+    if (name.startsWith('Liposuction') && ALLOW_IN[name].some((p) => rel.startsWith(p))) continue;
     if (/brazilian/i.test(m[0]) && BB_ALLOWED.some((p) => rel.startsWith(p))) continue;
     const i = m.index ?? 0;
     console.log(`${name.padEnd(28)} ${rel}  …${text.slice(Math.max(0, i - 50), i + 50).replace(/\s+/g, ' ')}…`);
