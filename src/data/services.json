@@ -538,7 +538,7 @@
    "id": "liposuction-massage",
    "name": "Liposuction massage",
    "group": "massage",
-   "status": "hold",
+   "status": "live",
    "medical": "no",
    "options": [
     {
@@ -554,7 +554,7 @@
    ],
    "summary": "A long, focused session on one area.",
    "flagship": null,
-   "notes": "HOLD (review #2, 4 Nov 2026): not named, priced or bookable anywhere until Katy answers Q13 (what it is, who it is for, post-surgery clearance). O-17: contents and name to confirm. To bring back: set status live and re-add the check-leaks.mjs allow-list."
+   "notes": "O-17: contents and name to confirm; menu row only. Back on the menu 8 Nov 2026 (Ian, 16:45 PT): reverses the 4 Nov hold (review #2). Name still asked in Q13."
   },
   {
    "id": "babor-sculpt-lift",

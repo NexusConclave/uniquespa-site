@@ -68,7 +68,7 @@ Every page. Head (title, description, robots meta and canonical from the launch 
 
 | Prop | Type | Notes |
 |---|---|---|
-| `title` | string | ≤ 60 chars, no "med spa" (§11) |
+| `title` | string | ≤ 60 chars, no "med spa" (§11). Only exception: `/med-spa/` may use "Unique Med Spa" (owner decision 7 Nov 2026, lawyer review pending; see `scripts/check-leaks.mjs` `MED_SPA_ALLOW`) |
 | `description` | string? | defaults to the site description |
 | `path` | string? | canonical path; defaults to the URL |
 | `jsonLd` | object? | emitted as one `<script type="application/ld+json">`; use an `@graph`. No AggregateRating |

@@ -86,13 +86,14 @@
         "x": 50,
         "y": 45
       },
-      "alt": "Rolled white towels and fresh flowers on a made treatment bed."
+      "alt": "Rolled white towels and fresh flowers on a made treatment bed.",
+      "alt_todo": "This alt describes the interim towels photo. With shoot #5, write the new alt (draft for Katy's OK: \"A brush applying BABOR product along a client's jaw.\") and delete this alt_todo line. A launch build refuses while it is here."
     },
     {
       "id": "couples-placeholder",
       "file": null,
       "source_row": null,
-      "use": "Home beat 3, Couples card: typographic tile set in roman (no photo exists). The /massage/couples flagship shows the San Diego spa door instead (QA M6).",
+      "use": "Home beat 3, Couples card: typographic tile set in roman (no photo exists). The /massage/couples flagship shows the San Diego spa door instead (QA M6). Photo swap: name shoot #8 couples-placeholder.jpg and run scripts/photo-intake.mjs (it writes src/assets/photos/couples-placeholder.jpg and sets file, alt, focal and \"temp\": false). The Home card, /massage/couples and the couples guide then show it (lib/images photoOrNull); until then they keep the tile / SD door.",
       "temp": true,
       "replace_with": "shoot #8 (couples room)",
       "focal": null,
@@ -102,17 +103,29 @@
       "id": "spa-doors",
       "file": null,
       "source_row": null,
-      "use": "Home beat 7, the two spa doors: CSS arch outlines, no photo",
+      "use": "Home beat 7, the two spa doors: CSS arch outlines, no photo. Photo swap: name shoots #9 and #10 spa-doors-sd.jpg and spa-doors-dm.jpg and run scripts/photo-intake.mjs (it sets variants.SD/DM file, alt and focal, then \"temp\": false once BOTH are in). SpaDoor.astro shows the photo inside the arch and moves the name and address under the threshold (text never sits on a photo). A variant with no file keeps the outline.",
       "temp": true,
       "replace_with": "shoot #9 (San Diego entrance) and #10 (Del Mar entrance)",
       "focal": null,
-      "alt": ""
+      "alt": "",
+      "variants": {
+        "SD": {
+          "file": null,
+          "focal": null,
+          "alt": ""
+        },
+        "DM": {
+          "file": null,
+          "focal": null,
+          "alt": ""
+        }
+      }
     },
     {
       "id": "gift-card",
       "file": null,
       "source_row": null,
-      "use": "Offers band gift card: CSS illustration",
+      "use": "Offers band gift card: CSS illustration. Photo swap: name shoot #12 (no price shown) gift-card.jpg and run scripts/photo-intake.mjs (it sets file, focal and \"temp\": false); alt stays \"\" (decorative). GiftCardVisual.astro then shows the photo in the card frame and ignores the drawn amount.",
       "temp": true,
       "replace_with": "shoot #12 (gift card / BABOR flat-lay)",
       "focal": null,

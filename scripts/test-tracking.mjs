@@ -141,7 +141,8 @@ for (const b of BUILDS) {
 
 // ---------------------------------------------------------------- 4. personal data can't get through
 const PII = ['jane', 'doe', 'john', 'smith', 'mary', 'jane@example.com', 'example.com/x', '858', '2938900', '4111', '1111', 'allerg', 'pregnan', 'secret', 'ignore previous', '<script', '1.2.3.4', 'mozilla', 'session', 'cookie'];
-const hasPII = (obj) => { const s = JSON.stringify(obj).toLowerCase(); return PII.filter((x) => s.includes(x)); };
+// Unix timestamps (10-digit seconds, 13-digit ms) are stripped first: they can contain 4111 or 1111 by chance.
+const hasPII = (obj) => { const s = JSON.stringify(obj).toLowerCase().replace(/(?<!\d)(\d{10}|\d{13})(?!\d)/g, ''); return PII.filter((x) => s.includes(x)); };
 const hostile = [
   { e: 'book_click', p: { spa: 'SD', service: 'swedish', placement: 'sheet', name: 'Jane Doe', email: 'jane@example.com', phone: '(858) 293-8900' } },
   { e: 'lead_submitted', p: { source: 'Jane Doe', interest: 'jane@example.com', spa: 'Del Mar' }, notes: 'I am pregnant, allergic' },

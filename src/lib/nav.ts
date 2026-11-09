@@ -3,6 +3,12 @@
  * Header, MobileMenu and Footer all read from here so they mirror each other.
  */
 import { site } from './site';
+import { claimVisible } from './confirm';
+
+/** Unique Med Spa (separate business, books on Vagaro; owner decision 7 Nov 2026). Shown only while confirm.json
+ *  "med-spa-wording" is visible (resolved, or PREVIEW), matching the /med-spa page gate. */
+export const MED_SPA_VAGARO_URL = 'https://www.vagaro.com/uniquemedspaaestheticsinc';
+const MED_SPA: NavLink[] = claimVisible('med-spa-wording') ? [{ label: 'Med Spa', href: '/med-spa' }] : [];
 
 export interface NavLink { label: string; href: string }
 
@@ -11,6 +17,7 @@ export const TREATMENTS: NavLink[] = [
   { label: 'Facials', href: '/facials' },
   { label: 'Body', href: '/body' },
   { label: 'Full menu', href: '/menu' },
+  ...MED_SPA,
 ];
 
 export const SPAS_LINKS: NavLink[] = [

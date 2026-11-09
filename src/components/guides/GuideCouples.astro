@@ -16,6 +16,8 @@ import AskUni from '../AskUni.astro';
 import HealthNote from '../HealthNote.astro';
 import LastReviewed from '../LastReviewed.astro';
 import Icon from '../Icon.astro';
+import GuideMedia from './GuideMedia.astro';
+import { photoOrNull } from '../../lib/images';
 import GuideMore from './GuideMore.astro';
 import SpaDoor from '../SpaDoor.astro';
 import { getService, formatMinutes, formatPrice, giftUrl, spasFor, SPAS } from '../../lib/catalog';
@@ -83,7 +85,9 @@ const jsonLd = graph(
       <a class="link-arrow" href="/massage/couples">About couples massage<Icon name="arrow-right" /></a>
     </div>
     <p class="g-meta">{g.summary}</p>
-    <Fragment slot="aside"><SpaDoor spa={home} showLinks={false} headingLevel={2} class="g-door" /></Fragment>
+    <Fragment slot="aside">{photoOrNull('couples-placeholder')
+      ? <GuideMedia asset="couples-placeholder" ratio="1 / 1" />
+      : <SpaDoor spa={home} showLinks={false} headingLevel={2} class="g-door" />}</Fragment>
   </PageIntro>
 
   <Section tone="paper" labelledby="answers-title" pad="tight">

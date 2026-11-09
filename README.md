@@ -24,7 +24,7 @@ The website for Unique Spa House (San Diego, Mission Valley and Del Mar). It bel
 Prices and specials come only from Square, through the facts sheet, so the website, Uni and the booking page always agree. A pull request that changes a price is **blocked** until you or Ian check it against Square and add the `prices-from-facts` label.
 
 ### The rules every change follows
-- Medical and device treatments: only "starts with a consultation". No names, prices or links.
+- Medical and device treatments: only "starts with a consultation". No treatment names, prices, results or health claims. One exception (owner decision, 7 Nov 2026, Ian and Katy; lawyer review pending before launch): the separate business **Unique Med Spa** (Unique Med Spa Aesthetics Inc, medical director Dr. Steven Groke) may be named on `/med-spa/`, linked as "Med Spa" in the nav, and booked through its Vagaro page. Its wording stays behind the `med-spa-wording` flag in `confirm.json` until the lawyer approves.
 - No promises of results. No "free", "value", "save" or "regular price".
 - Real photos of the spa only: no before/after photos, no AI-made room photos.
 - Real Square prices only.
@@ -65,6 +65,18 @@ Preview = the production build of the PR branch (built by `pr-checks.yml`, publi
 
 ### Simple editor (`.pages.yml`)
 Pages CMS edits only `src/data/reviews.json` and `src/data/asset-manifest.json` (+ uploads to `src/assets/photos/`). Edits commit to the `katy-edits` branch; `main` is protected, so they reach the live site only through a PR.
+
+### Shoot photos: one command (`scripts/photo-intake.mjs`)
+Put the shoot photos in one folder, each named by its slot, plus an optional `alt.json`, then:
+```bash
+npm run photos -- ~/Downloads/ush-photos            # add --dry-run to check first, --crop to crop camera originals to the slot
+npm run build && npm test
+```
+- **File names (= slot ids):** `hero-desktop`, `hero-4x5`, `lymphatic-4x5`, `hands-4x5`, `massage-1x1`, `facial-1x1`, `couples-placeholder`, `spa-doors-sd`, `spa-doors-dm`, `gift-card`, `wrap-me-up` (`.jpg` `.png` `.webp` `.tif`). Sizes and shapes: `SLOTS` in the script (from the shot list).
+- **`alt.json`:** `{ "hero-desktop": "A therapist's hands ...", "spa-doors-sd": { "alt": "...", "focal": { "x": 50, "y": 60 } } }`. Focal defaults to the centre. `gift-card` stays decorative (alt `""`). A new alt also clears that slot's `alt_todo`.
+- **What it does:** refuses files with no slot match, the wrong orientation/aspect (±2 %) or below the slot's size; applies the camera rotation and **strips all metadata (EXIF, GPS location, camera serials)**; writes an sRGB JPEG ≤ 2 MB to `src/assets/photos/<slot>.jpg` (the build makes the AVIF/WebP); updates `asset-manifest.json` (`file`, `alt`, `focal`, `"temp": false`; `spa-doors` only once both doors are in); deletes the replaced `TEMP-*` file; prints a summary and the slots still temp.
+- **What it can't check:** what is in the picture. Look at every photo before committing: **no prices** (gift card, screens, menus), **no text on the photo**, no client faces without a signed release, no AI edits (CLAUDE.md rule 16).
+- Tested by `scripts/test-photo-intake.mjs` (part of `npm test`) with generated solid-colour images in a temp folder; never commit test photos.
 
 ### Known quirks
 - `ServiceCard`, `ServiceRow` and `BookChooser` use `Math.random()` for radio-group ids, so two builds of the same commit differ in those ids only. The rollback drill normalises them. A deterministic id would make previews byte-comparable (good first Builder PR).

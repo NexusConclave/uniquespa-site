@@ -1,0 +1,73 @@
+---
+/**
+ * /med-spa — Unique Med Spa (a separate business: Unique Med Spa Aesthetics Inc, medical director Dr. Steven Groke).
+ * Owner decision 7 Nov 2026 (Ian and Katy): one website, two checkouts. Spa services book on Square (unchanged);
+ * medical/aesthetic treatments book on Vagaro. NO treatment names, no prices, no result or health claims.
+ * GENERATED only while confirm.json "med-spa-wording" is visible (resolved, or PREVIEW=1): until the lawyer approves
+ * the wording, production builds have no /med-spa at all and the nav link is hidden (lib/nav.ts). The allowed
+ * strings are listed in scripts/check-leaks.mjs (MED_SPA_ALLOW).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Section from '../../components/Section.astro';
+import PageIntro from '../../components/PageIntro.astro';
+import ConfirmNote from '../../components/ConfirmNote.astro';
+import Icon from '../../components/Icon.astro';
+import { site } from '../../lib/site';
+import { claimVisible } from '../../lib/confirm';
+import { MED_SPA_VAGARO_URL } from '../../lib/nav';
+import { graph, orgNode, breadcrumbNode } from '../../lib/schema';
+import '../../styles/pages-b.css';
+
+export function getStaticPaths() {
+  return claimVisible('med-spa-wording') ? [{ params: { path: undefined } }] : [];
+}
+
+const PATH = '/med-spa';
+const jsonLd = graph(orgNode(), breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Med Spa', path: PATH }]));
+---
+<BaseLayout
+  title="Unique Med Spa | Unique Spa House"
+  description="Consultation-based medical aesthetic treatments by Unique Med Spa Aesthetics Inc. Book on Vagaro or call us."
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Med Spa' }]}
+    title="Unique Med Spa"
+    lede="Consultation-based medical aesthetic treatments. Every treatment starts with a consultation."
+  >
+    <p class="provider">Medical and aesthetic treatments are provided by Unique Med Spa Aesthetics Inc under the direction of its medical director, Dr. Steven Groke. Unique Med Spa is a separate business from Unique Spa House; bookings and payments are handled on Vagaro.</p>
+    <ConfirmNote id="med-spa-wording" />
+    <div class="b-actions">
+      <a class="btn btn--outline" href={MED_SPA_VAGARO_URL} target="_blank" rel="noopener" data-track="book_click" data-track-props='{"placement":"med-spa"}'>Book on Vagaro<span class="sr-only"> (opens in a new tab)</span><Icon name="arrow-up-right" /></a>
+      <a class="btn btn--outline" href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"med-spa"}'><Icon name="phone" />Call {site.phone.display}</a>
+    </div>
+  </PageIntro>
+
+  <Section labelledby="how-title" tone="paper">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="how-title">How it <em>works</em></h2>
+      </div>
+      <div class="b-split__body">
+        <p>Every treatment starts with a consultation. Book your consultation on Vagaro, or call us on <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"med-spa"}'>{site.phone.display}</a>.</p>
+        <p>Results vary; a consultation determines whether a treatment is right for you.</p>
+        <p class="b-note">Please don't share medical or health details in chat or forms; they're asked at your consultation.</p>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="spa-title" pad="tight">
+    <div class="b-end">
+      <h2 id="spa-title" class="b-end__title">Looking for a massage or facial?</h2>
+      <p>Massage, facials and body treatments are booked with Unique Spa House. You can see every price and book online.</p>
+      <div class="b-actions">
+        <a class="btn btn--outline" href="/menu">See the menu and prices</a>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .provider { max-width: 62ch; }
+</style>
