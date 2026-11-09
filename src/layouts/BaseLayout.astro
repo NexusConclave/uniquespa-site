@@ -5,7 +5,8 @@
  * BookSheet, MobileMenu and the persisted Uni host. ClientRouter (no prefetch-all) for page transitions.
  *
  * Props: title (≤ 60 chars, no "med spa"), description, path (canonical path; defaults to the URL),
- *        jsonLd (object or array), ogImage (absolute or root-relative), bodyClass.
+ *        jsonLd (object or array), ogImage (absolute or root-relative), bodyClass,
+ *        noCanonical (404 page only: no canonical or og:url, since /404/ just redirects to /404 — QA r2 N5).
  * Slots: default (page), "head" (extra head tags).
  */
 import { ClientRouter } from 'astro:transitions';
@@ -28,8 +29,9 @@ interface Props {
   jsonLd?: unknown;
   ogImage?: string;
   bodyClass?: string;
+  noCanonical?: boolean;
 }
-const { title, description = site.description, path, jsonLd, ogImage, bodyClass } = Astro.props;
+const { title, description = site.description, path, jsonLd, ogImage, bodyClass, noCanonical = false } = Astro.props;
 // Pages are served at /path/ (directory format): canonicals carry the trailing slash (QA m-11)
 const canonicalPath = ((path ?? Astro.url.pathname).replace(/\/+$/, '') || '') + '/';
 const canonical = new URL(canonicalPath, SITE_URL).href;
@@ -44,12 +46,12 @@ const og = ogImage ? new URL(ogImage, SITE_URL).href : undefined;
     <meta name="description" content={description} />
     <!-- Launch switch (site.json "launch"): staging is never indexed; _headers also sends X-Robots-Tag. -->
     <meta name="robots" content={ROBOTS} />
-    <link rel="canonical" href={canonical} />
+    {!noCanonical && <link rel="canonical" href={canonical} />}
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
+    {!noCanonical && <meta property="og:url" content={canonical} />}
     <meta property="og:locale" content="en_US" />
     {og && <meta property="og:image" content={og} />}
     <meta name="twitter:card" content={og ? 'summary_large_image' : 'summary'} />

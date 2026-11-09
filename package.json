@@ -12,7 +12,7 @@
     "test:leak": "node scripts/check-leaks.mjs",
     "test:links": "node scripts/check-links.mjs",
     "test:tracking": "node scripts/test-tracking.mjs",
-    "test": "node --check public/chat/spa-chat.js && node scripts/test-uni-proxy.mjs && node scripts/check-leaks.mjs && node scripts/check-links.mjs && node scripts/check-launch.mjs && node scripts/check-gift-offer.mjs && node scripts/make-public-facts.mjs --check && node scripts/check-geo.mjs && python3 scripts/test-home.py && python3 scripts/test-motion.py && python3 scripts/test-voice-csp.py && node scripts/test-tracking.mjs && node scripts/test-photo-intake.mjs",
+    "test": "node --check public/chat/spa-chat.js && node scripts/test-uni-proxy.mjs && node scripts/check-leaks.mjs && node scripts/check-links.mjs && node scripts/check-square-ids.mjs && node scripts/check-launch.mjs && node scripts/check-gift-offer.mjs && node scripts/make-public-facts.mjs --check && node scripts/check-geo.mjs && python3 scripts/test-home.py && python3 scripts/test-motion.py && python3 scripts/test-voice-csp.py && node scripts/test-tracking.mjs && node scripts/test-photo-intake.mjs",
     "test:motion": "python3 scripts/test-motion.py",
     "test:uni-proxy": "node scripts/test-uni-proxy.mjs",
     "test:voice-csp": "python3 scripts/test-voice-csp.py",
@@ -22,7 +22,8 @@
     "test:gift": "node scripts/check-gift-offer.mjs",
     "test:repro": "node scripts/check-repro.mjs",
     "test:photo-intake": "node scripts/test-photo-intake.mjs",
-    "photos": "node scripts/photo-intake.mjs"
+    "photos": "node scripts/photo-intake.mjs",
+    "test:square": "node scripts/check-square-ids.mjs"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
