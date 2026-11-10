@@ -99,7 +99,9 @@
           "tile_badge": null,
           "button": "Buy a gift card"
         }
-      }
+      },
+      "owner_answer": "yes",
+      "owner_answered": "2026-11-09"
     },
     {
       "id": "nov-2026-lymphatic-body-face",
@@ -118,7 +120,9 @@
       "square_id": "5DG36PERSRQXHJN2AXXIJX2O",
       "service_id": "lymphatic-body-face",
       "approved": true,
-      "owner_confirm": "O-P2 (Square item \"November Special: Lymphatic Body & Face 90 min\", $164, 90 min, both spas, 2 Nov capture). Q29 approved by Ian 8 Nov 2026 19:34 PT (relayed); Ian signs off the numbers with the prices-from-facts label."
+      "owner_confirm": "O-P2 (Square item \"November Special: Lymphatic Body & Face 90 min\", $164, 90 min, both spas, 2 Nov capture). Q29 approved by Ian 8 Nov 2026 19:34 PT (relayed); Ian signs off the numbers with the prices-from-facts label.",
+      "owner_answer": "yes",
+      "owner_answered": "2026-11-09"
     },
     {
       "id": "dec-2026-babor-sculpt-lift",
@@ -136,7 +140,9 @@
       ],
       "replaces_service": "babor-sculpt-lift",
       "approved": false,
-      "owner_confirm": "O-P2 (Square special-price item needed)"
+      "owner_confirm": "O-P2 (Square special-price item needed)",
+      "owner_answer": "yes",
+      "owner_answered": "2026-11-09"
     },
     {
       "id": "jan-2027-deep-tissue-90",

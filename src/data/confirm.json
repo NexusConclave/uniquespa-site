@@ -2,10 +2,10 @@
   "note": "Unconfirmed facts and promises (QA M7/M8). While resolved is false: PREVIEW builds show the claim with a draft note; production builds show the fallback (or nothing) and log the pending list. CONFIRM_STRICT=1 makes a production build fail while any used claim is unresolved. Set resolved:true once the owner (or the named gate) confirms.",
   "claims": {
     "dm-space": { "owner_confirm": "O-B1 / §4.2", "resolved": false, "what": "Del Mar: \"The recovery room\" and \"a private treatment room inside a performance-training facility\" (wording, and that the setting is permanent)" },
-    "gift-both-spas": { "owner_confirm": "O-P5", "resolved": false, "what": "Gift cards are good at both spas, for any service on the menu" },
-    "gift-not-on-specials": { "owner_confirm": "O-P5", "resolved": false, "what": "Gift cards can't be used to pay for specials" },
-    "g0-gift-no-fees": { "owner_confirm": "G0: Square 3% fee removed", "resolved": false, "what": "eGift cards carry no fees; an amount covers a whole visit at the menu price" },
-    "gift-never-expire": { "owner_confirm": "Q51 / gift kit decision 3", "resolved": false, "what": "eGift cards never expire (facts say 'ask owner'; Civ. Code §1749.5 makes it very likely; lawyer confirms)" },
+    "gift-both-spas": { "owner_confirm": "O-P5", "resolved": true, "what": "Gift cards are good at both spas, for any service on the menu", "owner_answer": "yes", "owner_answered": "2026-11-09" },
+    "gift-not-on-specials": { "owner_confirm": "O-P5", "resolved": false, "what": "Gift cards can't be used to pay for specials", "owner_answer": "no", "owner_answered": "2026-11-09" },
+    "g0-gift-no-fees": { "owner_confirm": "G0: Square 3% fee removed", "resolved": true, "what": "eGift cards carry no fees; an amount covers a whole visit at the menu price", "owner_answer": "yes", "owner_answered": "2026-11-09" },
+    "gift-never-expire": { "owner_confirm": "Q51 / gift kit decision 3; Ian 8 Nov 20:42: paid eGift cards never expire (Calif. Civ. Code 1749.5)", "resolved": true, "what": "eGift cards never expire (facts say 'ask owner'; Civ. Code §1749.5 makes it very likely; lawyer confirms)" },
     "med-spa-wording": { "owner_confirm": "owner decision 7 Nov 2026; lawyer review of wording and Vagaro links", "resolved": false, "what": "/med-spa provider statement (Unique Med Spa Aesthetics Inc, medical director Dr. Steven Groke, separate business, Vagaro bookings) and the Book on Vagaro links" }
   }
 }
