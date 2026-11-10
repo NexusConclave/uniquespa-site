@@ -45,8 +45,10 @@ for (const f of htmlFiles) {
   const robots = [...h.matchAll(/<meta name="robots" content="([^"]*)"/g)].map((m) => m[1]);
   check(`robots meta ${r}`, robots.length === 1 && robots[0] === wantRobots, JSON.stringify(robots));
   const canon = [...h.matchAll(/<link rel="canonical" href="([^"]*)"/g)].map((m) => m[1]);
-  check(`one canonical on ${MODE.url} ${r}`, canon.length === 1 && canon[0].startsWith(MODE.url + '/'), JSON.stringify(canon));
   const og = (h.match(/<meta property="og:url" content="([^"]*)"/) || [])[1];
+  // The 404 page has no canonical and no og:url: it isn't a page to index, and /404/ only redirects to /404 (QA r2 N5).
+  if (r === '/404.html') { check(`no canonical or og:url on ${r}`, canon.length === 0 && og === undefined, JSON.stringify([canon, og])); continue; }
+  check(`one canonical on ${MODE.url} ${r}`, canon.length === 1 && canon[0].startsWith(MODE.url + '/'), JSON.stringify(canon));
   check(`og:url = canonical ${r}`, og === canon[0], og);
   if (MODE.launch && !r.endsWith('.html')) check(`canonical is the page itself ${r}`, canon[0] === PROD + r, canon[0]);
 }

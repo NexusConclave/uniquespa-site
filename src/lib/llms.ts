@@ -92,7 +92,9 @@ export function llmsText(): string {
   if (specials.length) {
     L.push("## This month's specials", '');
     for (const o of specials) {
-      L.push(`- ${o.title}${o.minutes ? `, ${formatMinutes(o.minutes)}` : ''}: ${formatPrice(o.price)}, ${o.starts} to ${o.ends}. ${o.spa.length === 2 ? 'Both spas' : `${site.spas[o.spa[0]].name} only`}. [Specials](${url('/specials')})`);
+      // Spa phrase is lower-case and comma-joined ("…, at both spas."), so the line can't be read as a menu service
+      // line ("…. Both spas.") by check-geo.mjs; it is checked by the specials rule instead.
+      L.push(`- ${o.title}${o.minutes ? `, ${formatMinutes(o.minutes)}` : ''}: ${formatPrice(o.price)}, ${o.starts} to ${o.ends}, ${o.spa.length === 2 ? 'at both spas' : `at the ${site.spas[o.spa[0]].name} spa only`}. [Specials](${url('/specials')})`);
     }
     L.push('');
   }

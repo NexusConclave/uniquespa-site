@@ -19,8 +19,9 @@ import SpecialCard from '../components/SpecialCard.astro';
 import GiftCardVisual from '../components/GiftCardVisual.astro';
 import Icon from '../components/Icon.astro';
 import Confirm from '../components/Confirm.astro';
-import { activeOffers, upcomingOffers, type Offer } from '../lib/offers';
-import { giftUrl } from '../lib/catalog';
+import { activeOffers, upcomingOffers, offerBookUrl, type Offer } from '../lib/offers';
+import { giftUrl, SPAS } from '../lib/catalog';
+import { graph, orgNode, spaNode, spaId, ORG_ID } from '../lib/schema';
 import { site, SITE_URL } from '../lib/site';
 import { todayLA, longDate } from '../lib/dates';
 
@@ -43,30 +44,36 @@ const description = live.length
 const referLive = site.flags.refer_live;
 const rewardsLive = site.flags.rewards_live;
 
-// JSON-LD: one Offer per live special, with its validity window (§11). No AggregateRating.
-const org = `${SITE_URL}/#organization`;
+// JSON-LD: one Offer per live special per spa, with its validity window (§11). No AggregateRating.
+// Each Offer names its spa (availableAtOrFrom) and links that spa's own Square special item; the Organization and
+// DaySpa nodes it points at are included on this page so every @id reference resolves (check-geo.mjs).
 // Drafts shown on PREVIEW builds never go into structured data.
-const ldOffers = live.filter((o: Offer) => o.approved === true);
+const ldOffers = live.filter((o: Offer) => o.approved === true && o.price != null);
+const ldSpas = SPAS.filter((sp) => ldOffers.some((o) => o.spa.includes(sp)));
 const jsonLd = ldOffers.length
-  ? {
-      '@context': 'https://schema.org',
-      '@graph': [{
+  ? graph(
+      orgNode(),
+      ...ldSpas.map((sp) => spaNode(sp)),
+      {
         '@type': 'OfferCatalog',
         '@id': `${SITE_URL}/specials#catalog`,
         name: `${month} specials`,
-        itemListElement: ldOffers.map((o: Offer) => ({
-          '@type': 'Offer',
-          name: o.title,
-          description: o.body,
-          price: o.price,
-          priceCurrency: 'USD',
-          validFrom: o.starts,
-          validThrough: o.ends,
-          offeredBy: { '@id': org },
-          url: `${SITE_URL}/specials`,
-        })),
-      }],
-    }
+        itemListElement: ldOffers.flatMap((o: Offer) =>
+          o.spa.map((sp) => ({
+            '@type': 'Offer',
+            name: o.title,
+            description: o.body,
+            price: (o.price as number).toFixed(2),
+            priceCurrency: 'USD',
+            validFrom: o.starts,
+            validThrough: o.ends,
+            offeredBy: { '@id': ORG_ID },
+            availableAtOrFrom: { '@id': spaId(sp) },
+            url: offerBookUrl(o, sp) ?? `${SITE_URL}/specials`,
+          })),
+        ),
+      },
+    )
   : undefined;
 ---
 <BaseLayout
