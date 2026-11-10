@@ -114,7 +114,7 @@
       "price": 164,
       "minutes": 90,
       "starts": "2026-11-01",
-      "ends": "2026-11-30",
+      "ends": "2026-12-31",
       "spa": [
         "SD",
         "DM"
@@ -122,7 +122,7 @@
       "square_id": "5DG36PERSRQXHJN2AXXIJX2O",
       "service_id": "lymphatic-body-face",
       "approved": true,
-      "owner_confirm": "O-P2 (Square item \"November Special: Lymphatic Body & Face 90 min\", $164, 90 min, both spas, 2 Nov capture). Q29 approved by Ian 8 Nov 2026 19:34 PT (relayed); Ian signs off the numbers with the prices-from-facts label.",
+      "owner_confirm": "O-P2 (Square item \"November Special: Lymphatic Body & Face 90 min\", $164, 90 min, both spas, 2 Nov capture). Q29 approved by Ian 8 Nov 2026 19:34 PT (relayed); Ian signs off the numbers with the prices-from-facts label. Extended to 31 Dec 2026: owner 10 Nov 2026 (relayed by Ian): \"All our current promotions will stay in December, prices not gonna change\".",
       "owner_answer": "yes",
       "owner_answered": "2026-11-09"
     },
@@ -145,9 +145,9 @@
       "owner_confirm": "O-P2 (Square special-price item needed)",
       "owner_answer": "yes",
       "owner_answered": "2026-11-09",
-      "owner_choice": "A",
+      "owner_choice": "declined",
       "owner_choice_answered": "2026-11-10",
-      "owner_note": "Katy 2026-11-10 (queue item 2 = A): this $164 special runs 1-31 Dec 2026 at both spas. Hidden in production until its own Square item exists (square_id); facts.json special block switches on 1 Dec."
+      "owner_note": "Katy 2026-11-10 (relayed by Ian): \"All our current promotions will stay in December, prices not gonna change\". No new BABOR December special; the November Lymphatic Body & Face card runs to 31 Dec instead. Stays unapproved and hidden."
     },
     {
       "id": "jan-2027-deep-tissue-90",

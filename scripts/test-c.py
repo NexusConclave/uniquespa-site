@@ -126,9 +126,9 @@ def specials(browser, base):
     pg.goto(base + '/specials/', wait_until='networkidle')
     after = pg.evaluate("""() => ({ visible: [...document.querySelectorAll('.sp__item:not([hidden])')].map(li => li.dataset.ends),
       emptyVisible: getComputedStyle(document.querySelector('.sp__empty')).display !== 'none' })""")
-    check('specials: after Oct 31 the October cards hide; November card reveals on its start date', after['visible'] == ['2026-11-30'], after)
+    check('specials: after Oct 31 the October cards hide; November card reveals on its start date', after['visible'] == ['2026-12-31'], after)
     ctx.close()
-    ctx, pg = new_page(browser, base, 1440, 900, clock=datetime.datetime(2026, 12, 15, 10, tzinfo=LA))
+    ctx, pg = new_page(browser, base, 1440, 900, clock=datetime.datetime(2027, 1, 15, 10, tzinfo=LA))
     pg.goto(base + '/specials/', wait_until='networkidle')
     late = pg.evaluate("""() => ({ visible: document.querySelectorAll('.sp__item:not([hidden])').length,
       emptyVisible: getComputedStyle(document.querySelector('.sp__empty')).display !== 'none' })""")
