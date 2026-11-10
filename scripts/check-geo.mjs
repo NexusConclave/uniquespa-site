@@ -66,7 +66,9 @@ function factsOptions() {
   if (facts) {
     return facts.services.flatMap((s) => s.options.map((o) => ({
       fid: s.id, minutes: o.minutes ?? null, price: o.price ?? null,
-      variable: !!(o.price_from || /varies/i.test(o.price_note || '')), locs: new Set(o.locations),
+      // No price in facts (e.g. Signature custom facial: "price set at your visit", Katy 10 Nov 2026) is variable too,
+      // the same rule as the services.json fallback below.
+      variable: !!(o.price_from || o.price == null || /varies/i.test(o.price_note || '')), locs: new Set(o.locations),
     })));
   }
   // fallback: services.json under the facts ids (only the services this test maps)

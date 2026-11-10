@@ -93,7 +93,7 @@
     "starts": null,
     "ends": null,
     "c_send_days": null,
-    "c_promo_valid": null,
+    "c_promo_valid": "for 6 months from the day we email it",
     "c_limits": null,
     "_note": "Katy's holiday gift card choice (gift kit decision 1, APPROVALS Q50). option: \"A\" = no offer (default; cards at menu prices, nothing shows). \"B\" = $25 off a $225 eGift card (pay $200). \"C\" = a $25 promo card for buyers who spend $200+. Setting B or C IS the approval: do it only after the Square set-up, one test purchase and the lawyer check. B and C need starts and ends (YYYY-MM-DD, Los Angeles dates, inclusive; a real end date, never extended after posting). C also needs c_send_days (a number, e.g. 7), c_promo_valid (the words after 'Promo card valid', e.g. \"January 4 to February 28, 2027\") and c_limits (one full sentence, e.g. \"One per buyer.\", or \"\" for none); the lawyer checks that line. A production build fails while a required field is missing; PREVIEW shows [brackets]. Env GIFT_OFFER / GIFT_STARTS / GIFT_ENDS override for test builds. The gift page, the home offers band, the policies gift card section and the $225 tile badge all follow this one field. Wording lives in offers.json \"holiday-egift-2026\".options."
   },
