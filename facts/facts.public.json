@@ -70,9 +70,8 @@
       "options": [
         {
           "duration_text": "up to 2 hr",
-          "price": 164,
-          "price_from": true,
-          "price_note": "price varies",
+          "price_from": false,
+          "price_note": "price set at your visit",
           "locations": [
             "SD"
           ]

@@ -93,15 +93,17 @@
         },
         "C": {
           "eyebrow": "Holiday gift cards · {starts_short} – {ends_short}",
-          "title": "Give a gift. Get a $25 card for you.",
+          "title": "Give a gift. Get a $25 promo card for you.",
           "deal": "Spend $200 or more on eGift cards. We'll email you a $25 promo card within {c_send_days} days.",
-          "small": "{starts_long} to {ends_long}. Promo card valid {c_promo_valid}. {c_limits}",
+          "small": "{starts_long} to {ends_long}. The promo card is a promotional card from us, not a gift card you paid for. Promo card valid {c_promo_valid}. Paid eGift cards never expire. {c_limits}",
           "tile_badge": null,
           "button": "Buy a gift card"
         }
       },
       "owner_answer": "yes",
-      "owner_answered": "2026-11-09"
+      "owner_answered": "2026-11-09",
+      "owner_choice": "C",
+      "owner_choice_answered": "2026-11-10"
     },
     {
       "id": "nov-2026-lymphatic-body-face",
@@ -142,7 +144,10 @@
       "approved": false,
       "owner_confirm": "O-P2 (Square special-price item needed)",
       "owner_answer": "yes",
-      "owner_answered": "2026-11-09"
+      "owner_answered": "2026-11-09",
+      "owner_choice": "A",
+      "owner_choice_answered": "2026-11-10",
+      "owner_note": "Katy 2026-11-10 (queue item 2 = A): this $164 special runs 1-31 Dec 2026 at both spas. Hidden in production until its own Square item exists (square_id); facts.json special block switches on 1 Dec."
     },
     {
       "id": "jan-2027-deep-tissue-90",
