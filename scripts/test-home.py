@@ -283,6 +283,11 @@ def uni_dock_and_speak(browser, base):
     check('Uni desktop: not shown at 1 s, slides in by itself after 3 s', (not early) and shown and d['anim'] == 'usc-slide-in', (early, shown, d))
     check('Uni desktop: docked, not modal (no scrim, page not inert, focus not moved, no sideways scroll)',
           d['docked'] and d['modal'] == 'false' and not d['inert'] and not d['focusIn'] and d['scrim'] == 'none' and not d['lock'] and d['ov'] <= 0, d)
+    # Window narrowed below the desktop width while docked: it becomes the modal, and focus moves into it
+    pg.set_viewport_size({'width': 800, 'height': 900}); pg.wait_for_timeout(300)
+    n = pg.evaluate("({ modal: document.querySelector('.usc-panel').getAttribute('aria-modal'), inert: document.querySelector('main').hasAttribute('inert'), focusIn: !!document.activeElement.closest('.usc-panel') })")
+    check('Uni desktop: if the window narrows, the dock becomes the modal and focus moves into it', n['modal'] == 'true' and n['inert'] and n['focusIn'], n)
+    pg.set_viewport_size({'width': 1440, 'height': 900}); pg.wait_for_timeout(300)
     pg.click('.usc-close'); pg.wait_for_timeout(200)
     pg.reload(wait_until='networkidle'); pg.wait_for_timeout(4200)
     again = pg.evaluate("!!(window.UniChat && window.UniChat.isOpen())")

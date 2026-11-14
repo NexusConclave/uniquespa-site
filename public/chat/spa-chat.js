@@ -529,7 +529,17 @@
   // Window resized across the desktop breakpoint while open: switch between docked and modal.
   try {
     var mq = window.matchMedia(DOCK_Q);
-    var onMq = function () { if (!isOpen) return; setDock(wide()); if (!docked) root.classList.remove('usc-slide'); setInert(!docked); };
+    var onMq = function () {
+      if (!isOpen) return;
+      var wasDocked = docked, prev = document.activeElement;
+      setDock(wide()); if (!docked) root.classList.remove('usc-slide'); setInert(!docked);
+      // Dock -> modal (the window got narrower): the page behind is now inert, so bring focus into the chat and
+      // remember where it was, to hand it back when the chat closes.
+      if (wasDocked && !docked && !panel.contains(prev)) {
+        opener = prev && prev !== document.body ? prev : null;
+        (consented() ? input : startBtn).focus();
+      }
+    };
     if (mq.addEventListener) mq.addEventListener('change', onMq); else if (mq.addListener) mq.addListener(onMq);
   } catch (e) {}
 
