@@ -122,3 +122,21 @@
 .usc-strip[data-mode="speaking"] .usc-vdot { background: var(--usc-brown); animation: usc-pulse .7s infinite ease-in-out; }
 .usc-strip[data-mode="muted"] .usc-vdot { background: #9B2C1F; }
 html[data-motion="paused"] .usc-root *, html[data-motion="paused"] .usc-root *::before { animation: none !important; transition: none !important; }
+
+/* ---- Booking: Square's secure card form inside the chat (spa-chat.js openCardForm) ---- */
+.usc-book { width: 100%; max-width: 100%; }
+.usc-book p { margin: 0 0 8px; }
+.usc-book-t { font-size: 16px; }
+.usc-book-test { background: #fbe3d6; border: 1px solid #c9846a; color: #6b2410; border-radius: 10px; padding: 8px 10px; font-size: 14px; font-weight: 700; }
+.usc-book-note { font-size: 14px; color: var(--usc-muted); }
+.usc-sqcard { min-height: 90px; margin: 4px 0 10px; }
+.usc-policy { border: 1px solid var(--usc-line); background: var(--usc-cream-2); border-radius: 10px; padding: 8px 10px; font-size: 14px; margin-bottom: 10px; }
+.usc-policy p { margin: 4px 0 0; white-space: pre-wrap; }
+.usc-book-pend { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; background: #8a2a12; color: #fff; font-size: 12px; font-weight: 700; }
+.usc-consent { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; min-height: 44px; cursor: pointer; }
+.usc-consent input { width: 22px; height: 22px; margin: 2px 0 0; flex: none; accent-color: var(--usc-brown); }
+.usc-book-row { display: flex; gap: 8px; margin-top: 8px; }
+.usc-book-row .usc-vbtn { min-height: 44px; padding: 8px 18px; }
+.usc-book-go[disabled] { opacity: .45; cursor: not-allowed; }
+.usc-book-st { font-size: 14px; color: #8a2a12; margin: 8px 0 0; }
+.usc-book-st:empty { display: none; }

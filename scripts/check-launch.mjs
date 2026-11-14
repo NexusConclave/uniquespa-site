@@ -128,7 +128,11 @@ if (existsSync(headersPath)) {
     check("CSP form-action 'self' (forms post to /api/lead)", (csp['form-action'] || []).join(' ') === "'self'");
     check("CSP frame-ancestors 'none'", (csp['frame-ancestors'] || []).join(' ') === "'none'");
     check('Permissions-Policy lets this site use the microphone (Uni voice)', /microphone=\(self\)/.test(all.headers['permissions-policy'] || ''));
-    // No Square host is needed: booking and gift links are plain navigations (new tab), which CSP doesn't restrict.
+    // Booking and gift links are plain navigations (new tab), which CSP doesn't restrict. Uni's booking card form uses
+    // Square's Web Payments SDK: its script, card iframe and card-token API must be allowed, and only Square's hosts.
+    const sq = (d, h) => (csp[d] || []).includes(h);
+    check('CSP allows the Square card form (script, iframe, token API)', sq('script-src', 'https://web.squarecdn.com') && sq('frame-src', 'https://web.squarecdn.com') && sq('connect-src', 'https://pci-connect.squareup.com') && sq('connect-src', 'https://web.squarecdn.com'));
+    check('CSP adds no wildcard script host for Square', !script.some((x) => /^https:\/\/\*\./.test(x)), script.join(' '));
     const robotsHeader = all.headers['x-robots-tag'];
     if (MODE.launch) check('launch: /* has no X-Robots-Tag', !robotsHeader, robotsHeader);
     else check('staging: /* sends X-Robots-Tag noindex', /noindex/.test(robotsHeader || ''), robotsHeader);
