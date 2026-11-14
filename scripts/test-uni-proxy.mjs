@@ -8,6 +8,9 @@ import * as chat from '../functions/api/chat.js';
 import * as lead from '../functions/api/lead.js';
 import * as health from '../functions/api/health.js';
 import * as event from '../functions/api/event.js';
+import * as book from '../functions/api/book.js';
+import * as bookSub from '../functions/api/book/[[path]].js';
+import * as voiceTools from '../functions/api/voice/[[path]].js';
 
 let pass = 0;
 const t = async (name, fn) => { await fn(); pass++; };
@@ -36,6 +39,30 @@ await t('lead and health route to UNI too', async () => {
   await lead.onRequest({ request: req('/api/lead', { method: 'POST', body: '{"name":"T"}', headers: { Origin: SITE } }), env: { UNI } });
   await health.onRequest({ request: req('/api/health'), env: { UNI } });
   assert.deepEqual(UNI.seen.map((s) => `${s.method} ${new URL(s.url).pathname}`), ['POST /api/lead', 'GET /api/health']);
+});
+
+await t('booking + voice tool routes go to UNI unchanged (headers incl. X-Uni-Voice-Secret; no Origin for ElevenLabs)', async () => {
+  const UNI = fakeUni({ ok: true });
+  const j = { 'Content-Type': 'application/json', Origin: SITE };
+  await book.onRequest({ request: req('/api/book', { method: 'POST', body: '{"intent":"v1.x.y","card_token":"cnon:x"}', headers: j }), env: { UNI } });
+  await bookSub.onRequest({ request: req('/api/book/intent', { method: 'POST', body: '{"ref":"ABCDEFGHJKMN"}', headers: j }), env: { UNI } });
+  await bookSub.onRequest({ request: req('/api/book/config'), env: { UNI } });
+  const v = await voiceTools.onRequest({ request: req('/api/voice/availability', { method: 'POST', body: '{"spa":"SD"}', headers: { 'Content-Type': 'application/json', 'X-Uni-Voice-Secret': 's' } }), env: { UNI } });
+  assert.equal(v.status, 200);
+  assert.deepEqual(UNI.seen.map((s) => `${s.method} ${new URL(s.url).pathname}`), ['POST /api/book', 'POST /api/book/intent', 'GET /api/book/config', 'POST /api/voice/availability']);
+  assert.equal(UNI.seen[3].headers['x-uni-voice-secret'], 's');
+  assert.equal(UNI.seen[0].body, '{"intent":"v1.x.y","card_token":"cnon:x"}');
+  const evil = await book.onRequest({ request: req('/api/book', { method: 'POST', body: '{}', headers: { Origin: 'https://evil.example.com' } }), env: { UNI } });
+  assert.equal(evil.status, 403);
+  assert.equal(UNI.seen.length, 4);
+});
+
+await t('the widget only loads Square\'s own SDK host and never handles card numbers', async () => {
+  const js = readFileSync(new URL('../public/chat/spa-chat.js', import.meta.url), 'utf8');
+  assert.match(js, /var BOOK_API = '\/api\/book', BOOK_INTENT_API = '\/api\/book\/intent', BOOK_CONFIG_API = '\/api\/book\/config';/);
+  assert.match(js, /SQUARE_SDK_OK = \/\^https:\\\/\\\/\(sandbox\\\.\)\?web\\\.squarecdn\\\.com/);
+  assert.match(js, /text = redactCard\(/);
+  assert.ok(!/card_number|cardNumber|\bcvv\b/i.test(js), 'no card fields outside Square\'s iframe');
 });
 
 await t('POST from another site is refused before reaching UNI; no Origin (curl) passes', async () => {

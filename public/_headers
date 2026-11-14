@@ -5,10 +5,13 @@
 # CSP allows: our own files; Square booking/gift links (plain links and new tabs, so no CSP entry needed);
 # Uni voice (ElevenLabs api over https/wss; its audio worklets and the optional resampler worklet are self-hosted in
 # /chat/worklets, so script-src needs no blob: and no CDN); Cloudflare Web Analytics (beacon script + report endpoint); Cloudflare Turnstile for
-# /api/lead (script, iframe and API on challenges.cloudflare.com; only loaded when PUBLIC_TURNSTILE_SITE_KEY is set).
+# /api/lead (script, iframe and API on challenges.cloudflare.com; only loaded when PUBLIC_TURNSTILE_SITE_KEY is set);
+# Uni booking card form: Square Web Payments SDK (script, style, fonts, images and card iframe on web.squarecdn.com, card
+# tokens via pci-connect.squareup.com, Square's own error reporting on o160250.ingest.sentry.io, buyer verification / 3-D
+# Secure on *.cardinalcommerce.com). Square's documented production list: developer.squareup.com/docs/web-payments/content-security-policy
 
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' {{INLINE_SCRIPT_HASHES}} https://static.cloudflareinsights.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://*.elevenlabs.io wss://*.elevenlabs.io https://cloudflareinsights.com https://static.cloudflareinsights.com https://challenges.cloudflare.com; media-src 'self' blob: data:; worker-src 'self'; frame-src https://challenges.cloudflare.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; manifest-src 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' {{INLINE_SCRIPT_HASHES}} https://static.cloudflareinsights.com https://challenges.cloudflare.com https://web.squarecdn.com; style-src 'self' 'unsafe-inline' https://web.squarecdn.com; img-src 'self' data: blob: https://web.squarecdn.com; font-src 'self' https://square-fonts-production-f.squarecdn.com https://d1g145x70srn7h.cloudfront.net; connect-src 'self' https://*.elevenlabs.io wss://*.elevenlabs.io https://cloudflareinsights.com https://static.cloudflareinsights.com https://challenges.cloudflare.com https://web.squarecdn.com https://pci-connect.squareup.com https://connect.squareup.com https://o160250.ingest.sentry.io https://*.cardinalcommerce.com; media-src 'self' blob: data:; worker-src 'self'; frame-src https://challenges.cloudflare.com https://web.squarecdn.com https://*.cardinalcommerce.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; manifest-src 'self'; upgrade-insecure-requests
   Strict-Transport-Security: max-age=31536000
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY

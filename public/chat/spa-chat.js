@@ -5,11 +5,21 @@
    - never auto-opens; opened only by window.UniChat.open() from the header link, hero link, inline prompts or the bar
    - text chat is a true modal dialog: aria-modal, focus trap, background inert, full screen on mobile
    - a tap-to-start AI notice before the first message; a recording notice before the mic starts
-   - a live voice call can be minimized to a non-modal call strip (mute, end, transcript) */
+   - a live voice call can be minimized to a non-modal call strip (mute, end, transcript)
+   Booking (Uni books appointments, 13 Nov 2026): when the chat Worker answers with a booking ref (chat), or the voice agent
+   calls the show_card_form client tool, Square's own secure card form (Web Payments SDK, web.squarecdn.com) opens in the
+   chat with the spa's cancellation/no-show policy and a consent box. The card number lives only inside Square's iframe:
+   this file only ever handles Square's one-time card token, and Uni (the AI) only hears "Booked: ..." or "Not booked: ...".
+   Card-number-like digits a guest types or says are removed before they are stored, shown or sent. */
 (function () {
   if (window.__uscLoaded) return; window.__uscLoaded = true;
   var API = '/api/chat';
   var LEAD_API = '/api/lead';
+  var BOOK_API = '/api/book', BOOK_INTENT_API = '/api/book/intent', BOOK_CONFIG_API = '/api/book/config';
+  // Only Square's own SDK may be loaded for the card form (the CSP allows this host and nothing else for it).
+  var SQUARE_SDK_OK = /^https:\/\/(sandbox\.)?web\.squarecdn\.com\/v1\/square\.js$/;
+  var CARDLIKE = /(?:\d[\s.\-]?){13,19}/g; // 13-19 digit runs: card numbers are never stored, shown or sent
+  function redactCard(t) { return String(t).replace(CARDLIKE, '[card number removed]'); }
   var VOICE_SDK = '/chat/uni-voice.js';
   // Self-hosted AudioWorklets (public/chat/worklets): the CSP allows scripts from 'self' only, no blob: or CDN.
   var VOICE_WORKLETS = { rawAudioProcessor: '/chat/worklets/rawAudioProcessor.js', audioConcatProcessor: '/chat/worklets/audioConcatProcessor.js' };
@@ -139,6 +149,8 @@
     micBtn.disabled = !ok;
   }
   function render() {
+    // An open card form stays as it is: rebuilding the log would reload Square's iframe and lose what the guest typed.
+    if (booking && !booking.done && log.contains(booking.box)) { gate(); return; }
     log.innerHTML = '';
     bubble('assistant', WELCOME);
     msgs.forEach(function (m) { if (m.role === 'link') linkCard(m.content); else bubble(m.role, m.content); });
@@ -155,7 +167,7 @@
   // ---------- Text chat ----------
   var busy = false;
   function ask(text) {
-    text = String(text || '').trim();
+    text = redactCard(String(text || '').trim());
     if (!text || busy || !consented()) return;
     chips.innerHTML = '';
     if (voice) { // during a call, typed text goes to the voice agent
@@ -172,7 +184,11 @@
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d }; }); })
       .then(function (res) {
         t.remove();
-        if (res.ok && res.d.reply) { msgs.push({ role: 'assistant', content: res.d.reply }); save(); bubble('assistant', res.d.reply); if (res.d.lead_captured) track('chat_lead', { channel: 'chat' }); }
+        if (res.ok && res.d.reply) {
+          msgs.push({ role: 'assistant', content: res.d.reply }); save(); bubble('assistant', res.d.reply);
+          if (res.d.lead_captured) track('chat_lead', { channel: 'chat' });
+          if (res.d.booking && /^[A-Z0-9]{12}$/.test(res.d.booking.ref || '')) openCardForm(res.d.booking.ref, 'chat');
+        }
         else { msgs.pop(); save(); note(res.d.error || 'Sorry, something went wrong. Please call (858) 293-8900.'); }
       })
       .catch(function () { t.remove(); msgs.pop(); save(); note('Connection problem. Please try again, or call (858) 293-8900.'); })
@@ -209,14 +225,21 @@
     starting = true; chips.innerHTML = '';
     setVoiceUI(true, 'Connecting…', 'connecting');
     navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(function (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); return loadSdk(); })
-      .then(function (SDK) {
+      .then(function (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); return Promise.all([loadSdk(), voiceAgentId()]); })
+      .then(function (both) {
+        var SDK = both[0];
         return SDK.Conversation.startSession({
-          agentId: AGENT_ID,
+          agentId: both[1],
           connectionType: 'websocket',
           workletPaths: VOICE_WORKLETS,
           libsampleratePath: VOICE_RESAMPLER,
           clientTools: {
+            show_card_form: function (p) {
+              var ref = p && String(p.booking_ref || '').trim().toUpperCase();
+              if (!/^[A-Z0-9]{12}$/.test(ref)) return 'Failed: no valid booking_ref. Offer the booking link or the phone instead.';
+              if (!isOpen) open();
+              return openCardForm(ref, 'voice');
+            },
             show_link: function (p) {
               var k = p && p.link;
               if (!linkCard(k)) return 'Unknown link';
@@ -242,7 +265,7 @@
           onModeChange: function (m) { if (voice) setVoiceUI(true, m.mode === 'speaking' ? 'Uni is speaking…' : (muted ? 'Muted' : 'Listening…'), m.mode); },
           onMessage: function (m) {
             var role = m.source === 'user' ? 'user' : 'assistant';
-            var text = String(m.message || '').trim(); if (!text) return;
+            var text = redactCard(String(m.message || '').trim()); if (!text) return;
             var last = msgs[msgs.length - 1];
             if (role === 'user' && last && last.role === 'user' && last.content === text) return; // typed text echo
             msgs.push({ role: role, content: text }); save(); bubble(role, text);
@@ -256,6 +279,132 @@
         note(denied ? 'Microphone is blocked. Allow mic access to talk, or keep typing.' : 'Voice isn\'t available right now. You can keep typing, or call (858) 293-8900.');
       });
   }
+  // The chat Worker may name another agent (the acceptance copy names the booking TEST copy, so PR previews never use
+  // or change the live agent). No answer, an error or a bad id within 1.5 s -> the live agent above.
+  function voiceAgentId() {
+    var fallback = new Promise(function (r) { setTimeout(function () { r(AGENT_ID); }, 1500); });
+    var asked = fetch(BOOK_CONFIG_API, { headers: { Accept: 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : {}; })
+      .then(function (d) { var id = d && d.voice_agent_id; return typeof id === 'string' && /^agent_[a-z0-9]{20,40}$/.test(id) ? id : AGENT_ID; })
+      .catch(function () { return AGENT_ID; });
+    return Promise.race([asked, fallback]);
+  }
+
+  // ---------- Booking: Square's secure card form ----------
+  var sqPromise = null, booking = null;
+  function loadSquare(url) {
+    if (window.Square && window.Square.payments) return Promise.resolve(window.Square);
+    if (!SQUARE_SDK_OK.test(url || '')) return Promise.reject(new Error('sdk url'));
+    if (sqPromise) return sqPromise;
+    sqPromise = new Promise(function (resolve, reject) {
+      var s = document.createElement('script'); s.src = url; s.async = true;
+      s.onload = function () { window.Square && window.Square.payments ? resolve(window.Square) : reject(new Error('sdk')); };
+      s.onerror = function () { sqPromise = null; reject(new Error('sdk')); };
+      document.head.appendChild(s);
+    });
+    return sqPromise;
+  }
+  function postJson(url, body) {
+    return fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, status: r.status, d: d || {} }; }); });
+  }
+  function closeBooking() {
+    var b = booking; booking = null;
+    if (b && b.card) { try { b.card.destroy(); } catch (e) {} }
+  }
+  // What Uni is told afterwards: never card data, only the result.
+  function tellUni(line) {
+    msgs.push({ role: 'assistant', content: line }); save(); bubble('assistant', line);
+    if (voice) { try { voice.sendContextualUpdate('booking_result: ' + line); } catch (e) {} }
+  }
+  var bookSeq = 0;
+  function openCardForm(ref, channel) {
+    closeBooking();
+    var id = 'usc-sqcard-' + (++bookSeq);
+    var box = h('div', 'usc-msg usc-bot usc-book');
+    box.setAttribute('role', 'group'); box.setAttribute('aria-labelledby', id + '-t');
+    box.innerHTML = '<p class="usc-book-t" id="' + id + '-t"><b>Secure card form</b></p><p class="usc-book-sum">Loading…</p>';
+    log.appendChild(box); scroll();
+    var b = { ref: ref, channel: channel, box: box, card: null, busy: false, done: false };
+    booking = b;
+    var sum = box.querySelector('.usc-book-sum');
+    function fail(msg) { sum.textContent = msg; scroll(); return 'Failed: ' + msg + ' Offer the booking link or the phone instead.'; }
+    return postJson(BOOK_INTENT_API, { ref: ref }).then(function (res) {
+      if (booking !== b) return 'Replaced by a newer card form.';
+      if (!res.ok || !res.d.intent) return fail(res.d.message || 'This booking form has expired. Please ask Uni for the time again.');
+      var v = res.d; b.view = v;
+      sum.innerHTML = '<b>' + esc(v.service) + '</b><br>' + esc(v.time) + ' (Pacific) · ' + esc(v.spa) + '<br>For ' + esc(v.guest);
+      var test = v.live ? '' : '<p class="usc-book-test">TEST ONLY: nothing will be booked and no card will be saved.</p>';
+      var pend = v.policy_ready ? '' : '<span class="usc-book-pend">Wording pending: not final</span>';
+      var rest = h('div', 'usc-book-body');
+      rest.innerHTML = test +
+        '<p class="usc-book-note">Type your card in Square\'s secure form below. Uni never sees or hears your card.</p>' +
+        '<div class="usc-sqcard" id="' + id + '"></div>' +
+        '<div class="usc-policy"><b>Cancellation and no-show policy</b> ' + pend + '<p>' + esc(v.policy) + '</p></div>' +
+        '<label class="usc-consent"><input type="checkbox"> <span>I agree to this policy and to the spa saving this card on file in Square for this booking.</span></label>' +
+        '<div class="usc-book-row"><button type="button" class="usc-vbtn usc-vend usc-book-go" disabled><span>Book</span></button>' +
+        '<button type="button" class="usc-vbtn usc-book-no"><span>Cancel</span></button></div>' +
+        '<p class="usc-book-st" aria-live="polite"></p>';
+      box.appendChild(rest); scroll();
+      var go = rest.querySelector('.usc-book-go'), no = rest.querySelector('.usc-book-no'), tick = rest.querySelector('.usc-consent input'), st = rest.querySelector('.usc-book-st');
+      function ready() { go.disabled = !(tick.checked && b.card && !b.busy && !b.done); }
+      tick.addEventListener('change', ready);
+      no.addEventListener('click', function () {
+        if (b.busy || b.done) return;
+        b.done = true; closeBooking(); rest.remove(); sum.textContent = 'Card form closed. Nothing was booked.';
+        tellUni('Not booked: the guest closed the card form.');
+      });
+      go.addEventListener('click', function () { if (!go.disabled) submit(); });
+      function submit() {
+        b.busy = true; ready(); st.textContent = 'Saving your card securely…';
+        var details = { intent: 'STORE', customerInitiated: true, sellerKeyedIn: false,
+          billingContact: { givenName: v.given_name || '', familyName: v.family_name || '', email: v.email || '' } };
+        Promise.resolve().then(function () { return b.card.tokenize(details); }).then(function (t) {
+          if (!t || t.status !== 'OK' || !t.token) { var e = new Error('tokenize'); e.user = true; throw e; }
+          // Newer SDKs verify the buyer (SCA) inside tokenize(details); older ones need verifyBuyer for a STORE token.
+          if (b.payments && typeof b.payments.verifyBuyer === 'function' && !(t.details && t.details.verification)) {
+            return b.payments.verifyBuyer(t.token, details).then(function (vr) { return { token: t.token, verification: vr && vr.token }; }, function () { return { token: t.token }; });
+          }
+          return { token: t.token };
+        }).then(function (tok) {
+          st.textContent = 'Booking…';
+          var body = { intent: v.intent, card_token: tok.token, consent: true };
+          if (tok.verification) body.verification_token = tok.verification;
+          return postJson(BOOK_API, body);
+        }).then(function (res) {
+          b.busy = false;
+          var d = res.d || {};
+          if (res.ok && d.ok && d.booked) {
+            b.done = true; closeBooking(); rest.remove();
+            var line = 'Booked: ' + d.booked.service + ', ' + d.booked.time + ' at ' + d.booked.spa + '.' + (d.dry_run ? ' (Test only: nothing was really booked.)' : ' A confirmation comes from Square.') + (typeof d.notice === 'string' && d.notice ? ' ' + d.notice : '');
+            sum.innerHTML = '<b>' + (d.dry_run ? 'Test complete (nothing booked)' : 'Booked') + '</b><br>' + esc(d.booked.service) + '<br>' + esc(d.booked.time) + ' (Pacific) · ' + esc(d.booked.spa) + (typeof d.notice === 'string' && d.notice ? '<br>' + esc(d.notice) : '');
+            tellUni(line);
+            return;
+          }
+          var again = d.reason === 'card_declined' || d.reason === 'verification_required' || d.reason === 'calendar_unavailable';
+          st.textContent = d.message || 'We couldn\'t complete the booking. Please call (858) 293-8900.';
+          if (again) { ready(); return; } // the guest may fix the card and press Book again; never automatic
+          b.done = true; closeBooking(); rest.querySelector('.usc-sqcard').remove(); ready(); no.remove();
+          tellUni('Not booked: ' + st.textContent);
+        }).catch(function (e) {
+          b.busy = false;
+          st.textContent = e && e.user ? 'Please check the card details and try again.' : 'Connection problem. Nothing was booked. Please try again or call (858) 293-8900.';
+          ready();
+        });
+      }
+      return loadSquare(v.sdk_url).then(function (Sq) {
+        b.payments = Sq.payments(v.app_id, v.location_id);
+        return b.payments.card();
+      }).then(function (card) {
+        if (booking !== b) { try { card.destroy(); } catch (e) {} return 'Replaced by a newer card form.'; }
+        b.card = card;
+        return card.attach('#' + id).then(function () { ready(); scroll(); return 'The secure card form is on the guest\'s screen. Not booked yet: wait for booking_result.'; });
+      }).catch(function () {
+        rest.remove(); return fail('The secure card form couldn\'t load. Please book online or call (858) 293-8900.');
+      });
+    }, function () { return fail('Connection problem. Please book online or call (858) 293-8900.'); });
+  }
+
   function endVoiceUI() { voice = null; starting = false; muted = false; vmute.querySelector('span').textContent = 'Mute'; smute.querySelector('span').textContent = 'Mute'; setVoiceUI(false); }
   function stopVoice() { var v = voice; endVoiceUI(); if (v) { try { v.endSession(); } catch (e) {} } }
   function toggleMute() {
