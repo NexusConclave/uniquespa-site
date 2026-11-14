@@ -1,0 +1,287 @@
+---
+/**
+ * TreatmentPage — one full page per main treatment (V2), modelled on /massage/lymphatic-drainage:
+ * summary box (lengths, price, Book per spa), at-a-glance facts, quick answers, what it is, who it's for,
+ * steps, how it feels, lengths + price table, compare, before and after, a block per spa, FAQ (FAQPage schema),
+ * related, Ask Uni, Last reviewed.
+ *
+ * Copy comes from lib/treatments.ts. Every price, length, spa and booking link comes from lib/catalog.ts.
+ * The page is only built while its service is live (treatments.ts checks the status gate).
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from './Section.astro';
+import PageIntro from './PageIntro.astro';
+import ServiceCard from './ServiceCard.astro';
+import PriceTable from './PriceTable.astro';
+import AddOnLine from './AddOnLine.astro';
+import SpaPanel from './SpaPanel.astro';
+import QuickFacts from './QuickFacts.astro';
+import QuickAnswers from './QuickAnswers.astro';
+import Faq from './Faq.astro';
+import AskUni from './AskUni.astro';
+import HealthNote from './HealthNote.astro';
+import LastReviewed from './LastReviewed.astro';
+import Icon from './Icon.astro';
+import { Picture } from 'astro:assets';
+import { getService, findLiveService, spasFor, SPAS } from '../lib/catalog';
+import { site } from '../lib/site';
+import { asset, widthsFor, objectPosition } from '../lib/images';
+import { lengthOf, lengthsOf, offeredAt, displayName, summaryOf, spaName, inText } from '../lib/pageHelpers';
+import { graph, orgNode, spaNode, serviceNode, breadcrumbNode, faqNode, webPageNode, websiteNode } from '../lib/schema';
+import { spaFacts } from '../lib/entity';
+import { priceFrom, fullPriceList, treatmentFor, type Treatment } from '../lib/treatments';
+import '../styles/pages-b.css';
+
+interface Props { treatment: Treatment }
+const { treatment: t } = Astro.props;
+
+const svc = getService(t.service);
+const name = displayName(svc);
+const nameText = inText(name);
+const spas = spasFor(svc);
+const img = asset(t.image);
+const amp = (s: string) => s.replace(/&(?![a-z#0-9]+;)/gi, '&amp;');
+const plainTitle = t.title.replace(/<[^>]+>/g, '');
+
+// Lengths as the menu shows them: "60, 90 or 120 min", or the one option's own label ("60 to 120 min").
+const plainOptions = svc.options.filter((o) => !/with/i.test(o.label));
+const lengths = plainOptions.length > 1 ? lengthsOf(t.service) : lengthOf(svc.options[0]);
+const notes = svc.options.filter((o) => t.lengthNotes?.[o.label]);
+// Open on 60 min when the menu has it (a good first visit), like the lymphatic page; otherwise the first option.
+const defaultMinutes = svc.options.length > 1 && svc.options.some((o) => o.minutes === 60) ? 60 : undefined;
+
+// At a glance: catalog facts first, then the page's own copy rows.
+const facts = [
+  { label: 'Length', value: lengths },
+  { label: 'Price', value: priceFrom(svc) },
+  { label: 'Where', value: spas.length === 2 ? 'San Diego (Mission Valley) and Del Mar' : `${site.spas[spas[0]].long_name} only` },
+  ...t.facts,
+];
+
+// Answer-first: where and how much (catalog + entity facts only), then how it differs. Both are also in FAQPage.
+const where = SPAS.filter((sp) => offeredAt(svc, sp)).map((sp) => spaFacts(sp));
+const answers = [
+  {
+    q: `Where can I book ${/^(the|our) /i.test(nameText) ? nameText : (t.group === 'massage' ? nameText : `the ${nameText}`)}?`,
+    a: `At Unique Spa House, ${where.map((w) => `${w.label} (${w.address})`).join(' and ')}. ${
+      svc.options.every((o) => o.price == null) ? `It runs ${lengths}, and the price is set at your visit` : `${svc.options.length > 1 ? 'Choose a length: ' : "It's "}${fullPriceList(t.service)}`
+    }. Book online or call ${site.phone.display}.`,
+  },
+  t.differs,
+];
+
+const related = t.related.map((r) => ({ ...r, svc: findLiveService(r.service) })).filter((r) => r.svc && r.service !== t.service).slice(0, 3);
+
+const service = serviceNode(svc, { path: t.path, name, description: summaryOf(svc) });
+const jsonLd = graph(
+  webPageNode(t.path, plainTitle, { dateModified: t.reviewed, about: `${service['@id']}` }),
+  websiteNode(), orgNode(), ...spas.map((sp) => spaNode(sp)), service,
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: t.hub.name, path: t.hub.path }, { name, path: t.path }]),
+  faqNode([...answers, ...t.faqs]),
+);
+---
+<BaseLayout title={t.metaTitle} description={t.metaDescription} path={t.path} jsonLd={jsonLd}>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: t.hub.name, href: t.hub.path }, { name: t.short }]}
+    eyebrow={t.eyebrow}
+    title={amp(t.title)}
+    lede={t.lede}
+  >
+    <div class="b-box">
+      <h2 class="b-box__label">{svc.options.length > 1 ? 'Choose your length' : 'Book this treatment'}</h2>
+      <ServiceCard service={t.service} variant="feature" showTitle={false} summary={null} defaultMinutes={defaultMinutes} placement="treatment-page" />
+    </div>
+    <Fragment slot="aside">
+      <figure class="b-media tp-media" style={`--tp-ratio: ${t.imageRatio}`}>
+        <Picture src={img.src} formats={img.formats ?? ['avif', 'webp']} widths={widthsFor(img.src)} sizes="(min-width: 960px) 44vw, 100vw" quality={62}
+          alt={img.alt} loading="eager" fetchpriority="high" decoding="async" style={`object-position: ${objectPosition(img)}`} />
+      </figure>
+    </Fragment>
+  </PageIntro>
+
+  <Section tone="paper" labelledby="facts-title" pad="tight">
+    <QuickFacts items={facts} title={`${t.short} at a glance`} />
+  </Section>
+
+  <Section labelledby="answers-title" pad="tight">
+    <QuickAnswers items={answers} title="The short answer" />
+  </Section>
+
+  <Section labelledby="what-title" tone="paper">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="what-title">What it <em>is</em></h2>
+      </div>
+      <div class="b-split__body b-prose">
+        {t.what.map((p) => <p>{p}</p>)}
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="who-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="who-title">Who it's for</h2>
+        <p>{t.whoIntro}</p>
+      </div>
+      <div class="b-split__body">
+        <ul class="b-ticks">
+          {t.who.map((w) => <li>{w}</li>)}
+        </ul>
+        <HealthNote />
+        {t.check && (
+          <div class="tp-check">
+            <h3 class="tp-check__title">{t.checkTitle}</h3>
+            <ul class="b-ticks">
+              {t.check.map((c) => <li>{c}</li>)}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="steps-title" tone="paper">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="steps-title">What happens, step by step</h2>
+        <p>{t.stepsIntro}</p>
+      </div>
+      <div class="b-split__body">
+        <ol class="b-steps" role="list">
+          {t.steps.map((s, i) => (
+            <li><span class="b-steps__n" aria-hidden="true">{i + 1}</span><h3 class="b-steps__t"><span class="sr-only">Step {i + 1}: </span>{s.t}</h3><p class="b-steps__d">{s.d}</p></li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </Section>
+
+  <Section tone="brown" labelledby="feels-title">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="feels-title">How it <em>feels</em></h2>
+      </div>
+      <div class="b-split__body b-prose tp-feels">
+        <p class="tp-feels__lead serif">{t.feelsLead}</p>
+        {t.feels.map((p) => <p>{p}</p>)}
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="prices-title" id="prices">
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="prices-title">Lengths and prices</h2>
+        <p>{t.pricesIntro}</p>
+      </div>
+      <div class="b-split__body">
+        {notes.length > 0 && (
+          <dl class="tp-lengths">
+            {notes.map((o) => <div><dt>{o.label.replace(/,.*$/, '')}</dt><dd>{t.lengthNotes![o.label]}</dd></div>)}
+          </dl>
+        )}
+        <PriceTable service={t.service} caption={`${name}: lengths, prices and booking links${spas.length === 2 ? ' at each spa' : ''}`} placement="treatment-table" />
+        <AddOnLine group={t.group} />
+        <p class="b-note">Prices as currently listed on our online booking menu. The booking page always shows the latest price. Booking opens in a new tab.</p>
+      </div>
+    </div>
+  </Section>
+
+  {t.compare && t.compare.length > 0 && (
+    <Section labelledby="compare-title" tone="paper">
+      <div class="b-split">
+        <div class="b-split__head">
+          <h2 id="compare-title">{t.compareTitle}</h2>
+          <p>If you're choosing between two, this may help.</p>
+          <a class="link-arrow" href="/help-me-choose">Help me choose<Icon name="arrow-right" /></a>
+        </div>
+        <div class="b-split__body">
+          <dl class="tp-compare">
+            {t.compare.map((c) => <div><dt>{c.q}</dt><dd set:html={amp(c.a)} /></div>)}
+          </dl>
+        </div>
+      </div>
+    </Section>
+  )}
+
+  <Section labelledby="care-title">
+    <div class="b-head">
+      <h2 id="care-title">Before and after</h2>
+    </div>
+    <div class="b-duo">
+      <div class="tp-care">
+        <h3>Before your visit</h3>
+        <ul class="b-ticks">
+          {t.before.map((b) => <li>{b}</li>)}
+        </ul>
+      </div>
+      <div class="tp-care">
+        <h3>After your visit</h3>
+        <ul class="b-ticks">
+          {t.after.map((a) => <li>{a}</li>)}
+        </ul>
+      </div>
+    </div>
+  </Section>
+
+  <Section labelledby="spas-title" tone="paper">
+    <div class="b-head">
+      <h2 id="spas-title">{spas.length === 2 ? `${t.short} at our two spas` : `${t.short} at our ${spaName(spas[0])} spa`}</h2>
+      {spas.length === 2 && <p>Choose the spa that's easier for you. {svc.options.every((o) => o.locations.length === 2) ? 'Same treatment, same prices.' : 'Some lengths are at one spa only; the table above shows which.'}</p>}
+    </div>
+    <div class:list={['b-duo', spas.length === 1 && 'tp-one']}>
+      {spas.map((sp) => <SpaPanel spa={sp} service={t.service} bookLabel={`Book in ${spaName(sp)}`} placement="treatment-spa" />)}
+    </div>
+  </Section>
+
+  <Section labelledby="faq-title">
+    <Faq items={t.faqs} title={t.faqTitle} />
+  </Section>
+
+  {related.length > 0 && (
+    <Section labelledby="related-title" tone="paper">
+      <div class="b-head b-head--row">
+        <h2 id="related-title">You might also like</h2>
+        <a class="link-arrow" href={t.hub.path}>All {t.hub.name.toLowerCase()}<Icon name="arrow-right" /></a>
+      </div>
+      <ul class:list={['b-cards', related.length === 3 && 'b-cards--3']} role="list">
+        {related.map((r) => (
+          <li>
+            <ServiceCard service={r.service} class="b-card" title={displayName(r.service)} summary={r.summary ?? summaryOf(r.service)} placement="related">
+              {r.svc!.flagship && <a class="link-arrow" href={r.svc!.flagship}>About {treatmentFor(r.service)?.short ? inText(treatmentFor(r.service)!.short) : inText(displayName(r.service))}<Icon name="arrow-right" /></a>}
+            </ServiceCard>
+          </li>
+        ))}
+      </ul>
+    </Section>
+  )}
+
+  <Section pad="tight" width="narrow">
+    <div class="b-tail">
+      <AskUni />
+      <LastReviewed date={t.reviewed} />
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .tp-media { aspect-ratio: var(--tp-ratio, 1 / 1); max-height: 78svh; }
+  @media (max-width: 959px) { .tp-media { aspect-ratio: 4 / 3; } }
+  .tp-check { display: flex; flex-direction: column; gap: 0.75rem; }
+  .tp-check__title { font-size: 1.4rem; }
+  .tp-feels__lead { font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.6rem); line-height: 1.1; max-width: 22ch; }
+  .tp-lengths { display: grid; gap: 0.75rem; margin: 0 0 0.5rem; }
+  .tp-lengths div { display: grid; grid-template-columns: 5.5rem 1fr; gap: 1rem; align-items: baseline; }
+  .tp-lengths dt { font-family: var(--font-serif); font-size: 1.35rem; }
+  .tp-lengths dd { margin: 0; }
+  .tp-compare { display: grid; margin: 0; }
+  .tp-compare div { display: grid; gap: 0.4rem; padding-block: 1.1rem 1.25rem; border-top: 1px solid var(--hairline); }
+  .tp-compare div:last-child { border-bottom: 1px solid var(--hairline); }
+  .tp-compare dt { font-family: var(--font-serif); font-size: 1.45rem; line-height: 1.2; }
+  .tp-compare dd { margin: 0; }
+  .tp-compare dd :global(a) { font-weight: 500; }
+  .tp-care { display: flex; flex-direction: column; gap: 0.9rem; padding: clamp(1.25rem, 3vw, 2rem); border: 1px solid var(--hairline); border-radius: var(--radius-card); background: var(--paper); }
+  .tp-care h3 { font-size: 1.6rem; }
+  @media (min-width: 760px) { :global(.tp-one) { grid-template-columns: minmax(0, 620px); } }
+</style>
