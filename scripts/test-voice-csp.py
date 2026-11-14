@@ -114,8 +114,8 @@ def run(browser, base, label, force_resampler, via='mic'):
 
     page.goto(base + '/', wait_until='load')
     page.evaluate("document.querySelector('[data-open=\"uni\"]').click()")
-    check(f'{label}: Uni opens', wait_for(page, '() => !!(window.UniChat && document.querySelector(".usc-start"))', 10000))
-    page.click('.usc-start')
+    # No "Start chat" step any more (owner request, 14 Nov 2026): Ask Uni opens straight on the live chat.
+    check(f'{label}: Uni opens', wait_for(page, '() => !!(window.UniChat && window.UniChat.isOpen() && document.querySelector(".usc-input"))', 10000))
     if via == 'speak':
         # "Speak your question…" box: one tap starts the call; its recording + microphone notice is the line under it.
         foot = page.evaluate("(document.querySelector('.usc-foot')||{}).textContent || ''")

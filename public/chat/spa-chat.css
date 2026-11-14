@@ -159,4 +159,3 @@ html[data-motion="paused"] .usc-root *, html[data-motion="paused"] .usc-root *::
 .usc-root.usc-dock.usc-open .usc-scrim { display: none; }
 .usc-root.usc-dock.usc-slide.usc-open .usc-panel { animation: usc-slide-in .8s cubic-bezier(.22, .8, .24, 1) both; }
 @keyframes usc-slide-in { from { opacity: 0; transform: translateX(96px); } to { opacity: 1; transform: none; } }
-.usc-notice:not([hidden]) ~ .usc-foot { padding-top: 10px; border-top: 1px solid var(--usc-line); }
