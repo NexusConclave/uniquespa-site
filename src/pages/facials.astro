@@ -15,6 +15,7 @@ import GuideLink from '../components/GuideLink.astro';
 import AskUni from '../components/AskUni.astro';
 import HealthNote from '../components/HealthNote.astro';
 import Button from '../components/Button.astro';
+import Icon from '../components/Icon.astro';
 import { Picture } from 'astro:assets';
 import { findLiveService, liveServices, spaBookingUrl, SPAS } from '../lib/catalog';
 import { activeOffers } from '../lib/offers';
@@ -89,6 +90,7 @@ const jsonLd = graph(
       <div class="b-split__head">
         <h2 id="who-title">Who it's for</h2>
         <p><strong>Not sure where to start?</strong> Book the Signature custom facial. We'll tailor it on the day.</p>
+        <a class="link-arrow" href="/help-me-choose">Help me choose<Icon name="arrow-right" /></a>
       </div>
       <div class="b-split__body">
         <ul class="b-ticks">
@@ -113,7 +115,13 @@ const jsonLd = graph(
       </div>
       {/* 3 columns only when the cards fill rows evenly (or 3 + 2), so no card sits alone on a row (QA m-4) */}
       <ul class:list={['b-cards', [3, 5, 6, 9].includes(g.ids.length + (gi === 0 ? specials.length : 0)) && 'b-cards--3']} role="list">
-        {g.ids.map((id) => <li><ServiceCard service={id} class="b-card" title={displayName(id)} summary={summaryOf(id)} placement="hub" /></li>)}
+        {g.ids.map((id) => (
+          <li>
+            <ServiceCard service={id} class="b-card" title={displayName(id)} summary={summaryOf(id)} placement="hub">
+              {findLiveService(id)?.flagship && <a class="link-arrow" href={findLiveService(id)!.flagship!}>About {/^BABOR/.test(displayName(id)) ? `the ${displayName(id)}` : `the ${inText(displayName(id))}`}<span class="sr-only"> (prices and FAQs)</span><Icon name="arrow-right" /></a>}
+            </ServiceCard>
+          </li>
+        ))}
         {gi === 0 && specials.map((o) => <li><SpecialCard offer={o} headingLevel={3} placement="hub" /></li>)}
       </ul>
     </Section>

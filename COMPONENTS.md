@@ -273,3 +273,16 @@ New props (old behaviour unchanged): `ServiceCard`/`ServiceRow` `showWhere={fals
 | `AskUni`, `HealthNote`, `LastReviewed` | "Not sure? Ask Uni" prompt; the standard health note; "Last reviewed {date}" |
 
 `lib/schema.ts` — `graph()`, `orgNode()`, `spaNode(sp)` (no openingHours while hours are unknown), `serviceNode(service)` (Offers at exact lock prices, none for variable prices), `offersFor()`, `breadcrumbNode()`, `faqNode()`. `lib/pageHelpers.ts` — `priceOf`, `priceList`, `lengthsOf`, `servicesAt`, `onlyAt`, `displayName` (claims-log renames, e.g. "Pure Cleanse and Rebalance facial"), `summaryOf` (copy-file one-liners). Shared page CSS: `src/styles/pages-b.css` (`b-` prefix). Tests: `python3 scripts/test-devB.py [dist]`.
+
+## V2 treatment pages (one full page per main treatment)
+
+| Piece | Use |
+|---|---|
+| `lib/treatments.ts` | Copy for each full treatment page (what it is, who it's for, steps, how it feels, compare, before/after, FAQs, related). Prices, lengths and spas are filled in from `lib/catalog.ts` / `lib/pageHelpers.ts`; nothing is typed in. Helpers: `TREATMENTS`, `treatmentsIn(group)`, `treatmentFor(serviceId)`, `priceFrom(service)` ("From $120"), `fullPriceList(id)` (keeps "with stretching" labels and "(San Diego only)") |
+| `data/treatment-paths.json` | Service id → page path. `catalog.ts` uses it as the service's `flagship` when `services.json` has none, so hubs, `/menu`, the spa pages, JSON-LD and `llms.txt` link to the page. No prices; not a price file |
+| `TreatmentPage` | The page itself (`<TreatmentPage treatment={t} />`), modelled on `/massage/lymphatic-drainage`: summary box, `QuickFacts`, `QuickAnswers`, what it is, who it's for, steps, how it feels, `PriceTable`, compare, before and after, `SpaPanel` per spa, `Faq` (FAQPage = quick answers + FAQ), related, Ask Uni, Last reviewed |
+| `QuickFacts` | "At a glance" label/value list (`items`, `title`). Length, price and where come from the catalog; the rest is plain copy. Also on the lymphatic, couples and Katy pages |
+| Routes | `src/pages/{massage,facials,body}/[treatment].astro` (`getStaticPaths` from `treatmentsIn(group)`). A hand-built page in the same folder wins. A page is built only while its service is live |
+| `/help-me-choose` | Needs-led page ("I want to switch off", "I train", …) listing the live services that fit, as `ServiceRow`s. Preferences only, never conditions |
+
+To add a page: add the service id and path to `treatment-paths.json`, then add an entry in `build()` in `lib/treatments.ts`. The template builds the route, the links and the FAQ schema from those two. Copy rules are the same as everywhere (CLAUDE.md 13–17): what it is and how it feels, never a result.

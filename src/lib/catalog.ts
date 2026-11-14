@@ -9,6 +9,7 @@
 import servicesData from '../data/services.json';
 import lock from '../data/square-lock.json';
 import offersData from '../data/offers.json';
+import treatmentPaths from '../data/treatment-paths.json';
 
 export type Spa = 'SD' | 'DM';
 export const SPAS: Spa[] = ['SD', 'DM'];
@@ -70,9 +71,12 @@ function lockOption(o: ServiceOption): ServiceOption {
   return { ...o, price, minutes: l.duration_min ?? o.minutes, locations: [...l.locations] as Spa[] };
 }
 
+/** V2 full treatment pages (src/data/treatment-paths.json): the page a service links to when services.json names no flagship. */
+const TREATMENT_PATHS = treatmentPaths.paths as Record<string, string>;
+
 /** Merge the lockfile's price/minutes/locations over services.json, so a stale services.json can't leak a wrong price. */
 function withLock(s: Service): Service {
-  return { ...s, options: s.options.map(lockOption) };
+  return { ...s, flagship: s.flagship ?? TREATMENT_PATHS[s.id] ?? null, options: s.options.map(lockOption) };
 }
 
 /**
