@@ -5,7 +5,8 @@
  *  - Pause motion (localStorage, try/catch) → html[data-motion="paused"]
  *  - Disclosures: [data-disclosure] buttons (aria-expanded) inside [data-disclosure-root]
  *  - Dialogs: Book sheet (#book-sheet), mobile menu (#mobile-menu) — focus in, Esc, focus returns
- *  - Uni: [data-open="uni"] lazy-loads /chat/spa-chat.js once and opens it (never auto-opens)
+ *  - Uni: [data-open="uni"] lazy-loads /chat/spa-chat.js once and opens it. Phones and tablets: never auto-opens.
+ *    Desktop (owner request, 14 Nov 2026): 3 s after the first page load Uni slides in bottom right, docked, not modal.
  *  - Service chips: price/minutes/links swap; price announced through the card's aria-live region
  *  - Date gates: [data-ends] / [data-starts] / [data-hide-after] (Los Angeles dates)
  *  - Bottom bar: Gift ⇄ Call windows, after-hours Call menu
@@ -21,7 +22,7 @@ type Props = Record<string, unknown>;
 declare global {
   interface Window {
     track: (event: string, props?: Props) => void;
-    UniChat?: { open: (opener?: HTMLElement | null) => void; close: () => void; isOpen: () => boolean; inCall: () => boolean; refreshInert: () => void };
+    UniChat?: { open: (opener?: HTMLElement | null) => void; dock?: () => boolean; close: () => void; isOpen: () => boolean; isDocked?: () => boolean; inCall: () => boolean; refreshInert: () => void };
     __uscLoaded?: boolean;
   }
 }
@@ -180,6 +181,22 @@ function openUni(opener: HTMLElement | null) {
   loadUni().then(() => window.UniChat?.open(opener)).catch(() => {
     alert('Uni is unavailable right now. Please call (858) 293-8900 or text us.');
   });
+}
+
+/* Desktop only: Uni shows itself once, 3 s after the first page load, docked bottom right (not modal, no focus move).
+   It then stays on display across pages (the #uni node persists). Closing it is remembered for the visit (sessionStorage,
+   in spa-chat.js). Phones and tablets never auto-open: there the chat is a full-screen modal. Not counted as chat_open. */
+const UNI_DOCK_QUERY = '(min-width: 961px)';
+const UNI_DOCK_DELAY = 3000;
+function scheduleUniDock() {
+  try {
+    if (!window.matchMedia(UNI_DOCK_QUERY).matches) return;
+    if (sessionStorage.getItem('usc-dock-closed-v1') === '1') return;
+  } catch { return; }
+  window.setTimeout(() => {
+    if (window.UniChat?.isOpen() || window.UniChat?.inCall()) return;
+    loadUni().then(() => window.UniChat?.dock?.()).catch(() => { /* Uni unavailable: nothing to show */ });
+  }, UNI_DOCK_DELAY);
 }
 
 /* ---------------- service chips ---------------- */
@@ -442,6 +459,7 @@ document.addEventListener('astro:before-swap', (e) => {
   document.querySelectorAll<HTMLDialogElement>('dialog[open]').forEach(closeDialog);
 });
 document.addEventListener('astro:page-load', initPage);
+scheduleUniDock(); // once per full page load; client-side navigations keep the docked panel
 window.addEventListener('pageshow', () => { applyDateGates(); applyBar(); });
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { applyDateGates(); applyBar(); } });
 

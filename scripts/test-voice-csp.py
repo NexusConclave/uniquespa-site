@@ -92,7 +92,7 @@ def wait_for(page, js, timeout_ms):
     return False
 
 
-def run(browser, base, label, force_resampler):
+def run(browser, base, label, force_resampler, via='mic'):
     SERVED.clear()
     ctx = browser.new_context(permissions=['microphone'])
     ctx.add_init_script(WATCH)
@@ -116,8 +116,15 @@ def run(browser, base, label, force_resampler):
     page.evaluate("document.querySelector('[data-open=\"uni\"]').click()")
     check(f'{label}: Uni opens', wait_for(page, '() => !!(window.UniChat && document.querySelector(".usc-start"))', 10000))
     page.click('.usc-start')
-    page.click('.usc-mic')
-    page.click('.usc-vconfirm .usc-vend')
+    if via == 'speak':
+        # "Speak your question…" box: one tap starts the call; its recording + microphone notice is the line under it.
+        foot = page.evaluate("(document.querySelector('.usc-foot')||{}).textContent || ''")
+        check(f'{label}: the recording and microphone notice is on screen before the tap', 'Voice calls are recorded and transcribed' in foot and 'microphone' in foot, foot[:160])
+        page.click('.usc-speak')
+        check(f'{label}: the Speak box starts the call without the extra confirm step', page.evaluate("document.querySelector('.usc-vconfirm').hidden"))
+    else:
+        page.click('.usc-mic')
+        page.click('.usc-vconfirm .usc-vend')
     listening = wait_for(page, "() => (document.querySelector('.usc-vtext')||{}).textContent === 'Listening…'", 20000)
     page.wait_for_timeout(500)
     text = page.evaluate("(document.querySelector('.usc-vtext')||{}).textContent")
@@ -154,6 +161,7 @@ def main():
         try:
             run(browser, base, 'normal', False)
             run(browser, base, 'resampler', True)
+            run(browser, base, 'speak box', False, via='speak')
         finally:
             browser.close()
     srv.shutdown()

@@ -140,3 +140,23 @@ html[data-motion="paused"] .usc-root *, html[data-motion="paused"] .usc-root *::
 .usc-book-go[disabled] { opacity: .45; cursor: not-allowed; }
 .usc-book-st { font-size: 14px; color: #8a2a12; margin: 8px 0 0; }
 .usc-book-st:empty { display: none; }
+
+/* ---- "Speak your question…" box (owner request, 14 Nov 2026): one tap starts the voice call. It mirrors the text row:
+   a white field with a round brown button. The recording + microphone notice is the footer line right under it. ---- */
+.usc-speakrow { padding: 0 12px 10px; background: var(--usc-cream); }
+.usc-speakrow[hidden] { display: none !important; }
+.usc-speak { display: flex; align-items: center; gap: 8px; width: 100%; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; border-radius: 14px; }
+.usc-speak-t { flex: 1; min-width: 0; min-height: 46px; display: flex; align-items: center; border: 1px solid var(--usc-line); border-radius: 14px; padding: 11px 14px; background: var(--usc-white); color: var(--usc-muted); font-size: 16px; line-height: 1.4; }
+.usc-speak-i { flex: none; width: 46px; height: 46px; border-radius: 50%; background: var(--usc-brown); color: var(--usc-cream); display: grid; place-items: center; }
+.usc-speak-i svg { width: 20px; height: 20px; }
+.usc-speak:hover .usc-speak-t { border-color: var(--usc-muted); }
+.usc-speak:focus-visible { outline: 2px solid #B4532A; outline-offset: 2px; }
+.usc-foot a { color: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---- Desktop dock (owner request, 14 Nov 2026): on wide screens the panel is not modal. It sits bottom right, with no
+   scrim, and stays on display. When the site shows it by itself (3 s after the first page load) it fades in while it
+   slides in from the right. Reduced motion and the site's motion switch (rules above) show it at once instead. ---- */
+.usc-root.usc-dock.usc-open .usc-scrim { display: none; }
+.usc-root.usc-dock.usc-slide.usc-open .usc-panel { animation: usc-slide-in .8s cubic-bezier(.22, .8, .24, 1) both; }
+@keyframes usc-slide-in { from { opacity: 0; transform: translateX(96px); } to { opacity: 1; transform: none; } }
+.usc-notice:not([hidden]) ~ .usc-foot { padding-top: 10px; border-top: 1px solid var(--usc-line); }
