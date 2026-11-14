@@ -261,6 +261,81 @@ def keyboard(browser, base):
     check('Uni: not loaded until asked; opens as a true modal (aria-modal, inert background); Esc returns focus', (not auto) and u['open'] and u['modal'] == 'true' and u['inert'] and back, (auto, u, back))
     ctx.close()
 
+def uni_dock_and_speak(browser, base):
+    """Owner requests, 14 Nov 2026. Ask Uni opens straight on the live chat (no "Start chat" step); the notice that
+    step carried is the line under the boxes. Desktop: Uni shows itself 3 s after the page loads, docked bottom right, not modal,
+    without taking focus; closing it is remembered for the visit. Phones: never auto-opens; the chat has a
+    "Speak your question…" box under the text box, with the recording and microphone notice in the line below it."""
+    ctx, pg = new_page(browser, base, 1440, 900)
+    pg.goto(base + '/', wait_until='networkidle'); pg.wait_for_timeout(1200)
+    early = pg.evaluate("!!(window.UniChat && window.UniChat.isOpen())")
+    try:
+        pg.wait_for_function("window.UniChat && window.UniChat.isOpen()", timeout=6000); shown = True
+    except Exception:
+        shown = False
+    pg.wait_for_timeout(100)
+    d = pg.evaluate("""() => { const p = document.querySelector('.usc-panel'); const r = document.querySelector('.usc-root');
+      return { docked: !!window.UniChat?.isDocked?.(), modal: p?.getAttribute('aria-modal'), inert: document.querySelector('main').hasAttribute('inert'),
+        focusIn: !!document.activeElement.closest('.usc-panel'), scrim: getComputedStyle(document.querySelector('.usc-scrim')).display,
+        anim: getComputedStyle(p).animationName, lock: document.documentElement.classList.contains('usc-lock'),
+        ov: document.documentElement.scrollWidth - document.documentElement.clientWidth }; }""")
+    pg.wait_for_timeout(1100)
+    pg.screenshot(path=os.path.join(SHOTS, 'uni-dock-1440x900.png'))
+    check('Uni desktop: not shown at 1 s, slides in by itself after 3 s', (not early) and shown and d['anim'] == 'usc-slide-in', (early, shown, d))
+    check('Uni desktop: docked, not modal (no scrim, page not inert, focus not moved, no sideways scroll)',
+          d['docked'] and d['modal'] == 'false' and not d['inert'] and not d['focusIn'] and d['scrim'] == 'none' and not d['lock'] and d['ov'] <= 0, d)
+    # Window narrowed below the desktop width while docked: it becomes the modal, and focus moves into it
+    pg.set_viewport_size({'width': 800, 'height': 900}); pg.wait_for_timeout(300)
+    n = pg.evaluate("({ modal: document.querySelector('.usc-panel').getAttribute('aria-modal'), inert: document.querySelector('main').hasAttribute('inert'), focusIn: !!document.activeElement.closest('.usc-panel') })")
+    check('Uni desktop: if the window narrows, the dock becomes the modal and focus moves into it', n['modal'] == 'true' and n['inert'] and n['focusIn'], n)
+    pg.set_viewport_size({'width': 1440, 'height': 900}); pg.wait_for_timeout(300)
+    pg.click('.usc-close'); pg.wait_for_timeout(200)
+    pg.reload(wait_until='networkidle'); pg.wait_for_timeout(4200)
+    again = pg.evaluate("!!(window.UniChat && window.UniChat.isOpen())")
+    check('Uni desktop: once closed, it does not show itself again in the same visit', not again, again)
+    pg.click('.site-header [data-open="uni"]'); pg.wait_for_timeout(700)
+    a = pg.evaluate("({ docked: !!window.UniChat?.isDocked?.(), focusIn: !!document.activeElement.closest('.usc-panel'), inert: document.querySelector('main').hasAttribute('inert') })")
+    check('Uni desktop: Ask Uni opens it docked and moves focus into it', a['docked'] and a['focusIn'] and not a['inert'], a)
+    ctx.close()
+    # Reduced motion: it appears without the slide
+    ctx, pg = new_page(browser, base, 1440, 900, reduced=True)
+    pg.goto(base + '/', wait_until='networkidle')
+    try:
+        pg.wait_for_function("window.UniChat && window.UniChat.isOpen()", timeout=7000); shown = True
+    except Exception:
+        shown = False
+    anim = pg.evaluate("getComputedStyle(document.querySelector('.usc-panel') || document.body).animationName")
+    check('Uni desktop, reduced motion: shown without the slide animation', shown and anim == 'none', (shown, anim))
+    ctx.close()
+    # Phone
+    ctx, pg = new_page(browser, base, 390, 664)
+    pg.goto(base + '/', wait_until='networkidle'); pg.wait_for_timeout(4200)
+    auto = pg.evaluate("!!window.UniChat")
+    pg.click('.bottom-bar [data-open="uni"]'); pg.wait_for_selector('.usc-speak'); pg.wait_for_timeout(300)
+    m = pg.evaluate("""() => { const b = document.querySelector('.usc-speak'); const r = b ? b.getBoundingClientRect() : null;
+      const f = document.querySelector('.usc-form').getBoundingClientRect();
+      return { speak: !!b && !document.querySelector('.usc-speakrow').hidden, h: r ? r.height : 0, below: r ? r.top >= f.bottom - 1 : false,
+        text: b ? b.textContent.trim() : '', foot: document.querySelector('.usc-foot').textContent,
+        start: !!document.querySelector('.usc-start, .usc-notice'), input: !!document.querySelector('.usc-input') && document.querySelector('.usc-input').offsetParent !== null,
+        footBottom: document.querySelector('.usc-foot').getBoundingClientRect().bottom, vh: innerHeight,
+        modal: document.querySelector('.usc-panel').getAttribute('aria-modal'), ov: document.documentElement.scrollWidth - document.documentElement.clientWidth }; }""")
+    pg.screenshot(path=os.path.join(SHOTS, 'uni-speak-390x664.png'))
+    check('Uni phone: never opens by itself (not even loaded after 4 s); still a true modal', (not auto) and m['modal'] == 'true', (auto, m['modal']))
+    check('Uni phone: "Speak your question…" box sits under the text box, 44 px or taller', m['speak'] and m['below'] and m['h'] >= 44 and m['text'].startswith('Speak your question'), m)
+    check('Uni: opens straight on the live chat, with no "Start chat" step (text box and Speak box on screen)', (not m['start']) and m['input'] and m['speak'], m)
+    check('Uni: the line under the boxes carries the AI, AI-provider, recording and microphone notices and the privacy link, all on screen',
+          all(t in m['foot'] for t in ('Uni is an AI assistant', 'AI providers', 'may be recorded and transcribed', 'Voice calls are recorded and transcribed', 'microphone', 'How we use chat data'))
+          and m['footBottom'] <= m['vh'] + 1 and pg.evaluate("document.querySelector('.usc-foot a').getAttribute('href')") == '/privacy/', m)
+    ctx.close()
+    # Touch phone: opening the chat does not focus the text box, so the on-screen keyboard stays down
+    ctx = browser.new_context(viewport={'width': 390, 'height': 844}, is_mobile=True, has_touch=True)
+    pg = ctx.new_page(); guard(pg, base)
+    pg.goto(base + '/', wait_until='networkidle')
+    pg.tap('.bottom-bar [data-open="uni"]'); pg.wait_for_selector('.usc-speak'); pg.wait_for_timeout(300)
+    t = pg.evaluate("({ tag: document.activeElement.tagName, inPanel: !!document.activeElement.closest('.usc-panel'), footBottom: document.querySelector('.usc-foot').getBoundingClientRect().bottom, vh: innerHeight })")
+    check('Uni touch phone: focus goes to the chat panel, not the text box (keyboard stays down); the whole notice line is on screen', t['inPanel'] and t['tag'] != 'TEXTAREA' and t['footBottom'] <= t['vh'] + 1, t)
+    ctx.close()
+
 def desktop_shots(browser, base):
     ctx, pg = new_page(browser, base, 1440, 900)
     pg.goto(base + '/', wait_until='networkidle'); pg.wait_for_timeout(300)
@@ -357,6 +432,7 @@ def main():
         mobile_first_screen(browser, base)
         static_modes(browser, base)
         keyboard(browser, base)
+        uni_dock_and_speak(browser, base)
         qa_followups(browser, base)
         run_axe(browser, base)
         browser.close()

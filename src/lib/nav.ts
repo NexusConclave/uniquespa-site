@@ -17,6 +17,7 @@ export const TREATMENTS: NavLink[] = [
   { label: 'Facials', href: '/facials' },
   { label: 'Body', href: '/body' },
   { label: 'Full menu', href: '/menu' },
+  { label: 'Help me choose', href: '/help-me-choose' },
   ...MED_SPA,
 ];
 

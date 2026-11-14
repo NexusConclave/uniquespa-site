@@ -152,6 +152,7 @@ const bandQuote = review('anna-k');   // null until approved (or PREVIEW)
           </li>
         ))}
       </ul>
+      <p class="cards__more"><a class="link-arrow" href="/help-me-choose">Not sure what to book? Help me choose<Icon name="arrow-right" /></a></p>
     </div>
   </Section>
 
@@ -272,6 +273,7 @@ const bandQuote = review('anna-k');   // null until approved (or PREVIEW)
   @media (max-width: 899px) { .lymph__media { aspect-ratio: 4 / 3; } }
   .lymph__text { display: flex; flex-direction: column; gap: 1rem; }
   .lymph__text h2 { margin-bottom: 0.25rem; }
+  .cards__more { margin-top: clamp(1.5rem, 3vw, 2.25rem); }
   .lymph__meta { font-size: var(--fs-label); }
   .lymph__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; margin-top: 0.5rem; }
   :global(.lymph__luxe) { margin-top: 1rem; }

@@ -1,0 +1,14 @@
+{
+  "note": "V2 full treatment pages (copy in src/lib/treatments.ts). Service id -> page path. lib/catalog.ts uses this as the service's `flagship` link when services.json has none, so hubs, the menu, the spa pages and llms.txt link to the page. No prices here.",
+  "paths": {
+    "swedish": "/massage/swedish",
+    "deep-tissue": "/massage/deep-tissue",
+    "sports": "/massage/sports",
+    "hot-stone": "/massage/hot-stone",
+    "prenatal": "/massage/prenatal",
+    "babor-sculpt-lift": "/facials/babor-sculpt-lift",
+    "babor-deep-cleanse": "/facials/babor-deep-cleanse-glow",
+    "signature-facial": "/facials/signature-custom-facial",
+    "wrap-me-up": "/body/wrap-me-up"
+  }
+}

@@ -2,9 +2,18 @@
    site's window.track (off unless enabled; event name and short slugs only, never what the guest types or says).
    Site build of bot/chat/spa-chat.js, adapted for the Astro layout (blueprint §4.11):
    - mounts inside the persisted #uni node (ClientRouter transition:persist), so a voice call survives page changes
-   - never auto-opens; opened only by window.UniChat.open() from the header link, hero link, inline prompts or the bar
-   - text chat is a true modal dialog: aria-modal, focus trap, background inert, full screen on mobile
-   - a tap-to-start AI notice before the first message; a recording notice before the mic starts
+   - phones and tablets: never auto-opens; opened only by window.UniChat.open() from the header link, hero link,
+     inline prompts or the bar, as a true modal dialog (aria-modal, focus trap, background inert, full screen on mobile)
+   - desktop (owner request, 14 Nov 2026): the same panel is DOCKED bottom right, not modal (no scrim, no inert, no focus
+     trap). The site calls window.UniChat.dock() 3 s after the first page load and the panel fades and slides in from
+     the right without taking focus; it then stays on display across pages. Closing it is remembered for the visit.
+   - no "Start chat" step (owner request, 14 Nov 2026): Ask Uni goes straight to the live chat, with the text box and
+     the Speak box. The AI, recording and privacy notice that used to be the tap-to-start page is now the line under
+     the boxes (.usc-foot), on screen before the first message. On touch screens the chat does not focus the text box
+     by itself, so the keyboard stays down and that line and both boxes are visible when the chat opens.
+   - voice, two ways in: the "Speak your question…" box under the text box starts the call in one tap (owner request,
+     14 Nov 2026); the recording and microphone notice for it sits right under that box (the footer line), so it is
+     read before the tap. The small mic button in the header still shows the notice and asks first.
    - a live voice call can be minimized to a non-modal call strip (mute, end, transcript)
    Booking (Uni books appointments, 13 Nov 2026): when the chat Worker answers with a booking ref (chat), or the voice agent
    calls the show_card_form client tool, Square's own secure card form (Web Payments SDK, web.squarecdn.com) opens in the
@@ -26,7 +35,6 @@
   var VOICE_RESAMPLER = '/chat/worklets/libsamplerate.worklet.js';
   var AGENT_ID = 'agent_9401m6wnk56heqnv0j95xcbx15td';
   var KEY = 'usc-chat-v2';
-  var CONSENT_KEY = 'usc-ai-notice-v1';
   var WELCOME = "Hi, I'm Uni, the spa's AI assistant. Ask me about treatments, prices, specials or booking. Or tap the mic to talk to me.";
   var CHIPS = ['Massage prices', 'Current specials', 'Book an appointment', 'Locations & hours', 'Gift cards'];
   var LINKS = {
@@ -46,8 +54,6 @@
   var msgs = [];
   try { msgs = JSON.parse(sessionStorage.getItem(KEY) || '[]') || []; } catch (e) { msgs = []; }
   function save() { try { sessionStorage.setItem(KEY, JSON.stringify(msgs.slice(-30))); } catch (e) {} }
-  function consented() { try { return sessionStorage.getItem(CONSENT_KEY) === '1'; } catch (e) { return false; } }
-  function setConsent() { try { sessionStorage.setItem(CONSENT_KEY, '1'); } catch (e) {} }
 
   function h(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -91,11 +97,6 @@
   var close = h('button', 'usc-hbtn usc-close', ICON_X); close.type = 'button'; close.setAttribute('aria-label', 'Close chat');
   head.appendChild(micBtn); head.appendChild(minBtn); head.appendChild(close);
 
-  var notice = h('div', 'usc-notice');
-  notice.innerHTML = '<p><b>Uni is an AI assistant.</b> Your messages go to our AI providers so Uni can answer, and chats may be recorded and transcribed. Please don\'t share health or card details.</p>' +
-    '<p><a href="/privacy/">How we use chat data</a></p>';
-  var startBtn = h('button', 'usc-start', 'Start chat'); startBtn.type = 'button';
-  notice.appendChild(startBtn);
 
   var vconfirm = h('div', 'usc-vconfirm'); vconfirm.hidden = true;
   vconfirm.innerHTML = '<p><b>Before we start:</b> voice calls with Uni are recorded and transcribed by our voice provider. Your browser will ask to use the microphone.</p>';
@@ -114,8 +115,15 @@
   var input = h('textarea', 'usc-input'); input.rows = 1; input.placeholder = 'Type your question…'; input.maxLength = 1500; input.setAttribute('aria-label', 'Your message');
   var send = h('button', 'usc-send', ICON_SEND); send.type = 'submit'; send.setAttribute('aria-label', 'Send');
   form.appendChild(input); form.appendChild(send);
-  var foot = h('div', 'usc-foot', 'Uni is an AI assistant and can make mistakes. Chats may be recorded and transcribed (see our Privacy page). Never share card or health details here.');
-  panel.appendChild(head); panel.appendChild(notice); panel.appendChild(vconfirm); panel.appendChild(log); panel.appendChild(chips); panel.appendChild(vbar); panel.appendChild(form); panel.appendChild(foot);
+  // "Speak your question…": one tap starts the voice call (same as "Start the call"). Its notice is the footer line below it.
+  var speakRow = h('div', 'usc-speakrow');
+  var speak = h('button', 'usc-speak', '<span class="usc-speak-t">Speak your question…</span><span class="usc-speak-i">' + ICON_MIC + '</span>'); speak.type = 'button';
+  speak.setAttribute('aria-label', 'Speak your question: start a voice call with Uni'); speak.setAttribute('aria-describedby', 'usc-foot');
+  speakRow.appendChild(speak);
+  // The one notice (it replaced the tap-to-start page): AI disclosure, where messages go, recording, microphone, privacy link.
+  var foot = h('div', 'usc-foot', '<b>Uni is an AI assistant</b> and can make mistakes. Your messages go to our AI providers so Uni can answer, and chats may be recorded and transcribed. <b>Voice calls are recorded and transcribed</b> by our voice provider, and your browser will ask to use the microphone. Never share card or health details here. <a href="/privacy/">How we use chat data</a>');
+  foot.id = 'usc-foot';
+  panel.appendChild(head); panel.appendChild(vconfirm); panel.appendChild(log); panel.appendChild(chips); panel.appendChild(vbar); panel.appendChild(form); panel.appendChild(speakRow); panel.appendChild(foot);
 
   // Non-modal call strip (shown while a call is minimized)
   var strip = h('div', 'usc-strip'); strip.hidden = true; strip.setAttribute('role', 'region'); strip.setAttribute('aria-label', 'Call with Uni');
@@ -143,14 +151,9 @@
     log.appendChild(wrap); scroll(); return true;
   }
   function note(text) { log.appendChild(h('div', 'usc-err', esc(text))); scroll(); }
-  function gate() {
-    var ok = consented();
-    notice.hidden = ok; log.hidden = !ok; chips.hidden = !ok; form.hidden = !ok;
-    micBtn.disabled = !ok;
-  }
   function render() {
     // An open card form stays as it is: rebuilding the log would reload Square's iframe and lose what the guest typed.
-    if (booking && !booking.done && log.contains(booking.box)) { gate(); return; }
+    if (booking && !booking.done && log.contains(booking.box)) return;
     log.innerHTML = '';
     bubble('assistant', WELCOME);
     msgs.forEach(function (m) { if (m.role === 'link') linkCard(m.content); else bubble(m.role, m.content); });
@@ -160,7 +163,7 @@
       b.addEventListener('click', function () { ask(c); });
       chips.appendChild(b);
     });
-    gate();
+    speakRow.hidden = !!(voice || starting);
   }
   function history() { return msgs.filter(function (m) { return m.role === 'user' || m.role === 'assistant'; }).slice(-24); }
 
@@ -168,7 +171,7 @@
   var busy = false;
   function ask(text) {
     text = redactCard(String(text || '').trim());
-    if (!text || busy || !consented()) return;
+    if (!text || busy) return;
     chips.innerHTML = '';
     if (voice) { // during a call, typed text goes to the voice agent
       try { voice.sendUserMessage(text); msgs.push({ role: 'user', content: text }); save(); bubble('user', text); input.value = ''; grow(); } catch (e) {}
@@ -215,6 +218,7 @@
     if (text) { vtext.textContent = text; stext.textContent = 'Uni call · ' + text; }
     vbar.setAttribute('data-mode', mode || ''); strip.setAttribute('data-mode', mode || '');
     input.placeholder = on ? 'Speak, or type to Uni…' : 'Type your question…';
+    speakRow.hidden = on; // during a call the call bar (Mute, End call) takes its place
     if (!on) { strip.hidden = true; root.classList.remove('usc-min'); }
   }
   function askVoice() { if (voice || starting) { stopVoice(); return; } vconfirm.hidden = false; vgo.focus(); }
@@ -416,6 +420,7 @@
   }
 
   micBtn.addEventListener('click', askVoice);
+  speak.addEventListener('click', function () { if (voice || starting) return; startVoice(); });
   vgo.addEventListener('click', startVoice);
   vno.addEventListener('click', function () { vconfirm.hidden = true; micBtn.focus(); });
   vend.addEventListener('click', stopVoice);
@@ -424,6 +429,17 @@
   send2.addEventListener('click', function () { stopVoice(); });
   sopen.addEventListener('click', function () { open(sopen); });
   window.addEventListener('pagehide', stopVoice);
+
+  // ---------- Desktop dock (not modal) ----------
+  var DOCK_Q = '(min-width: 961px)', DOCK_CLOSED = 'usc-dock-closed-v1';
+  var docked = false;
+  function wide() { try { return window.matchMedia(DOCK_Q).matches; } catch (e) { return false; } }
+  function dockClosed() { try { return sessionStorage.getItem(DOCK_CLOSED) === '1'; } catch (e) { return false; } }
+  function setDockClosed(on) { try { if (on) sessionStorage.setItem(DOCK_CLOSED, '1'); else sessionStorage.removeItem(DOCK_CLOSED); } catch (e) {} }
+  function setDock(on) {
+    docked = on; root.classList.toggle('usc-dock', on);
+    panel.setAttribute('aria-modal', on ? 'false' : 'true');
+  }
 
   // ---------- Modal: inert background + focus trap ----------
   var opener = null, isOpen = false;
@@ -443,7 +459,7 @@
     });
   }
   panel.addEventListener('keydown', function (e) {
-    if (e.key !== 'Tab') return;
+    if (e.key !== 'Tab' || docked) return; // docked: Tab moves on through the page as usual
     var f = focusables(); if (!f.length) return;
     var first = f[0], last = f[f.length - 1];
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
@@ -451,14 +467,27 @@
   });
 
   // ---------- Open / close / minimize ----------
+  // Where focus lands when the chat opens. Mouse and keyboard: the text box. Touch screens: the panel itself, so the
+  // on-screen keyboard stays down and the two boxes and the notice line under them are all visible.
+  function touch() { try { return window.matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } }
+  function focusIn() { (touch() ? panel : input).focus(); }
   function grow() { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 120) + 'px'; }
-  function open(from) {
+  // auto = the desktop slide-in: no focus move, no opener, and the slide animation instead of the pop.
+  function open(from, auto) {
     if (!root.isConnected) mount();
-    opener = from || document.activeElement;
-    isOpen = true;
+    auto = auto === true;
+    opener = auto ? null : (from || document.activeElement);
+    var was = isOpen; isOpen = true;
+    setDock(wide());
+    if (!was) root.classList.toggle('usc-slide', auto && docked); // already on display: don't replay an entrance
     root.classList.add('usc-open'); root.classList.remove('usc-min'); strip.hidden = true;
-    render(); setInert(true);
-    setTimeout(function () { (consented() ? input : startBtn).focus(); }, 30);
+    render(); setInert(!docked);
+    if (!auto) { setDockClosed(false); setTimeout(focusIn, 30); }
+  }
+  // Desktop only: show the docked panel by itself (site.ts calls this 3 s after the first page load).
+  function dock() {
+    if (isOpen || voice || starting || !wide() || dockClosed()) return false;
+    open(null, true); return true;
   }
   function restoreFocus() {
     var o = opener; opener = null;
@@ -466,17 +495,17 @@
   }
   function shut() {
     stopVoice();
-    isOpen = false; root.classList.remove('usc-open'); setInert(false);
+    if (docked) setDockClosed(true); // closed on desktop: stay closed for the rest of the visit, until asked for again
+    isOpen = false; root.classList.remove('usc-open', 'usc-slide'); setInert(false);
     restoreFocus();
   }
   function minimize() {
     if (!voice && !starting) { shut(); return; }
-    isOpen = false; root.classList.remove('usc-open'); root.classList.add('usc-min'); setInert(false);
+    isOpen = false; root.classList.remove('usc-open', 'usc-slide'); root.classList.add('usc-min'); setInert(false);
     strip.hidden = false;
     restoreFocus();
   }
 
-  startBtn.addEventListener('click', function () { setConsent(); gate(); input.focus(); });
   close.addEventListener('click', shut);
   minBtn.addEventListener('click', minimize);
   scrim.addEventListener('click', function () { (voice || starting) ? minimize() : shut(); });
@@ -490,11 +519,30 @@
   function mount() { host().appendChild(root); }
   mount();
 
+  // Window resized across the desktop breakpoint while open: switch between docked and modal.
+  try {
+    var mq = window.matchMedia(DOCK_Q);
+    var onMq = function () {
+      if (!isOpen) return;
+      var wasDocked = docked, prev = document.activeElement;
+      setDock(wide()); if (!docked) root.classList.remove('usc-slide'); setInert(!docked);
+      // Dock -> modal (the window got narrower): the page behind is now inert, so bring focus into the chat and
+      // remember where it was, to hand it back when the chat closes.
+      if (wasDocked && !docked && !panel.contains(prev)) {
+        opener = prev && prev !== document.body ? prev : null;
+        focusIn();
+      }
+    };
+    if (mq.addEventListener) mq.addEventListener('change', onMq); else if (mq.addListener) mq.addListener(onMq);
+  } catch (e) {}
+
   window.UniChat = {
-    open: open,
+    open: function (from) { open(from); },
+    dock: dock,
     close: shut,
     isOpen: function () { return isOpen; },
+    isDocked: function () { return isOpen && docked; },
     inCall: function () { return !!(voice || starting); },
-    refreshInert: function () { if (isOpen) setInert(true); }
+    refreshInert: function () { if (isOpen && !docked) setInert(true); }
   };
 })();
