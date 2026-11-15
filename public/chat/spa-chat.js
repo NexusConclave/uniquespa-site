@@ -230,7 +230,7 @@
         var SDK = both[0];
         return SDK.Conversation.startSession({
           agentId: both[1],
-          connectionType: 'websocket',
+          connectionType: 'webrtc', // 14 Nov 2026: call-quality connection (jitter buffer + echo cancelling) to stop crackle on phones; was 'websocket'
           workletPaths: VOICE_WORKLETS,
           libsampleratePath: VOICE_RESAMPLER,
           clientTools: {
