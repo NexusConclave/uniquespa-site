@@ -24,6 +24,15 @@
   // Self-hosted AudioWorklets (public/chat/worklets): the CSP allows scripts from 'self' only, no blob: or CDN.
   var VOICE_WORKLETS = { rawAudioProcessor: '/chat/worklets/rawAudioProcessor.js', audioConcatProcessor: '/chat/worklets/audioConcatProcessor.js' };
   var VOICE_RESAMPLER = '/chat/worklets/libsamplerate.worklet.js';
+  // 14 Nov 2026 (Ian: crackle / sudden deep voice on his phone): '?voice=webrtc' on the page, once, switches this browser to
+  // ElevenLabs' WebRTC connection (the browser's own call audio: jitter buffer, packet-loss concealment, echo cancelling).
+  // '?voice=websocket' switches back. Default stays 'websocket' until Ian has compared the two.
+  var VOICE_CONNECTION = (function () {
+    var key = 'ush_voice_conn', v = null;
+    try { var q = new URLSearchParams(location.search).get('voice'); if (q === 'webrtc' || q === 'websocket') localStorage.setItem(key, q); } catch (e) {}
+    try { v = localStorage.getItem(key); } catch (e) {}
+    return v === 'webrtc' ? 'webrtc' : 'websocket';
+  })();
   var AGENT_ID = 'agent_9401m6wnk56heqnv0j95xcbx15td';
   var KEY = 'usc-chat-v2';
   var CONSENT_KEY = 'usc-ai-notice-v1';
@@ -230,7 +239,7 @@
         var SDK = both[0];
         return SDK.Conversation.startSession({
           agentId: both[1],
-          connectionType: 'websocket',
+          connectionType: VOICE_CONNECTION,
           workletPaths: VOICE_WORKLETS,
           libsampleratePath: VOICE_RESAMPLER,
           clientTools: {
