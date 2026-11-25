@@ -67,12 +67,24 @@
         "display": "(858) 293-8900",
         "tel": "tel:+18582938900"
       },
-      "hours_text": "Call for today's hours",
-      "hours": null,
+      "hours_text": "Mon–Sun 9 AM–7 PM",
+      "hours": {
+        "days": [
+          "Mo",
+          "Tu",
+          "We",
+          "Th",
+          "Fr",
+          "Sa",
+          "Su"
+        ],
+        "opens": "09:00",
+        "closes": "19:00"
+      },
       "page": "/locations/del-mar",
       "directions_url": "https://www.google.com/maps/dir/?api=1&destination=15770%20San%20Andres%20Drive%2C%20Del%20Mar%2C%20CA%2092014",
       "review_url": null,
-      "_confirm": "Hours unknown (B3) → 'Call for today's hours', no openingHours schema, Call dials directly. Own phone (O-B1), suite and Google profile unknown."
+      "_confirm": "Hours Mon–Sun 9 AM–7 PM, holiday hours the same: Katy, 25 Nov 2026 (via Ian). Own phone (O-B1), suite and Google profile unknown."
     }
   },
   "social": {

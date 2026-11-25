@@ -1,8 +1,8 @@
 ---
 /**
  * /policies — booking policies (copy 10 #policies; bot/knowledge/policies.md; blueprint §4.6, §4.8, §8.1, G-RwG, G5).
- * Only what the spa publishes. Unknowns stay out: no-show fee, which services need a deposit, late-arrival
- * shortening, minimum age, refunds beyond specials [CONFIRM: owner].
+ * Only what the spa publishes. Deposit, late arrival, minimum age, payment, tips, walk-ins and gift cards on specials:
+ * Katy's answers of 25 Nov 2026 (via Ian). Still unknown: no-show fee, refunds beyond specials [CONFIRM: owner].
  * The medical-treatments bullet from copy 10 is dropped (status gate).
  * The Google note is required before Reserve with Google goes live (G-RwG); it renders only once
  * site.flags.google_booking_live is on (QA m-7), so the site never advertises a channel that doesn't exist yet.
@@ -18,7 +18,6 @@ import { shortDate } from '../lib/dates';
 // Unconfirmed claims (QA M7/M8) and the Google note (QA m-7: only once Reserve with Google is live)
 const noFees = claimVisible('g0-gift-no-fees');
 const bothSpas = claimVisible('gift-both-spas');
-const notOnSpecials = claimVisible('gift-not-on-specials');
 const neverExpire = claimVisible('gift-never-expire');
 // Holiday gift card offer (site.json gift_offer). Upcoming within 30 days → hidden until its start date.
 const giftView = giftOffer({ days: 30 });
@@ -32,6 +31,8 @@ const toc = [
   { id: 'card-on-file', label: 'Card on file and deposits' },
   ...(google ? [{ id: 'google', label: 'Bookings made through Google' }] : []),
   { id: 'arriving', label: 'Arriving and running late' },
+  { id: 'paying', label: 'Paying and tips' },
+  { id: 'good-to-know', label: 'Good to know' },
   { id: 'health', label: 'Your health' },
   { id: 'specials', label: 'Specials' },
   { id: 'gift-cards', label: 'Gift cards' },
@@ -44,7 +45,7 @@ const toc = [
   eyebrow="Good to know before you book"
   h1="Booking policies"
   lede="The short version: please give us 24 hours' notice if you need to cancel, arrive a few minutes early, and tell us about anything that affects your treatment."
-  dateLine="Last updated October 24, 2026"
+  dateLine="Last updated November 25, 2026"
   toc={toc}
 >
   <section id="canceling" aria-labelledby="canceling-h">
@@ -56,8 +57,8 @@ const toc = [
   <section id="card-on-file" aria-labelledby="card-h">
     <h2 id="card-h">Card on file and deposits</h2>
     <ul>
-      <li>Online booking asks for a card on file. We don't take a deposit online.</li>
-      <li>Some services need a deposit or prepayment, especially on busy weekends and holidays.</li>
+      <li>Online booking asks for a card on file.</li>
+      <li>Each service needs a $50 deposit. It goes towards your final payment.</li>
       <li>We never ask for card details by chat, text or email. Cards are entered only on our Square booking page, or by phone with the spa.</li>
     </ul>
   </section>
@@ -74,6 +75,30 @@ const toc = [
     <h2 id="arriving-h">Arriving and running late</h2>
     <p>Please arrive a few minutes early to fill in a short form and settle in.</p>
     <p>Running late? Call or text us on <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"policies"}'>{site.phone.display}</a> so we can plan around it.</p>
+    <p>Up to 10 to 15 minutes late, we can usually still give you almost your full treatment. Any later, we'll need to reschedule, and the deposit is kept.</p>
+  </section>
+
+  <section id="paying" aria-labelledby="paying-h">
+    <h2 id="paying-h">Paying and tips</h2>
+    <ul>
+      <li>We take card, Venmo, Zelle, PayPal, cash, Spa Finder, CareCredit and Cherry.</li>
+      <li>Paying by card adds a 3% card fee. Other ways to pay have no card fee.</li>
+      <li>Tips are up to you. They're never required.</li>
+      <li>HSA and FSA cards can only be used through our Vagaro app, not through online booking on Square. Ask us for details.</li>
+    </ul>
+  </section>
+
+  <section id="good-to-know" aria-labelledby="good-h">
+    <h2 id="good-h">Good to know</h2>
+    <ul>
+      <li>We're by appointment only, with no walk-ins. Please book at least 60 minutes ahead.</li>
+      <li>Guests must be 14 or older. Guests under 18 come with a parent.</li>
+      <li>All our therapists are women.</li>
+      <li>Our team speaks English, Russian and Chinese.</li>
+      <li>We have several oils to choose from, including unscented. Just ask when you arrive.</li>
+      <li>Both spas are wheelchair accessible. Park around the spa; at Del Mar, park around Gym Santé.</li>
+      <li>Holiday hours are the same as our normal hours.</li>
+    </ul>
   </section>
 
   <section id="health" aria-labelledby="health-h">
@@ -89,7 +114,7 @@ const toc = [
       <li>Each special shows its price and end date. To book one, use the Book button on its card: it opens the special's own booking page, so there's no code.</li>
       <li>You can also call or text us and mention the special by name.</li>
       <li>Specials may change without notice.</li>
-      <li>One offer per visit. Specials can't be combined with other discounts{notOnSpecials && ' or gift cards'}.<ConfirmNote id="gift-not-on-specials" /></li>
+      <li>One offer per visit. Specials can't be combined with other discounts. You can pay for a special with a gift card.</li>
       <li>No cash value, and no refunds on unused sessions.</li>
       <li>To reschedule a special, choose a new date before the offer ends.</li>
       <li>Our 24-hour cancellation policy applies.</li>
@@ -102,7 +127,7 @@ const toc = [
     <ul>
       <li>{neverExpire && noFees ? 'eGift cards never expire and carry no fees. ' : neverExpire ? 'eGift cards never expire. ' : noFees ? 'eGift cards carry no fees. ' : ''}Balances under $15 can be cashed out.{neverExpire && <ConfirmNote id="gift-never-expire" />}{noFees && <ConfirmNote id="g0-gift-no-fees" />}</li>
       {bothSpas && <li>Gift cards can be used at both spas, for any service on the menu.<ConfirmNote id="gift-both-spas" /></li>}
-      {notOnSpecials && <li>Gift cards can't be used to pay for specials.<ConfirmNote id="gift-not-on-specials" /></li>}
+      <li>Gift cards can be used to pay for specials.</li>
       <li>To redeem, book online, then mention your gift card at checkout.</li>
       <li>You can check a balance or reload a card on our gift card page.</li>
       {gift && (

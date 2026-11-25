@@ -1,7 +1,7 @@
 ---
 /**
  * /contact (blueprint §4.10, copy 10 + 11, compliance G7).
- * - Both spas: address, phone, Text us, hours (San Diego as listed; Del Mar "Call for today's hours"), Book/See/Directions.
+ * - Both spas: address, phone, Text us, hours (San Diego 9–8, Del Mar 9–7, every day), Book/See/Directions.
  * - General form: name, phone or email, spa, interest, preferred day/time (optional), message (optional),
  *   "Please don't include health details.", hidden honeypot `website`. POSTs JSON to /api/lead:
  *   { name, contact, interest, location, preferred_datetime, notes, source: "website form", website }.
@@ -54,7 +54,7 @@ const faqs = [
   { q: 'Can I book by phone?', a: `Yes. Call ${site.phone.display}, or text us on the same number.` },
   { q: 'Do I need a card to book?', a: 'Yes. Online booking asks for a card on file.' },
   { q: "What's your cancellation policy?", a: 'Please cancel or reschedule at least 24 hours before your appointment. After that, a $50 fee may apply.' },
-  { q: 'Are you open on weekends?', a: `San Diego is open every day, ${site.spas.SD.hours_text.replace(/^Mon–Sun /, '')}. For Del Mar, please call for today's hours.` },
+  { q: 'Are you open on weekends?', a: `Yes, both spas are open every day. San Diego: ${site.spas.SD.hours_text.replace(/^Mon–Sun /, '')}. Del Mar: ${site.spas.DM.hours_text.replace(/^Mon–Sun /, '')}.` },
 ];
 
 const jsonLd = {

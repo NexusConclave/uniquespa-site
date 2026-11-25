@@ -67,7 +67,7 @@ const answers = [
   { q: 'What is Unique Spa House?', a: `${entitySentence()} It opened in ${OPENED}.` },
   { q: 'Where can I get a lymphatic drainage massage in San Diego?', a: `At both of our spas, in Mission Valley and in Del Mar: ${priceList('lymphatic')}. It's the only massage on our menu that includes gentle tummy work. <a href="/massage/lymphatic-drainage">About lymphatic drainage massage</a>.` },
   { q: 'How much is a massage?', a: `A 60 min Swedish massage is ${priceOf('swedish', 60)}, a 60 min deep tissue massage is ${priceOf('deep-tissue', 60)} and a 60 min lymphatic drainage massage is ${priceOf('lymphatic', 60)}. Every price is on our <a href="/menu">menu</a>.` },
-  { q: 'What are your opening hours?', a: `${sdF.label}: ${sdF.hours.replace('Mon–Sun', 'Monday to Sunday,')}. ${dmF.label}: please call ${site.phone.display} for today's hours.` },
+  { q: 'What are your opening hours?', a: `${sdF.label}: ${sdF.hours.replace('Mon–Sun', 'Monday to Sunday,')}. ${dmF.label}: ${dmF.hours.replace('Mon–Sun', 'Monday to Sunday,')}.` },
   { q: 'How do I book?', a: `Online at either spa through our Square booking page, which takes about a minute, or call ${site.phone.display}. Please give us 24 hours' notice if you need to cancel (<a href="/policies">booking policies</a>).` },
 ];
 
