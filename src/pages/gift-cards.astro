@@ -30,7 +30,6 @@ import { claimVisible, claimPending, giftCoversVerb, giftBothSpasConfirmed } fro
 // "No fees" / "covers a whole visit" wait on G0 (QA M8); "both spas" and "not on specials" on O-P5 (QA M7).
 const noFees = claimVisible('g0-gift-no-fees');
 const bothSpas = claimVisible('gift-both-spas');
-const notOnSpecials = claimVisible('gift-not-on-specials');
 const neverExpire = claimVisible('gift-never-expire');
 // Copy that can't carry a draft label (meta, running text, tile labels) states only CONFIRMED claims (QA follow-up Q3b).
 const bothSpasConfirmed = giftBothSpasConfirmed();
@@ -201,7 +200,7 @@ const squareName = (site as { square_gift_name?: string | null }).square_gift_na
     <ul class="gc-terms__list">
       <li><strong>{neverExpire && noFees ? 'eGift cards never expire and carry no fees. ' : neverExpire ? 'eGift cards never expire. ' : noFees ? 'eGift cards carry no fees. ' : ''}Balances under $15 can be cashed out.</strong>{neverExpire && <ConfirmNote id="gift-never-expire" />}{noFees && <ConfirmNote id="g0-gift-no-fees" />}</li>
       {bothSpas && <li>Gift cards can be used at both spas, for any service on the menu.<ConfirmNote id="gift-both-spas" /></li>}
-      {notOnSpecials && <li>Gift cards can't be used to pay for specials.<ConfirmNote id="gift-not-on-specials" /></li>}
+      <li>Gift cards can be used to pay for specials.</li>
       <li>Lost the email or text? Call us on <a href={site.phone.tel} data-track="call_click" data-track-props='{"placement":"gift-terms"}'>{site.phone.display}</a> and we'll help.</li>
     </ul>
     <p class="gc-terms__more"><a class="link-arrow" href="/policies#gift-cards">All booking policies<Icon name="arrow-right" /></a></p>

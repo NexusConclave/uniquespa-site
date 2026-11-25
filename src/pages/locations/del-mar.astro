@@ -2,7 +2,7 @@
 /**
  * /locations/del-mar — location page (blueprint §4.2; copy 10b minus med spa lines). "The recovery room":
  * sports, deep tissue, lymphatic and Wrap Me Up up front, plus the honest line about the space.
- * Hours unknown → "Call for today's hours" and NO openingHours in schema. Plain "Get directions" link (no map
+ * Hours Mon–Sun 9 AM–7 PM (Katy, 25 Nov 2026) → openingHours in schema via spaNode. Plain "Get directions" link (no map
  * embed). Services generated with onlySpa="DM", so there is never a Del Mar link to a San Diego-only item.
  * Policies note on Google bookings. Hidden until the owner answers [CONFIRM]: suite, own phone, parking,
  * team, photos, a verified Google profile (no review link yet).
@@ -53,7 +53,7 @@ const faqs = [
   wrap && offeredAt(wrap, SPA) && { q: 'Can I book a body wrap here?', a: `Yes. Wrap Me Up is ${onlyHere.some((x) => x.id === 'wrap-me-up') ? 'only at Del Mar' : 'bookable here'}: ${priceOf('wrap-me-up', wrap.options[0].minutes)} for ${wrap.options[0].label}.${wrapPlus ? ` You can add a 60 min massage: ${priceOf('wrap-me-up', wrapPlus.minutes)}.` : ''}` },
   { q: 'Can I book a massage with the owner here?', a: `Yes. Book any 60, 90 or 120 min massage with Katy at either spa: ${priceList('katy', SPA)}.` },
   couples && !offeredAt(couples, SPA) && { q: 'Can I book couples massage in Del Mar?', a: `Couples massage is booked at our <a href="${o.page}">San Diego spa</a>.` },
-  { q: 'What are your Del Mar hours?', a: `Please call us on ${site.phone.display} for today's hours. We'll add them here once they're confirmed.` },
+  { q: 'What are your Del Mar hours?', a: `We're open Monday to Sunday, 9 AM to 7 PM, holidays included. Call ${site.phone.display} with any questions.` },
   // [CONFIRM] O-B1: owner approves this wording, and that the setting is permanent (a Google review says clients weren't told before they arrived).
   spaceOk && { q: 'What is the Del Mar spa like?', a: 'Our Del Mar studio is a private treatment room inside a performance-training facility. Call us if you would like directions to the room.' },
 ].filter(Boolean) as Array<{ q: string; a: string }>;
@@ -62,7 +62,7 @@ const faqs = [
 const here = spaFacts(SPA);
 const massagesHere = ['lymphatic', 'sports', 'deep-tissue', 'swedish'].map((id) => findLiveService(id)).filter((x) => x && offeredAt(x, SPA)).map((x) => inText(displayName(x!)));
 const answers = [
-  { q: 'Where is Unique Spa House in Del Mar?', a: `At ${here.address}. Call ${here.phone} for today's hours.` },
+  { q: 'Where is Unique Spa House in Del Mar?', a: `At ${here.address}. Parking costs nothing: park around Gym Santé. Open ${here.hours.replace('Mon–Sun', 'Monday to Sunday,')}.` },
   { q: 'What can I book at the Del Mar spa?', a: `Massage, including ${listJoin(massagesHere)}${facialsHere.length ? `, ${facialsHere.length === 1 ? 'one facial' : `${facialsHere.length} facials`}` : ''}${wrap && offeredAt(wrap, SPA) ? ' and the Wrap Me Up body wrap' : ''}. <a href="#services">See every treatment and price</a>.` },
 ];
 
@@ -74,7 +74,7 @@ const catalog = {
 };
 const jsonLd = graph(
   orgNode(),
-  spaNode(SPA, { hasOfferCatalog: catalog, priceRange: '$$' }),   // no openingHours: Del Mar hours unknown
+  spaNode(SPA, { hasOfferCatalog: catalog, priceRange: '$$' }),   // openingHours from site.json (Katy, 25 Nov 2026)
   breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Our spas', path: '/#spas' }, { name: s.long_name, path: PATH }]),
   faqNode([...answers, ...faqs]),
 );
@@ -96,7 +96,7 @@ const jsonLd = graph(
     {spaceOk
       ? <p class="space"><strong>About the space:</strong> our Del Mar studio is a private treatment room inside a performance-training facility.<ConfirmNote id="dm-space" /></p>
       : <p class="space"><strong>First visit?</strong> Call us before you come and we'll tell you how to find the room.</p>}
-    {/* [CONFIRM] O-B1: suite number, Del Mar's own phone, and its hours (9–6 or 9–8). Until then: "Call for today's hours". */}
+    {/* [CONFIRM] O-B1: suite number and Del Mar's own phone. Hours confirmed by Katy, 25 Nov 2026. */}
     <dl class="facts">
       <div><dt>Address</dt><dd><address>{s.street}<br />{s.city}, {s.region} {s.postal}</address></dd></div>
       <div><dt>Hours</dt><dd>{s.hours_text}</dd></div>

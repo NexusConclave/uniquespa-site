@@ -7,8 +7,7 @@
  * - Each card: "Ends {date}" + includes (or "Save $X vs booking separately" — only when every part is a live
  *   menu item at that spa, computed in lib/offers.ts), location pills, Book per spa = the Square special-price
  *   item by deep link (no codes). Terms under each card. Never "reg.", "valued at" or "free".
- * - No "Give it as a gift" on these cards: the published terms say specials can't be paid with gift cards
- *   [CONFIRM: gift cards on specials (O-P5)].
+ * - Gift cards can pay for specials (Katy, 25 Nov 2026: "gift cards are same like money"). No "Give it as a gift" button on these cards.
  * - With nothing live (or once every card has expired client-side), the empty state shows, plus gift cards and
  *   Refer / Rewards (only once their site.json flags are on — /refer is never linked before that).
  */
@@ -103,7 +102,7 @@ const jsonLd = ldOffers.length
         <li class="sp__item" data-starts={o.starts} data-ends={o.ends}>
           <SpecialCard offer={o} headingLevel={2} showGift={false} placement="special">
             <p class="sp__terms">
-              Ends {longDate(o.ends)}. One offer per visit. Can't be combined with other discounts or gift cards.
+              Ends {longDate(o.ends)}. One offer per visit. Can't be combined with other discounts. You can pay with a gift card.
               If you reschedule, pick a new date before the offer ends. <a href="/policies#specials">Terms</a>
             </p>
           </SpecialCard>
@@ -113,7 +112,7 @@ const jsonLd = ldOffers.length
         <li class="sp__item" data-starts={o.starts} data-ends={o.ends} data-reveal-on-start hidden>
           <SpecialCard offer={o} headingLevel={2} showGift={false} placement="special">
             <p class="sp__terms">
-              Ends {longDate(o.ends)}. One offer per visit. Can't be combined with other discounts or gift cards.
+              Ends {longDate(o.ends)}. One offer per visit. Can't be combined with other discounts. You can pay with a gift card.
               If you reschedule, pick a new date before the offer ends. <a href="/policies#specials">Terms</a>
             </p>
           </SpecialCard>
@@ -179,7 +178,7 @@ const jsonLd = ldOffers.length
         </li>
         <li>
           <h3>The small print</h3>
-          <p>Specials may change without notice. One offer per visit, and they can't be combined with other discounts or gift cards. No cash value. Our 24-hour cancellation policy applies. <a href="/policies#specials">All terms</a></p>
+          <p>Specials may change without notice. One offer per visit, and they can't be combined with other discounts. Gift cards can be used to pay for them. No cash value. Our 24-hour cancellation policy applies. <a href="/policies#specials">All terms</a></p>
         </li>
       </ul>
     </div>
