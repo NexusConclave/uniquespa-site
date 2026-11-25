@@ -239,7 +239,7 @@
         },
         {
           "minutes": 90,
-          "price": 225,
+          "price": 215,
           "locations": [
             "SD",
             "DM"
@@ -247,7 +247,7 @@
         },
         {
           "minutes": 120,
-          "price": 275,
+          "price": 260,
           "locations": [
             "SD"
           ]
@@ -564,7 +564,7 @@
       "options": [
         {
           "minutes": 60,
-          "price": 165,
+          "price": 180,
           "locations": [
             "SD",
             "DM"
@@ -572,7 +572,7 @@
         },
         {
           "minutes": 90,
-          "price": 225,
+          "price": 245,
           "locations": [
             "SD",
             "DM"
@@ -580,7 +580,7 @@
         },
         {
           "minutes": 120,
-          "price": 275,
+          "price": 300,
           "locations": [
             "SD",
             "DM"
