@@ -128,7 +128,8 @@ for (const b of BUILDS) {
     check(`${b.name}: no Cloudflare beacon anywhere`, !/cloudflareinsights|data-cf-beacon/.test(all));
     check(`${b.name}: no event endpoint anywhere`, !all.includes('/api/event'));
     check(`${b.name}: no token-shaped value in pages`, !all.includes(FAKE_TOKEN));
-    check(`${b.name}: privacy says no analytics`, /Visit statistics:<\/strong> none at the moment/.test(privacy) && !/Cloudflare:<\/strong>/.test(privacy));
+    // Owner OK (Ian, 25 Nov 2026): the launch privacy page names Cloudflare as the host ("Cloudflare:</strong> hosting…"), so match the analytics line itself.
+    check(`${b.name}: privacy says no analytics`, /Visit statistics:<\/strong> none at the moment/.test(privacy) && !/<strong>Cloudflare(?: \(visit statistics\))?:<\/strong> cookieless/.test(privacy));
   } else {
     const pages = files.filter((f) => f.endsWith('.html'));
     const withBeacon = pages.filter((f) => readFileSync(f, 'utf8').includes('static.cloudflareinsights.com/beacon.min.js'));
