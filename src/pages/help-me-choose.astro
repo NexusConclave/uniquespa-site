@@ -1,0 +1,125 @@
+---
+/**
+ * /help-me-choose — V2 "what do you need?" page. Starts from how a guest wants to feel, then points to the
+ * treatments on our menu that fit. Built from the "Who it's for" lists and FAQs already on the hubs.
+ *
+ * Not a diagnosis and no health claims: each need is a preference, never a condition, and the copy says so.
+ * Every row is a live catalog service (findLiveService), so a status change can't leak; prices, lengths,
+ * spas and booking links come only from lib/catalog.ts.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from '../components/Section.astro';
+import PageIntro from '../components/PageIntro.astro';
+import ServiceRow from '../components/ServiceRow.astro';
+import QuickAnswers from '../components/QuickAnswers.astro';
+import AskUni from '../components/AskUni.astro';
+import HealthNote from '../components/HealthNote.astro';
+import Icon from '../components/Icon.astro';
+import { findLiveService } from '../lib/catalog';
+import { priceList, summaryOf, displayName } from '../lib/pageHelpers';
+import { graph, orgNode, spaNode, breadcrumbNode, faqNode, webPageNode, websiteNode } from '../lib/schema';
+import '../styles/pages-b.css';
+
+const PATH = '/help-me-choose';
+const H1 = 'Which treatment is right for me?';
+const REVIEWED = '2026-11-13';
+
+interface Need { id: string; title: string; intro: string; ids: string[] }
+const NEEDS: Need[] = ([
+  { id: 'switch-off', title: 'I want to switch off', intro: 'Slow, comfortable massage, with nothing to think about for an hour or more.', ids: ['swedish', 'relaxing', 'hot-stone'] },
+  { id: 'tight', title: 'My neck, shoulders or back feel tight', intro: 'Firmer work on knots and tight spots. You stay in charge of the pressure.', ids: ['deep-tissue', 'therapeutic'] },
+  { id: 'train', title: 'I train', intro: 'Firm, focused work around the muscles you use most.', ids: ['sports', 'thai'] },
+  { id: 'gentle', title: "I'd like something very gentle", intro: 'For anyone who finds firm pressure uncomfortable.', ids: ['lymphatic', 'foot'] },
+  { id: 'pregnancy', title: "I'm pregnant, or a new parent", intro: 'Please check with your doctor or midwife first, and tell us when you book.', ids: ['prenatal', 'postnatal'] },
+  { id: 'together', title: "We'd like time together", intro: 'Two tables in a private room, then time together afterwards.', ids: ['couples'] },
+  { id: 'skin-dry', title: 'My skin feels dull, dry or tired', intro: 'Every facial starts with a short skin check and a chat about your goals.', ids: ['express-hydration', 'signature-facial'] },
+  { id: 'skin-congested', title: 'My skin is congested or breakout-prone', intro: 'A careful deep clean, explained step by step before we start.', ids: ['pure-detox', 'babor-deep-cleanse'] },
+  { id: 'face', title: 'I hold tension in my jaw and face', intro: 'Hands-on massage for the face, jawline and neck.', ids: ['babor-sculpt-lift', 'face-sculpture', 'joelle-ciocco'] },
+  { id: 'warm', title: 'I want to be warm and cocooned', intro: 'Warmth and time to rest.', ids: ['wrap-me-up', 'hot-stone'] },
+] as Need[]).map((n) => ({ ...n, ids: n.ids.filter((id) => findLiveService(id)) })).filter((n) => n.ids.length);
+
+const katy = findLiveService('katy');
+
+// Answer-first, word for word from the /massage and /facials FAQs.
+const answers = [
+  { q: 'Which massage is right for me?', a: 'New to massage? Try Swedish. Want firmer work on knots? Try deep tissue. One sore spot? Try therapeutic. After training? Try sports. Want something very gentle? Try lymphatic. Still not sure? Your therapist will guide you.' },
+  { q: 'Which facial is right for me?', a: "Congested skin? Try the Pure Cleanse and Rebalance facial, or the BABOR Deep Cleanse & Glow ritual. Dry or tired skin? Try Deep express hydration. Want firm, hands-on face massage? Try the BABOR Sculpt & Lift ritual. Not sure? Book the Signature custom facial and we'll tailor it on the day." },
+].filter((a) => a);
+
+const jsonLd = graph(
+  webPageNode(PATH, H1, { dateModified: REVIEWED }),
+  websiteNode(), orgNode(), spaNode('SD'), spaNode('DM'),
+  breadcrumbNode([{ name: 'Home', path: '/' }, { name: 'Help me choose', path: PATH }]),
+  faqNode(answers),
+);
+---
+<BaseLayout
+  title="Which Treatment Is Right for Me? | Unique Spa House"
+  description="Not sure what to book? Start with how you want to feel, and see which massage, facial or body treatment fits, at our San Diego and Del Mar spas."
+  path={PATH}
+  jsonLd={jsonLd}
+>
+  <PageIntro
+    crumbs={[{ name: 'Home', href: '/' }, { name: 'Help me choose' }]}
+    eyebrow="Help me choose"
+    title="Which treatment is <em>right</em> for me?"
+    lede="Start with how you want to feel when you leave, not with the name on the menu."
+  >
+    <p>Pick the line that sounds most like you. It's a starting point, not a diagnosis: your therapist confirms the choice with you on the day.</p>
+    <nav aria-label="What do you need?">
+      <ul class="b-jump" role="list">
+        {NEEDS.map((n) => <li><a href={`#${n.id}`}>{n.title}</a></li>)}
+        <li><a href="#not-sure">I'm still not sure</a></li>
+      </ul>
+    </nav>
+  </PageIntro>
+
+  <Section tone="paper" labelledby="answers-title" pad="tight">
+    <QuickAnswers items={answers} title="The short answer" />
+  </Section>
+
+  {NEEDS.map((n, i) => (
+    <Section id={n.id} labelledby={`${n.id}-title`} tone={i % 2 ? 'paper' : 'cream'}>
+      <div class="b-split">
+        <div class="b-split__head">
+          <h2 id={`${n.id}-title`}>{n.title}</h2>
+          <p>{n.intro}</p>
+        </div>
+        <div class="b-split__body">
+          <div class="b-rows">
+            {n.ids.map((id) => <ServiceRow service={id} title={displayName(id)} summary={summaryOf(id)} placement="help-me-choose" linkFlagship showAllPrices />)}
+          </div>
+        </div>
+      </div>
+    </Section>
+  ))}
+
+  <Section id="not-sure" labelledby="not-sure-title" tone={NEEDS.length % 2 ? 'paper' : 'cream'}>
+    <div class="b-split">
+      <div class="b-split__head">
+        <h2 id="not-sure-title">I'm still not <em>sure</em></h2>
+      </div>
+      <div class="b-split__body choose-tail">
+        <dl class="choose-list">
+          {katy && <div><dt>Want a mix?</dt><dd>Book <a href="/massage/with-katy">massage with Katy</a>, our owner. Tell her what you need at the start, and she shapes the session around you. It's {priceList('katy')}.</dd></div>}
+          <div><dt>Want to see everything?</dt><dd>Every treatment, length and price is on <a href="/menu">our full menu</a>.</dd></div>
+          <div><dt>Buying for someone else?</dt><dd>A <a href="/gift-cards">gift card</a> lets them choose for themselves.</dd></div>
+        </dl>
+        <HealthNote />
+        <AskUni />
+        <p class="b-note">Prices as currently listed on our online booking menu. The booking page always shows the latest price. Booking opens in a new tab.</p>
+        <a class="link-arrow" href="/menu">See the full menu<Icon name="arrow-right" /></a>
+      </div>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  .choose-tail { display: grid; gap: 1.5rem; }
+  .choose-list { display: grid; margin: 0; }
+  .choose-list div { display: grid; gap: 0.4rem; padding-block: 1.1rem 1.25rem; border-top: 1px solid var(--hairline); }
+  .choose-list div:last-child { border-bottom: 1px solid var(--hairline); }
+  .choose-list dt { font-family: var(--font-serif); font-size: 1.45rem; line-height: 1.2; }
+  .choose-list dd { margin: 0; }
+  .choose-list dd a { font-weight: 500; }
+</style>

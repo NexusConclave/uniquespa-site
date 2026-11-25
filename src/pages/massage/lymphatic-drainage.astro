@@ -21,6 +21,7 @@ import HealthNote from '../../components/HealthNote.astro';
 import LastReviewed from '../../components/LastReviewed.astro';
 import Icon from '../../components/Icon.astro';
 import QuickAnswers from '../../components/QuickAnswers.astro';
+import QuickFacts from '../../components/QuickFacts.astro';
 import GuideLink from '../../components/GuideLink.astro';
 import { Picture } from 'astro:assets';
 import { getService, formatMinutes, giftUrl, SPAS } from '../../lib/catalog';
@@ -33,6 +34,7 @@ import { priceOf, priceList, lengthsOf, offeredAt } from '../../lib/pageHelpers'
 import { graph, orgNode, spaNode, serviceNode, breadcrumbNode, faqNode, spaId, webPageNode, websiteNode } from '../../lib/schema';
 import { spaFacts } from '../../lib/entity';
 import { liveAddOns, formatPrice } from '../../lib/catalog';
+import { priceFrom } from '../../lib/treatments';
 import '../../styles/pages-b.css';
 
 const REVIEWED = '2026-10-24';
@@ -69,6 +71,17 @@ const answers = [
   { q: 'How is it different from other massages?', a: "The strokes are very light, slow and rhythmic, and move the skin rather than pressing into the muscle. It's the only massage on our menu that includes gentle tummy work, always with your OK first." },
   addOn && { q: 'Can I add anything to my session?', a: `Yes. Add ${addOn.name} to any massage: ${addOn.options.map((o) => `${formatMinutes(o.minutes)} for ${formatPrice(o.price)}`).join(' or ')}, chosen when you book.` },
 ].filter(Boolean) as Array<{ q: string; a: string }>;
+
+// At a glance (V2): catalog facts, then lines already on this page.
+const facts = [
+  { label: 'Length', value: lengthsOf('lymphatic') },
+  { label: 'Price', value: priceFrom(lymph) },
+  { label: 'Where', value: bothSpas ? 'San Diego (Mission Valley) and Del Mar' : where.map((w) => w.label).join(' and ') },
+  { label: 'Pressure', value: 'Very light, slow and rhythmic.' },
+  { label: 'Good for', value: 'Anyone who wants a very gentle, calming massage.' },
+  { label: 'What to wear', value: 'Undress to your comfort level. You stay covered with a sheet.' },
+  { label: 'Afterwards', value: 'Most people simply feel relaxed. Soreness is unusual.' },
+];
 
 const service = serviceNode(lymph, {
   path: PATH,
@@ -125,6 +138,10 @@ const jsonLd = graph(
       </div>
     </Section>
   )}
+
+  <Section labelledby="facts-title" pad="tight">
+    <QuickFacts items={facts} title="Lymphatic drainage massage at a glance" />
+  </Section>
 
   <Section tone="paper" labelledby="answers-title" pad="tight">
     <QuickAnswers items={answers} title="Lymphatic drainage massage in short" />

@@ -1,0 +1,31 @@
+---
+/**
+ * QuickFacts — the "At a glance" box on a treatment page (V2): a short label/value list a guest can scan in
+ * a few seconds (length, price, where, pressure, what to wear, afterwards).
+ * Length, price and spa values must come from lib/catalog.ts (the page passes them in); the rest is plain copy.
+ * No result or health claims: say what the treatment is and how it feels.
+ */
+interface Props { items: Array<{ label: string; value: string }>; title?: string; id?: string; class?: string }
+const { items, title = 'At a glance', id = 'facts-title', class: cls } = Astro.props;
+---
+<div class:list={['qf', cls]}>
+  <h2 id={id} class="qf__title">{title}</h2>
+  <dl class="qf__list">
+    {items.map((i) => (
+      <div class="qf__item">
+        <dt class="qf__label">{i.label}</dt>
+        <dd class="qf__value">{i.value}</dd>
+      </div>
+    ))}
+  </dl>
+</div>
+<style>
+  .qf { display: grid; gap: clamp(1rem, 2.5vw, 1.5rem); }
+  .qf__title { font-size: var(--fs-h3); }
+  .qf__list { display: grid; gap: 0; margin: 0; grid-template-columns: 1fr; border-top: 1px solid var(--hairline); }
+  @media (min-width: 640px) { .qf__list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 2.5rem; } }
+  @media (min-width: 1100px) { .qf__list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .qf__item { display: grid; gap: 0.2rem; align-content: start; padding-block: 0.85rem 0.95rem; border-bottom: 1px solid var(--hairline); }
+  .qf__label { font-size: var(--fs-meta); font-weight: 500; color: var(--text-muted); }
+  .qf__value { margin: 0; max-width: 40ch; }
+</style>

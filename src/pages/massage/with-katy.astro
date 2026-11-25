@@ -18,6 +18,8 @@ import AskUni from '../../components/AskUni.astro';
 import HealthNote from '../../components/HealthNote.astro';
 import LastReviewed from '../../components/LastReviewed.astro';
 import Icon from '../../components/Icon.astro';
+import QuickFacts from '../../components/QuickFacts.astro';
+import { priceFrom } from '../../lib/treatments';
 import { getService, formatPrice, spasFor } from '../../lib/catalog';
 import { review } from '../../lib/reviews';
 import { giftCoversVerb } from '../../lib/confirm';
@@ -80,6 +82,17 @@ const jsonLd = graph(
       <ArchFrame asset="hands-4x5" ratio="4 / 5" sizes="(min-width: 960px) 30vw, 70vw" loading="eager" class="katy-arch" />
     </Fragment>
   </PageIntro>
+
+  <Section labelledby="facts-title" pad="tight">
+    <QuickFacts title="Massage with Katy at a glance" items={[
+      { label: 'Length', value: lengthsOf('katy') },
+      { label: 'Price', value: priceFrom(katy) },
+      { label: 'Where', value: spas.length === 2 ? 'San Diego (Mission Valley) and Del Mar' : `${spaName(spas[0])} only` },
+      { label: 'With', value: 'Katy, our owner.' },
+      { label: 'Styles', value: 'Lymphatic, deep tissue, sports, therapeutic, relaxing or anti-cellulite, or a mix.' },
+      { label: 'What to wear', value: 'Undress to your comfort level. You stay covered with a sheet.' },
+    ]} />
+  </Section>
 
   <Section labelledby="styles-title" tone="paper">
     <div class="b-split">

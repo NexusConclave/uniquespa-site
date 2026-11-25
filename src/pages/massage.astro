@@ -22,7 +22,7 @@ import { findLiveService, spaBookingUrl, giftUrl, SPAS } from '../lib/catalog';
 import { activeOffers } from '../lib/offers';
 import { asset, widthsFor, objectPosition } from '../lib/images';
 import { site } from '../lib/site';
-import { priceOf, priceList, summaryOf, displayName } from '../lib/pageHelpers';
+import { priceOf, priceList, summaryOf, displayName, inText } from '../lib/pageHelpers';
 import { graph, orgNode, spaNode, serviceNode, breadcrumbNode, faqNode } from '../lib/schema';
 import '../styles/pages-b.css';
 
@@ -95,6 +95,7 @@ const jsonLd = graph(
       <div class="b-split__head">
         <h2 id="who-title">Who it's for</h2>
         <p><strong>Not sure which massage?</strong> Your therapist will help you choose.</p>
+        <a class="link-arrow" href="/help-me-choose">Help me choose<Icon name="arrow-right" /></a>
       </div>
       <div class="b-split__body">
         <ul class="b-ticks">
@@ -127,7 +128,9 @@ const jsonLd = graph(
           {g.ids.map((id) => (
             <li>
               <ServiceCard service={id} class="b-card" title={displayName(id)} summary={summaryOf(id)} placement="hub">
-                {g.flagship && <a class="link-arrow" href={g.flagship.href}>{g.flagship.label}<span class="sr-only"> (prices and FAQs)</span><Icon name="arrow-right" /></a>}
+                {g.flagship
+                  ? <a class="link-arrow" href={g.flagship.href}>{g.flagship.label}<span class="sr-only"> (prices and FAQs)</span><Icon name="arrow-right" /></a>
+                  : findLiveService(id)?.flagship && <a class="link-arrow" href={findLiveService(id)!.flagship!}>About {inText(displayName(id))}<span class="sr-only"> (prices and FAQs)</span><Icon name="arrow-right" /></a>}
               </ServiceCard>
             </li>
           ))}

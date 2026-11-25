@@ -147,8 +147,8 @@ def new_page(browser, base, book_replies, chat_bodies, book_bodies, config=None)
 def open_chat(page, base):
     page.goto(base + '/', wait_until='load')
     page.evaluate("document.querySelector('[data-open=\"uni\"]').click()")
-    wait_for(page, '() => !!(window.UniChat && document.querySelector(".usc-start"))')
-    page.click('.usc-start')
+    # No "Start chat" step any more (owner request, 14 Nov 2026): Ask Uni opens straight on the live chat.
+    wait_for(page, '() => !!(window.UniChat && window.UniChat.isOpen() && document.querySelector(".usc-input"))')
 
 
 def csp_errors(page, console):

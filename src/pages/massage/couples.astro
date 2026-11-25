@@ -21,6 +21,7 @@ import GiftCardVisual from '../../components/GiftCardVisual.astro';
 import SpaDoor from '../../components/SpaDoor.astro';
 import Button from '../../components/Button.astro';
 import Icon from '../../components/Icon.astro';
+import QuickFacts from '../../components/QuickFacts.astro';
 import { getService, formatMinutes, formatPrice, giftUrl, spasFor } from '../../lib/catalog';
 import { site } from '../../lib/site';
 import { giftCoversVerb } from '../../lib/confirm';
@@ -87,6 +88,17 @@ const jsonLd = graph(
       )}
     </Fragment>
   </PageIntro>
+
+  <Section labelledby="facts-title" pad="tight">
+    <QuickFacts title="Couples massage at a glance" items={[
+      { label: 'Length', value: `${listJoin(couples.options.map((o) => lengthOf(o))).replace(' and ', ' or ')} massage, then 30 minutes together` },
+      { label: 'Price', value: couples.options.map((o) => `${lengthOf(o)} ${priceOf('couples', o.minutes)}`).join(' · ') },
+      { label: 'Where', value: spasFor(couples).length === 1 ? `${site.spas[spasFor(couples)[0]].long_name} only` : 'San Diego (Mission Valley) and Del Mar' },
+      { label: 'The room', value: 'Two tables, side by side, in a private room.' },
+      { label: 'Pressure', value: 'Set for each of you.' },
+      { label: 'Included', value: 'Tea or coffee, fresh fruit and cheese.' },
+    ]} />
+  </Section>
 
   <Section labelledby="visit-title" tone="paper">
     <div class="b-split">

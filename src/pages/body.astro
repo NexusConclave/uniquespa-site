@@ -82,7 +82,9 @@ const jsonLd = graph(
         </div>
         <div class="b-split__body">
           {/* [CONFIRM] copy 05: what the wrap includes, so we can add one line. */}
-          <ServiceCard service="wrap-me-up" showTitle={false} summary={summaryOf('wrap-me-up')} placement="hub" class="b-card" />
+          <ServiceCard service="wrap-me-up" showTitle={false} summary={summaryOf('wrap-me-up')} placement="hub" class="b-card">
+            {wrap.flagship && <a class="link-arrow" href={wrap.flagship}>About Wrap Me Up<span class="sr-only"> (prices and FAQs)</span><Icon name="arrow-right" /></a>}
+          </ServiceCard>
         </div>
       </div>
     </Section>

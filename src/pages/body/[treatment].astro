@@ -1,0 +1,15 @@
+---
+/**
+ * /body/{treatment} — V2 full treatment pages for the body group (copy: src/lib/treatments.ts; paths:
+ * src/data/treatment-paths.json). Hand-built pages in this folder (e.g. lymphatic-drainage) take priority over this route.
+ * A page exists only while its service is live.
+ */
+import TreatmentPage from '../../components/TreatmentPage.astro';
+import { treatmentsIn, type Treatment } from '../../lib/treatments';
+
+export function getStaticPaths() {
+  return treatmentsIn('body').map((t) => ({ params: { treatment: t.path.split('/').pop() }, props: { treatment: t } }));
+}
+const { treatment } = Astro.props as { treatment: Treatment };
+---
+<TreatmentPage treatment={treatment} />
