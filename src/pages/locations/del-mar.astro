@@ -62,7 +62,7 @@ const faqs = [
 const here = spaFacts(SPA);
 const massagesHere = ['lymphatic', 'sports', 'deep-tissue', 'swedish'].map((id) => findLiveService(id)).filter((x) => x && offeredAt(x, SPA)).map((x) => inText(displayName(x!)));
 const answers = [
-  { q: 'Where is Unique Spa House in Del Mar?', a: `At ${here.address}. Park around Gym Santé. Open ${here.hours.replace('Mon–Sun', 'Monday to Sunday,')}.` },
+  { q: 'Where is Unique Spa House in Del Mar?', a: `At ${here.address}. Parking costs nothing: park around Gym Santé. Open ${here.hours.replace('Mon–Sun', 'Monday to Sunday,')}.` },
   { q: 'What can I book at the Del Mar spa?', a: `Massage, including ${listJoin(massagesHere)}${facialsHere.length ? `, ${facialsHere.length === 1 ? 'one facial' : `${facialsHere.length} facials`}` : ''}${wrap && offeredAt(wrap, SPA) ? ' and the Wrap Me Up body wrap' : ''}. <a href="#services">See every treatment and price</a>.` },
 ];
 
