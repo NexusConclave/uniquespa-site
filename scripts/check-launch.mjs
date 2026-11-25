@@ -9,7 +9,7 @@
 // unique on each page. (Byte-for-byte reproducible builds: npm run test:repro.)
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { buildMode, tempAssets, stagingUrl } from '../src/lib/launch.mjs';
+import { buildMode, tempAssets, tempPhotosApproved, stagingUrl } from '../src/lib/launch.mjs';
 import { inlineScriptHashes } from '../integrations/postbuild.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
@@ -25,8 +25,11 @@ const check = (name, ok, detail = '') => { if (ok) pass++; else { fail++; consol
 
 // ---------------------------------------------------------------- review #3: no temp image slots in a launch build
 if (MODE.launch) {
-  const temp = tempAssets(JSON.parse(readFileSync(join(root, 'src/data/asset-manifest.json'), 'utf8')));
-  check('launch: no asset-manifest.json slot is temp:true, photo-less or alt_todo', temp.length === 0, temp.map((a) => a.id).join(', '));
+  const manifest = JSON.parse(readFileSync(join(root, 'src/data/asset-manifest.json'), 'utf8'));
+  const temp = tempAssets(manifest);
+  const approved = tempPhotosApproved(manifest);
+  check('launch: no asset-manifest.json slot is temp:true, photo-less or alt_todo (or the owner approved shipping them)', temp.length === 0 || approved, temp.map((a) => a.id).join(', '));
+  if (temp.length && approved) console.log(`! launch: ${temp.length} interim image slot(s) shipping under the owner's approval (${manifest.launch_temp_photos_approved.date}): ${temp.map((a) => a.id).join(', ')}`);
 }
 const walk = (d) => readdirSync(d).flatMap((f) => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
 const files = walk(dist);

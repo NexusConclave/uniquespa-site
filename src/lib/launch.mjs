@@ -63,6 +63,17 @@ export function tempAssets(manifest) {
 }
 
 /**
+ * Owner override (Ian, with Katy's go-live, 25 Nov 2026): asset-manifest.json "launch_temp_photos_approved"
+ * { by, date, why } lets a launch build ship the interim images. All three fields are required, so the gate
+ * can't be switched off by accident; photo-intake.mjs and the staging checks still list every temp slot.
+ * @param {{ launch_temp_photos_approved?: { by?: string, date?: string, why?: string } }} manifest
+ */
+export function tempPhotosApproved(manifest) {
+  const a = manifest.launch_temp_photos_approved;
+  return !!(a && a.by && /^\d{4}-\d{2}-\d{2}$/.test(a.date || '') && a.why);
+}
+
+/**
  * Throws with a readable list of the temp slots when `mode.launch` is on. Called from astro.config.mjs, so a launch
  * build stops before anything is generated.
  * @param {{ launch: boolean }} mode
@@ -72,6 +83,11 @@ export function assertLaunchAssets(mode, manifest) {
   if (!mode.launch) return;
   const temp = tempAssets(manifest);
   if (!temp.length) return;
+  if (tempPhotosApproved(manifest)) {
+    const a = manifest.launch_temp_photos_approved;
+    console.warn(`[launch] ${temp.length} interim image slot(s) shipping under the owner's recorded approval (${a.by}, ${a.date}): ${temp.map((t) => t.id).join(', ')}. Replace them, then remove launch_temp_photos_approved.`);
+    return;
+  }
   const lines = temp.map((a) => `  - ${a.id.padEnd(20)} ${a.file}  → replace with: ${a.replace_with}`);
   throw new Error(
     `LAUNCH BLOCKED: ${temp.length} image slot(s) in src/data/asset-manifest.json are not launch-ready (temp:true, no photo, or alt to fix).\n` +

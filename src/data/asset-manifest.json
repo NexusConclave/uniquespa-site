@@ -1,4 +1,5 @@
 {
+  "launch_temp_photos_approved": { "by": "Ian, with Katy's go-live", "date": "2026-11-25", "why": "Owner decision: go live now with the old site's interim images (the old site shows the same ones). Replace them after launch: to-do A = Katy's phone photos of the real rooms, doors and hands (no faces needed), B = faceless picks from the spa's Instagram, OK'd by Ian or Katy. Remove this entry once every slot has its real photo." },
   "note": "Every image the site ships. TEMP files are interim crops of the old site's stock/Canva images (photo-direction.md 'Interim/Keep' rows), faceless where possible. Replace each with the matching Phase-0 shoot set-up (blueprint §14) and delete the TEMP file. Focal points drive object-position (x, y in %). Expiry: shoot date + 14 days.",
   "assets": [
     {
