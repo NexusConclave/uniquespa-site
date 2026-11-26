@@ -650,6 +650,75 @@ function build(): Treatment[] {
     });
   }
 
+  // ------------------------------------------------------------------ Hydro facial (Glass Skin Glow by Glacē)
+  // Hold lifted 25 Nov 2026 (owner decision, Ian); on Katy's review list. Copy says what it is and how it feels, never a result.
+  if (findLiveService('hydro-facial')) {
+    const id = 'hydro-facial';
+    const n = displayName(id);
+    const both = offeredAt(getService(id), 'DM');
+    add({
+      service: id, group: 'facials', short: 'Hydro facial',
+      eyebrow: both ? 'At both spas' : 'At our San Diego spa',
+      title: `Hydro facial in ${both ? 'San Diego and Del Mar' : 'San Diego'}`,
+      metaTitle: 'Hydro Facial (Glass Skin Glow) | Unique Spa House',
+      metaDescription: `Our hydro facial, Glass Skin Glow by Glacē: a cleanse and gentle exfoliation, serum, mask and LED light. ${priceList(id)}.`,
+      lede: 'A cleanse and gentle exfoliation, then serum, a mask and LED light. Add a deep cleaning for the longer version.',
+      image: 'facial-1x1', imageRatio: '1 / 1',
+      facts: [
+        { label: 'What it includes', value: 'Cleanse and gentle exfoliation, serum, mask and LED light.' },
+        { label: 'Longer version', value: '120 min, with a deep cleaning added.' },
+        { label: 'Before you come', value: 'Skip harsh exfoliants and retinol for 48 hours.' },
+        { label: 'Afterwards', value: 'Go gently with your routine for a day or two.' },
+      ],
+      differs: { q: `How is the hydro facial different from other facials?`, a: 'It uses a water-based cleanse and gentle exfoliation, then serum, a mask and LED light. Your esthetician explains each step before starting.' },
+      what: [
+        'Our hydro facial is called Glass Skin Glow by Glacē.',
+        'It starts with a water-based cleanse and gentle exfoliation, then a serum, a mask and LED light.',
+        "Choose the longer version to add a deep cleaning. Your esthetician explains each step before starting, and adjusts if you'd like to skip one.",
+        both ? "It's bookable at both spas." : "It's booked at our San Diego (Mission Valley) spa.",
+      ],
+      whoIntro: "Not sure where to start? Book the Signature custom facial and we'll tailor it on the day.",
+      who: [
+        'Anyone who wants a gentle, refreshing facial',
+        'Anyone who likes a facial with LED light at the end',
+        'Anyone who wants a deep cleaning too (the longer version)',
+      ],
+      stepsIntro: 'Four steps, at your pace.',
+      steps: [
+        ...FACIAL_STEPS,
+        { t: 'Your facial', d: 'Cleanse and gentle exfoliation, serum, mask and LED light, in a calm, private room.' },
+        { t: 'Aftercare', d: 'Simple tips and product ideas for home.' },
+      ],
+      feelsLead: 'Gentle and relaxing.',
+      feels: [
+        'Tell your esthetician if any step feels too much, or if you would like to skip one.',
+        'We describe what the facial is and how it feels, not what it will do. Skin is different for everyone, and we will never promise a result.',
+      ],
+      pricesIntro: `At ${where(id)}. Booking opens in a new tab.`,
+      compareTitle: 'Hydro facial or another facial?',
+      compare: [
+        ...(findLiveService('express-hydration') ? [{ q: 'Short on time?', a: `Try ${displayName('express-hydration')}: a quick BABOR boost. It's ${priceList('express-hydration')} (${where('express-hydration')}).` }] : []),
+        ...(findLiveService('babor-deep-cleanse') ? [{ q: 'Want BABOR products instead?', a: `The ${displayName('babor-deep-cleanse')} is ${priceOf('babor-deep-cleanse')} (${where('babor-deep-cleanse')}). <a href="${PATHS['babor-deep-cleanse']}">About Deep Cleanse & Glow</a>.` }] : []),
+        ...(findLiveService('signature-facial') ? [{ q: 'Not sure which facial?', a: `Book our ${inText(displayName('signature-facial'))}. We tailor it on the day, after a skin check. <a href="${PATHS['signature-facial']}">About the Signature custom facial</a>.` }] : []),
+      ],
+      before: FACIAL_BEFORE,
+      after: FACIAL_AFTER,
+      faqTitle: 'Hydro facial questions',
+      faqs: [
+        { q: 'What is the difference between the two lengths?', a: 'The 120 min version adds a deep cleaning.' },
+        { q: `Can I book the hydro facial in Del Mar?`, a: both ? 'Yes. It is bookable at both spas.' : 'No. It is booked at our San Diego (Mission Valley) spa.' },
+        FACIAL_OFTEN,
+        FACIAL_PREP,
+        costQa(id, 'the hydro facial'),
+      ],
+      related: [
+        { service: 'express-hydration' },
+        { service: 'babor-deep-cleanse' },
+        { service: 'signature-facial' },
+      ],
+    });
+  }
+
   // ------------------------------------------------------------------ Signature custom facial
   if (findLiveService('signature-facial')) {
     const id = 'signature-facial';
