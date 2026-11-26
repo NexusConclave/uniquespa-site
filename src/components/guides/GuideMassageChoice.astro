@@ -45,7 +45,7 @@ const PICK = [
 const answers = [
   { q: 'Which massage should I book?', a: 'Book Swedish to relax or if it\'s your first massage. Book deep tissue if you like firm pressure on knots and tight areas. Book sports if you train and want focused work around the muscles you use. Still not sure? Your therapist will help you choose on the day.' },
   { q: 'How much do they cost at Unique Spa House?', a: `For 60 min: Swedish ${sw60}, deep tissue ${dt60}, sports ${sp60}. Longer sessions are listed below, with a booking link for each spa.` },
-  { q: 'Can I book them in San Diego and Del Mar?', a: `Swedish and deep tissue are bookable at both spas. Sports massage is ${sportsDM ? `bookable in Del Mar at ${sportsDM}, and every length is in San Diego` : 'San Diego only'}.` },
+  { q: 'Can I book them in San Diego and Del Mar?', a: `Swedish is bookable at both spas. ${offeredAt(svc['deep-tissue'], 'DM') ? 'Deep tissue is too.' : 'Deep tissue is in San Diego; in Del Mar, book it as a massage with Katy, our owner.'} Sports massage is ${sportsDM ? `bookable in Del Mar at ${sportsDM}, and every length is in San Diego` : 'San Diego only'}.` },
   { q: 'Is deep tissue the same as sports massage?', a: 'They overlap, but the aim differs. Deep tissue is slow, firm work on deeper muscle layers anywhere in the body. Sports massage is shaped around your training and the muscles you use most.' },
 ];
 

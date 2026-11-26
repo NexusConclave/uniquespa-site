@@ -1,7 +1,28 @@
 {
  "captured": "2026-10-23",
  "source": "Square booking widget (public), both locations",
- "amended": [{"date": "2026-11-25", "source": "Square booking widget (public), both locations, per-item check by the Builder; owner override (Ian) because the owner facts.json was not available", "changes": ["3XQVNTCO5D66VPF4FALNHGHX Deep Tissue 90 min: $225 -> $215", "7FT74RUYMFDKG24JE42QHCF3 Deep Tissue 120 min: $275 -> $260", "VUHCC2QWXVAAHTZ74TS7NSVQ Any 60 min Massage with Katy: $165 -> $180", "YIWAUSGWSOHAV5OCGFFM6S3Q Any 90 min Massage with Katy: $225 -> $245", "ZIBZ7HVEVR5X6TQSCLYUC2KA Any 120 min Massage with Katy: $275 -> $300"]}, 
+ "amended": [
+  {
+   "date": "2026-11-25",
+   "source": "Owner answer (Katy via Ian, 25 Nov 2026): at Del Mar, deep tissue is only with Katy",
+   "changes": [
+    "4SP5L4GZLH7XURKHPNMBTFOH Deep tissue 30 min: San Diego only",
+    "WIYSGZKZBFVYANQINUXR7F3Q Deep Tissue 60 min: San Diego only",
+    "3XQVNTCO5D66VPF4FALNHGHX Deep Tissue 90 min: San Diego only",
+    "Del Mar guests book deep tissue as Massage with Katy"
+   ]
+  },
+  {
+   "date": "2026-11-25",
+   "source": "Square booking widget (public), both locations, per-item check by the Builder; owner override (Ian) because the owner facts.json was not available",
+   "changes": [
+    "3XQVNTCO5D66VPF4FALNHGHX Deep Tissue 90 min: $225 -> $215",
+    "7FT74RUYMFDKG24JE42QHCF3 Deep Tissue 120 min: $275 -> $260",
+    "VUHCC2QWXVAAHTZ74TS7NSVQ Any 60 min Massage with Katy: $165 -> $180",
+    "YIWAUSGWSOHAV5OCGFFM6S3Q Any 90 min Massage with Katy: $225 -> $245",
+    "ZIBZ7HVEVR5X6TQSCLYUC2KA Any 120 min Massage with Katy: $275 -> $300"
+   ]
+  },
   {
    "date": "2026-11-02",
    "source": "Square booking widget (public), both locations: check1102 capture",
@@ -45,8 +66,7 @@
    "category": "",
    "taxable": false,
    "locations": [
-    "SD",
-    "DM"
+    "SD"
    ],
    "variations": 1
   },
@@ -279,8 +299,7 @@
    "category": "Body",
    "taxable": true,
    "locations": [
-    "SD",
-    "DM"
+    "SD"
    ],
    "variations": 1
   },
@@ -295,8 +314,7 @@
    "category": "Body",
    "taxable": true,
    "locations": [
-    "SD",
-    "DM"
+    "SD"
    ],
    "variations": 1
   },
