@@ -119,7 +119,23 @@
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
     mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
   }
-  .ticker:hover .ticker__track, .ticker:focus-within .ticker__track, .ticker[data-paused] .ticker__track { animation-play-state: paused; }
+  /* Hover pauses only where a real pointer can hover; keyboard focus pauses only when it is visible. (A tap used to leave
+     the button focused, so :focus-within kept the list paused and Play never restarted it — Ian, 25 Nov 2026.) */
+  .ticker:has(:focus-visible) .ticker__track, .ticker[data-paused] .ticker__track { animation-play-state: paused; }
+  @media (hover: hover) { .ticker:hover .ticker__track { animation-play-state: paused; } }
+  /* Phones (owner request 25 Nov 2026): no visible Pause pill. The toggle becomes a clear layer over the moving list,
+     so tapping the names pauses and plays it (still WCAG 2.2.2: same button, same name, 44px+ target, focus ring kept). */
+  @media (max-width: 767px) {
+    :root[data-fx]:not([data-motion='paused']) .ticker { position: relative; }
+    :root[data-fx]:not([data-motion='paused']) .ticker__toggle {
+      position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; border-radius: 0; background: transparent; cursor: pointer;
+    }
+    :root[data-fx]:not([data-motion='paused']) .ticker__toggle svg,
+    :root[data-fx]:not([data-motion='paused']) .ticker__toggle [data-ticker-label] {
+      position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+    }
+    :root[data-fx]:not([data-motion='paused']) .ticker__toggle:focus-visible { outline: 2px solid var(--on-dark); outline-offset: 4px; }
+  }
 }
 
 /* =====================================================================================================
