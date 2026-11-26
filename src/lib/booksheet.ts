@@ -22,7 +22,7 @@ export interface SheetRow {
 
 const PLAN: Record<Spa, Array<[string, number]>> = {
   SD: [['swedish', 60], ['deep-tissue', 60], ['lymphatic', 60], ['babor-sculpt-lift', 90], ['couples', 120], ['hot-stone', 60]],
-  DM: [['swedish', 60], ['deep-tissue', 60], ['lymphatic', 60], ['babor-sculpt-lift', 90], ['wrap-me-up', 80], ['katy', 60]],
+  DM: [['swedish', 60], ['therapeutic', 60], ['lymphatic', 60], ['babor-sculpt-lift', 90], ['wrap-me-up', 80], ['katy', 60]],
 };
 
 function serviceRow(id: string, minutes: number, sp: Spa): SheetRow {

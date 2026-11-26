@@ -225,24 +225,21 @@
           "minutes": 30,
           "price": 120,
           "locations": [
-            "SD",
-            "DM"
+            "SD"
           ]
         },
         {
           "minutes": 60,
           "price": 165,
           "locations": [
-            "SD",
-            "DM"
+            "SD"
           ]
         },
         {
           "minutes": 90,
           "price": 215,
           "locations": [
-            "SD",
-            "DM"
+            "SD"
           ]
         },
         {

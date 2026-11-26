@@ -59,8 +59,7 @@
      "price": 120,
      "minutes": 30,
      "locations": [
-      "SD",
-      "DM"
+      "SD"
      ],
      "square_name": "Deep tissue 30 min (Top massage therapist)"
     },
@@ -70,8 +69,7 @@
      "price": 165,
      "minutes": 60,
      "locations": [
-      "SD",
-      "DM"
+      "SD"
      ],
      "square_name": "Deep Tissue Massage 60 min (Top Massage Therapist)"
     },
@@ -81,8 +79,7 @@
      "price": 215,
      "minutes": 90,
      "locations": [
-      "SD",
-      "DM"
+      "SD"
      ],
      "square_name": "Deep Tissue Massage 90 min (Top Massage Therapist)"
     },
@@ -99,7 +96,7 @@
    ],
    "summary": "Slower, firmer work on deeper layers of muscle.",
    "flagship": null,
-   "notes": null
+   "notes": "Del Mar: deep tissue only with Katy (owner answer 25 Nov 2026)"
   },
   {
    "id": "therapeutic",
