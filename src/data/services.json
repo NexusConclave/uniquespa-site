@@ -782,7 +782,7 @@
    "id": "hydro-facial",
    "name": "Hydro facial (Glass Skin Glow by Glacē)",
    "group": "facials",
-   "status": "hold",
+   "status": "live",
    "medical": "no",
    "options": [
     {
@@ -808,7 +808,7 @@
    ],
    "summary": "Hydrodermabrasion, serum, mask and LED.",
    "flagship": "/facials/hydro-facial",
-   "notes": "O-19 peel product"
+   "notes": "Hold lifted: owner decision 25 Nov 2026 (Ian). On Katy's review list; she may remove it later."
   },
   {
    "id": "buccal",

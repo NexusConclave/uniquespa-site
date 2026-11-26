@@ -178,6 +178,33 @@
       ]
     },
     {
+      "id": "hydro-facial",
+      "group": "face",
+      "name": "Hydro facial (Glass Skin Glow by Glacē)",
+      "aliases": [
+        "Hydro facial",
+        "Hydro facial + deep cleaning",
+        "Glass Skin Glow"
+      ],
+      "options": [
+        {
+          "minutes": 60,
+          "price": 239,
+          "locations": [
+            "SD"
+          ]
+        },
+        {
+          "minutes": 120,
+          "price": 319,
+          "locations": [
+            "SD"
+          ]
+        }
+      ],
+      "_source": "Square booking widget; owner decision 25 Nov 2026 (Ian) lifted the hold"
+    },
+    {
       "id": "swedish",
       "group": "massage",
       "name": "Swedish Massage {min} min",

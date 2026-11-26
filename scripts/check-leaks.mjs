@@ -26,6 +26,7 @@ const gatedIds = services.filter((s) => s.status !== 'live').flatMap((s) => s.op
 
 // Terms (case-insensitive unless marked). Brazilian Butt is allowed only as a menu row on these pages.
 const BB_ALLOWED = ['/menu/', '/massage/', '/body/'];
+// Hydro facial (Glass Skin Glow by Glacē): hold lifted 25 Nov 2026 (owner decision, Ian); on Katy's review list. Result claims stay banned.
 // Liposuction Massage: back on the menu 8 Nov 2026 (Ian). Allowed only as a menu row on these pages, as before the 4 Nov hold.
 const ALLOW_IN = { 'Liposuction (menu row only)': ['/menu/', '/massage/', '/locations/del-mar/'] };
 const terms = [
@@ -34,7 +35,7 @@ const terms = [
   [/weight[- ]?loss/i, 'weight loss'], [/tirzepatide|semaglutide|ozempic|wegovy|mounjaro|glp-1/i, 'weight-loss medicine'],
   [/\bdose|dosage/i, 'dose'], [/med ?spa/i, 'med spa'], [/mesosphere/i, 'Mesosphere'], [/exosome/i, 'exosome'], [/\bPDRN\b|salmon dna/i, 'PDRN'],
   [/\bTCA\b/, 'TCA'], [/nordlys|candela/i, 'Nordlys/Candela'], [/endosph/i, 'Endosphere'], [/\bsauna/i, 'sauna'], [/botox|filler/i, 'injectables'],
-  [/glac[eē]|hydro ?facial|hydrafacial/i, 'Hydro facial (hold)'], [/buccal/i, 'Buccal (hold)'], [/\bLPG\b|endermolog/i, 'LPG (hold)'],
+  [/buccal/i, 'Buccal (hold)'], [/\bLPG\b|endermolog/i, 'LPG (hold)'],
   [/bamboo/i, 'Bamboo (hidden)'], [/liposuction|\blipo\b/i, 'Liposuction (menu row only)'],
   [/\breg\.|regular price|valued at|\bwas \$/i, 'former price'], [/buy \d+ get \d+/i, 'buy-get'], [/\bfree\b/i, '"free"'],
   [/[★☆⭐]/, 'star glyph'],
