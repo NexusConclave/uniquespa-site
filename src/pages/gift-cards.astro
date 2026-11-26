@@ -52,7 +52,8 @@ const tileDefs: Array<{ key: string; picks: Pick[]; covers: string }> = [
   { key: '100', picks: [{ id: 'foot', minutes: 30 }], covers: 'Foot massage, {len}' },
   { key: '150', picks: [{ id: 'swedish', minutes: 60 }, { id: 'lymphatic', minutes: 60 }], covers: 'Swedish or lymphatic massage, {len}' },
   { key: '200', picks: [{ id: 'swedish', minutes: 90 }, { id: 'relaxing', minutes: 90 }], covers: 'Swedish or relaxing massage, {len}' },
-  { key: '225', picks: [{ id: 'deep-tissue', minutes: 90 }, { id: 'therapeutic', minutes: 90 }, { id: 'katy', minutes: 90 }], covers: 'Deep tissue, therapeutic or Katy massage, {len}' },
+  // 25 Nov 2026: Square moved deep tissue 90 to $215 and Katy 90 to $245, so the $225 tile covers therapeutic 90 only.
+  { key: '225', picks: [{ id: 'therapeutic', minutes: 90 }], covers: 'Therapeutic massage, {len}' },
   { key: '250', picks: [{ id: 'swedish', minutes: 120 }, { id: 'lymphatic', minutes: 120 }], covers: 'Swedish or lymphatic massage, {len}' },
   { key: 'couples', picks: [{ id: 'couples', label: '60 min, for two' }, { id: 'couples', label: '90 min, for two' }], covers: 'Couples massage for two, {len}' },
 ];

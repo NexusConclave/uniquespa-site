@@ -78,7 +78,7 @@
     {
      "label": "90 min",
      "square_id": "3XQVNTCO5D66VPF4FALNHGHX",
-     "price": 225,
+     "price": 215,
      "minutes": 90,
      "locations": [
       "SD",
@@ -89,7 +89,7 @@
     {
      "label": "120 min",
      "square_id": "7FT74RUYMFDKG24JE42QHCF3",
-     "price": 275,
+     "price": 260,
      "minutes": 120,
      "locations": [
       "SD"
@@ -499,7 +499,7 @@
     {
      "label": "60 min",
      "square_id": "VUHCC2QWXVAAHTZ74TS7NSVQ",
-     "price": 165,
+     "price": 180,
      "minutes": 60,
      "locations": [
       "SD",
@@ -510,7 +510,7 @@
     {
      "label": "90 min",
      "square_id": "YIWAUSGWSOHAV5OCGFFM6S3Q",
-     "price": 225,
+     "price": 245,
      "minutes": 90,
      "locations": [
       "SD",
@@ -521,7 +521,7 @@
     {
      "label": "120 min",
      "square_id": "ZIBZ7HVEVR5X6TQSCLYUC2KA",
-     "price": 275,
+     "price": 300,
      "minutes": 120,
      "locations": [
       "SD",

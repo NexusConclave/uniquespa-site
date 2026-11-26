@@ -236,7 +236,10 @@ def keyboard(browser, base):
     pg.evaluate("document.querySelector('.katy').scrollIntoView()")
     pg.click('.katy .chip:nth-child(2)'); pg.wait_for_timeout(100)
     live = pg.evaluate("document.querySelector('.katy [aria-live] [data-svc-spoken]').textContent")
-    check('service chips: changing length updates the aria-live price', '90 minutes, $225' in live, live)
+    # Expected price comes from the Square snapshot (Katy 90 min, YIWAUSGWSOHAV5OCGFFM6S3Q), so a Square price change can't strand this check.
+    _lock = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'src', 'data', 'square-lock.json')))
+    _katy90 = next(x for x in _lock['services'] if x['id'] == 'YIWAUSGWSOHAV5OCGFFM6S3Q')
+    check('service chips: changing length updates the aria-live price', f"90 minutes, ${_katy90['price_cents'] // 100}" in live, live)
     ctx.close()
     # Mobile menu
     ctx, pg = new_page(browser, base, 390, 664)
