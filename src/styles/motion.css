@@ -172,10 +172,16 @@
   }
 
   /* Header lotus: draws itself once per visit (html[data-fx-intro] is set by the head script on the first page) */
-  :root[data-fx-intro]:not([data-motion='paused']) .brand .lotus path {
+  :root[data-fx-intro]:not([data-motion='paused']) :is(.brand, .bottom-bar) .lotus path {
     stroke-dasharray: 1 1;
     animation-name: fx-draw; animation-duration: 0.9s; animation-timing-function: var(--fx-ease); animation-fill-mode: both;
     animation-delay: calc(0.15s + var(--pi, 0) * 0.09s);
+  }
+  /* Mobile menu: the lotus draws each time the menu opens (owner request, 27 Nov 2026: the logo draws wherever it appears) */
+  :root[data-fx]:not([data-motion='paused']) dialog[open] .mm__brand .lotus path {
+    stroke-dasharray: 1 1;
+    animation-name: fx-draw; animation-duration: 0.9s; animation-timing-function: var(--fx-ease); animation-fill-mode: both;
+    animation-delay: calc(0.1s + var(--pi, 0) * 0.09s);
   }
   .lotus path:nth-child(2) { --pi: 1; }
   .lotus path:nth-child(3) { --pi: 2; }
@@ -246,9 +252,18 @@
   :root[data-fx]:not([data-motion='paused']) [data-rv='door'] .door-card__inner > * { opacity: 1; transition: opacity 0.8s var(--fx-ease) calc(var(--d, 0ms) + 0.45s); }
   :root[data-fx]:not([data-motion='paused']) [data-rv='door']:not(.is-in) .door-card__inner > * { opacity: 0; }
 
-  /* Footer lotus: draws when the footer comes into view */
+  /* Footer and Ask Uni lotus: draws when it comes into view */
   :root[data-fx]:not([data-motion='paused']) [data-rv='lotus'] path { stroke-dasharray: 1 1; stroke-dashoffset: 0; transition: stroke-dashoffset 0.9s var(--fx-ease); transition-delay: calc(var(--pi, 0) * 0.09s); }
   :root[data-fx]:not([data-motion='paused']) [data-rv='lotus']:not(.is-in) path { stroke-dashoffset: 1; }
+  /* Gift card lotus on the first screen (not armed): draws on load like the header */
+  :root[data-fx]:not([data-motion='paused']) main .giftcard:not([data-rv]) .lotus path {
+    stroke-dasharray: 1 1;
+    animation-name: fx-draw; animation-duration: 0.9s; animation-timing-function: var(--fx-ease); animation-fill-mode: both;
+    animation-delay: calc(0.4s + var(--pi, 0) * 0.09s);
+  }
+  /* Gift card lotus: draws as the card comes into view (same timing as the footer) */
+  :root[data-fx]:not([data-motion='paused']) [data-rv='gift'] .lotus path { stroke-dasharray: 1 1; stroke-dashoffset: 0; transition: stroke-dashoffset 0.9s var(--fx-ease); transition-delay: calc(0.3s + var(--pi, 0) * 0.09s); }
+  :root[data-fx]:not([data-motion='paused']) [data-rv='gift']:not(.is-in) .lotus path { stroke-dashoffset: 1; }
 
   /* Gift card: tips up into place */
   :root[data-fx]:not([data-motion='paused']) [data-rv='gift'] .giftcard__face {
