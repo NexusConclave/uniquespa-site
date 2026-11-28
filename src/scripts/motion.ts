@@ -28,7 +28,7 @@ const GROUPS: Array<[Kind, string]> = [
   ['door', 'main .door-card__arch'],
   ['gift', 'main .giftcard'],
   ['img', 'main .card__media, main figure, main .b-media'],
-  ['lotus', '.footer__logo .lotus'],
+  ['lotus', '.footer__logo .lotus, main .ask__mark'],
   ['rise', [
     '.cards__list > li', '.offers__grid > *', '.b-cards > li', '.b-duo > *', '.b-ticks > li', '.b-rows > *',
     '.sp__list > *', '.faq__list > *', '.ct-spas__list > *', '.ct-faq__list > *', '.ab-how__list > *',
